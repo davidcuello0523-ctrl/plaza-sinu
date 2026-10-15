@@ -1,0 +1,46 @@
+%% Diagrama general de arquitectura — Plaza Sinú
+flowchart LR
+  classDef cliente fill:#F4F3EF,stroke:#15181C,stroke-width:1.5px,color:#15181C
+  classDef gw fill:#E4572E,stroke:#15181C,stroke-width:1.5px,color:#fff
+  classDef svc fill:#FFFFFF,stroke:#16324F,stroke-width:1.5px,color:#15181C
+  classDef pg fill:#DCE6F0,stroke:#16324F,color:#15181C
+  classDef mongo fill:#E2F0E7,stroke:#2F8F5B,color:#15181C
+  classDef redis fill:#F7E3E3,stroke:#C23B3B,color:#15181C
+  classDef mq fill:#16324F,stroke:#15181C,color:#fff
+
+  U["Navegador<br/>React + Vite (web :3000)"]:::cliente
+  GW["API Gateway :8080<br/>JWT · enrutamiento · correlationId<br/>rate limit · CORS · /docs · /salud · radar"]:::gw
+  U -- "REST + SSE" --> GW
+
+  subgraph RED["Red interna Docker (plaza-red) — no expuesta al host"]
+    direction LR
+    US["usuarios :4001"]:::svc
+    VE["vendedores :4002"]:::svc
+    CA["catalogo :4003"]:::svc
+    IN["inventario :4004"]:::svc
+    CR["carrito :4005"]:::svc
+    PP["pedidos-pagos :4006"]:::svc
+    NO["notificaciones :4007"]:::svc
+    MQ{{"RabbitMQ<br/>exchange topic plaza.eventos"}}:::mq
+
+    DUS[("PostgreSQL<br/>db-usuarios")]:::pg
+    DVE[("PostgreSQL<br/>db-vendedores")]:::pg
+    DCA[("MongoDB<br/>db-catalogo")]:::mongo
+    DIN[("PostgreSQL<br/>db-inventario")]:::pg
+    DCR[("Redis<br/>db-carrito")]:::redis
+    DPP[("PostgreSQL<br/>db-pedidos")]:::pg
+    DNO[("MongoDB<br/>db-notificaciones")]:::mongo
+
+    US --- DUS
+    VE --- DVE
+    CA --- DCA
+    IN --- DIN
+    CR --- DCR
+    PP --- DPP
+    NO --- DNO
+  end
+
+  GW --> US & VE & CA & IN & CR & PP & NO
+  US & VE & CA & IN & PP & NO -. eventos .- MQ
+  CR -. eventos .- MQ
+  GW -. observa todos los eventos .- MQ

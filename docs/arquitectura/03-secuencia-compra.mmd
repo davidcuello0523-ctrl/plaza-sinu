@@ -1,0 +1,49 @@
+%% Secuencia del flujo obligatorio (saga orquestada por pedidos-pagos) — pago APROBADO
+sequenceDiagram
+  autonumber
+  actor C as Cliente (web)
+  participant G as Gateway
+  participant U as usuarios
+  participant CA as catalogo
+  participant CR as carrito
+  participant P as pedidos-pagos
+  participant I as inventario
+  participant MQ as RabbitMQ
+  participant N as notificaciones
+
+  C->>G: POST /auth/login
+  G->>U: proxy
+  U-->>C: 200 accessToken (15 min) + refreshToken
+  C->>G: GET /productos?categoria=bicicletas
+  G->>CA: proxy (público)
+  CA-->>C: 200 productos + estadoStock
+  C->>G: POST /carrito/items (Bearer)
+  G->>CR: proxy + X-Usuario-Id + X-Correlation-Id
+  CR->>CA: GET /interno/productos (precio)
+  CR->>I: POST /inventario/disponibilidad
+  CR-->>C: 201 carrito agrupado por vendedor
+  C->>G: POST /pedidos (Idempotency-Key)
+  G->>P: proxy
+  P->>CR: GET /interno/carrito/:cliente
+  P->>CA: GET /interno/productos (congela precios)
+  P->>I: POST /reservas (transacción + FOR UPDATE)
+  I-->>P: 201 reserva ACTIVA (vence en 15 min)
+  P->>MQ: pedido.creado
+  P-->>C: 201 pedido PENDIENTE_PAGO
+  MQ-->>N: pedido.creado → "Recibimos tu pedido"
+  C->>G: POST /pedidos/:id/pagos (4242…)
+  G->>P: proxy
+  P->>P: pasarela simulada → APROBADO (guarda solo •••• 4242)
+  P->>MQ: pago.aprobado
+  P-->>C: 201 pedido PAGADO
+  par consumidores en paralelo
+    MQ-->>I: confirmar reserva → descuento definitivo + kardex
+    I->>MQ: inventario.actualizado / stock_bajo / reserva.confirmada
+  and
+    MQ-->>N: notificación cliente + vendedor
+    N-->>C: SSE "Pago aprobado – PS-000123"
+    N->>MQ: notificacion.enviada
+  and
+    MQ-->>CR: vaciar carrito
+  end
+  MQ-->>P: reserva.confirmada / notificacion.enviada → pasos de la traza

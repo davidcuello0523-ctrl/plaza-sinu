@@ -1,0 +1,26 @@
+%% Secuencia del pago RECHAZADO: compensación de la saga
+sequenceDiagram
+  autonumber
+  actor C as Cliente (web)
+  participant G as Gateway
+  participant P as pedidos-pagos
+  participant I as inventario
+  participant MQ as RabbitMQ
+  participant N as notificaciones
+
+  Note over P,I: El pedido ya existe en PENDIENTE_PAGO y sus unidades están RESERVADAS
+  C->>G: POST /pedidos/:id/pagos (4000 0000 0000 0002)
+  G->>P: proxy
+  P->>P: pasarela simulada → RECHAZADO ("Fondos insuficientes")
+  P->>P: pedido → PAGO_RECHAZADO (el carrito NO se vacía)
+  P->>MQ: pago.rechazado
+  P-->>C: 402 PAGO_RECHAZADO
+  par compensación
+    MQ-->>I: liberar reserva (reservado -= cantidad, movimiento LIBERACION)
+    I->>MQ: inventario.actualizado + reserva.liberada
+  and
+    MQ-->>N: "Pago rechazado – PS-000124"
+    N-->>C: SSE notificación
+  end
+  MQ-->>P: reserva.liberada → paso en la traza
+  Note over I: Si nadie paga en 15 min, inventario libera la reserva por vencimiento (motivo "vencida")

@@ -1,0 +1,42 @@
+%% Diagrama de comunicación entre microservicios
+%% Línea sólida naranja = REST síncrono · Línea punteada azul = evento RabbitMQ
+flowchart TB
+  classDef svc fill:#FFFFFF,stroke:#15181C,stroke-width:1.5px,color:#15181C
+  classDef gw fill:#E4572E,stroke:#15181C,color:#fff
+
+  GW["gateway"]:::gw
+  US["usuarios"]:::svc
+  VE["vendedores"]:::svc
+  CA["catalogo"]:::svc
+  IN["inventario"]:::svc
+  CR["carrito"]:::svc
+  PP["pedidos-pagos"]:::svc
+  NO["notificaciones"]:::svc
+
+  %% ---- REST (el usuario necesita la respuesta para continuar) ----
+  CR -->|"REST: precio y datos"| CA
+  CR -->|"REST: disponibilidad"| IN
+  PP -->|"REST: leer carrito"| CR
+  PP -->|"REST: snapshot de precios"| CA
+  PP -->|"REST: reservar / liberar"| IN
+  CA -->|"REST: ¿vendedor aprobado?"| VE
+
+  %% ---- Eventos (consecuencias que pueden ocurrir un instante después) ----
+  US -.->|usuario.registrado| NO
+  VE -.->|"vendedor.aprobado / suspendido"| CA
+  VE -.->|"vendedor.aprobado / suspendido"| NO
+  CA -.->|producto.publicado| IN
+  PP -.->|pedido.creado| NO
+  PP -.->|pago.aprobado| IN
+  PP -.->|pago.aprobado| NO
+  PP -.->|pago.aprobado| CR
+  PP -.->|pago.rechazado| IN
+  PP -.->|pago.rechazado| NO
+  PP -.->|pedido.estado_cambiado| NO
+  IN -.->|inventario.actualizado| CA
+  IN -.->|inventario.stock_bajo| NO
+  IN -.->|"reserva.confirmada / liberada"| PP
+  NO -.->|notificacion.enviada| PP
+
+  linkStyle 0,1,2,3,4,5 stroke:#E4572E,stroke-width:2.5px
+  linkStyle 6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 stroke:#16324F,stroke-width:1.5px,stroke-dasharray:5 4
