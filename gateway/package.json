@@ -1,0 +1,30 @@
+{
+  "name": "@plaza/gateway",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API Gateway: punto único de entrada, JWT, enrutamiento, correlationId, rate limit, Swagger agregado, salud y radar de eventos",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node src/index.js",
+    "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --coverage"
+  },
+  "dependencies": {
+    "@plaza/compartido": "1.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.0",
+    "helmet": "^8.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "supertest": "^7.1.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "collectCoverageFrom": ["src/**/*.js", "!src/index.js"]
+  }
+}
