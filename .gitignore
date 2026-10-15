@@ -1,0 +1,10 @@
+node_modules/
+.env
+coverage/
+dist/
+**/src/generated/
+*.log
+.DS_Store
+test-results/
+playwright-report/
+docs/pruebas/salidas/*.tmp

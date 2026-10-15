@@ -1,0 +1,8 @@
+**/node_modules
+**/coverage
+**/src/generated
+.git
+.env
+docs
+pruebas
+web/dist

@@ -1,0 +1,216 @@
+# Plaza Sinú — toda la solución con un comando:  docker compose up --build
+# Solo se publican al host: web (3000), gateway (8080) y panel de RabbitMQ (15672).
+# Servicios y bases de datos viven en la red interna "plaza": el navegador no
+# puede saltarse el gateway.
+
+x-servicio-node: &servicio-node
+  restart: unless-stopped
+  networks: [plaza]
+  environment: &entorno-comun
+    NODE_ENV: production
+    LOG_LEVEL: ${LOG_LEVEL:-info}
+    JWT_SECRET: ${JWT_SECRET}
+    CLAVE_INTERNA: ${CLAVE_INTERNA}
+    RABBITMQ_URL: amqp://${RABBITMQ_USUARIO}:${RABBITMQ_CLAVE}@rabbitmq:5672
+    SEED_DEMO: ${SEED_DEMO:-true}
+    USUARIOS_URL: http://usuarios:4001
+    VENDEDORES_URL: http://vendedores:4002
+    CATALOGO_URL: http://catalogo:4003
+    INVENTARIO_URL: http://inventario:4004
+    CARRITO_URL: http://carrito:4005
+    PEDIDOS_URL: http://pedidos-pagos:4006
+    NOTIFICACIONES_URL: http://notificaciones:4007
+
+x-postgres: &postgres
+  image: postgres:16-alpine
+  restart: unless-stopped
+  networks: [plaza]
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+x-mongo: &mongo
+  image: mongo:7
+  restart: unless-stopped
+  networks: [plaza]
+  healthcheck:
+    test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+    interval: 10s
+    timeout: 5s
+    retries: 10
+
+services:
+  # ───────────── Infraestructura ─────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    restart: unless-stopped
+    networks: [plaza]
+    ports: ["15672:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USUARIO}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_CLAVE}
+    volumes: [rabbitmq-datos:/var/lib/rabbitmq]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Una base de datos POR SERVICIO, cada una en su contenedor y su volumen.
+  db-usuarios:
+    <<: *postgres
+    environment: { POSTGRES_USER: usuarios, POSTGRES_PASSWORD: "${DB_CLAVE}", POSTGRES_DB: usuarios }
+    volumes: [db-usuarios:/var/lib/postgresql/data]
+  db-vendedores:
+    <<: *postgres
+    environment: { POSTGRES_USER: vendedores, POSTGRES_PASSWORD: "${DB_CLAVE}", POSTGRES_DB: vendedores }
+    volumes: [db-vendedores:/var/lib/postgresql/data]
+  db-inventario:
+    <<: *postgres
+    environment: { POSTGRES_USER: inventario, POSTGRES_PASSWORD: "${DB_CLAVE}", POSTGRES_DB: inventario }
+    volumes: [db-inventario:/var/lib/postgresql/data]
+  db-pedidos:
+    <<: *postgres
+    environment: { POSTGRES_USER: pedidos, POSTGRES_PASSWORD: "${DB_CLAVE}", POSTGRES_DB: pedidos }
+    volumes: [db-pedidos:/var/lib/postgresql/data]
+  db-catalogo:
+    <<: *mongo
+    volumes: [db-catalogo:/data/db]
+  db-notificaciones:
+    <<: *mongo
+    volumes: [db-notificaciones:/data/db]
+  db-carrito:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [plaza]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [db-carrito:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ───────────── Microservicios ─────────────
+  usuarios:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/usuarios/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4001
+      DATABASE_URL: postgresql://usuarios:${DB_CLAVE}@db-usuarios:5432/usuarios
+    depends_on:
+      db-usuarios: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  vendedores:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/vendedores/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4002
+      DATABASE_URL: postgresql://vendedores:${DB_CLAVE}@db-vendedores:5432/vendedores
+    depends_on:
+      db-vendedores: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  catalogo:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/catalogo/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4003
+      MONGO_URL: mongodb://db-catalogo:27017/catalogo
+    depends_on:
+      db-catalogo: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  inventario:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/inventario/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4004
+      DATABASE_URL: postgresql://inventario:${DB_CLAVE}@db-inventario:5432/inventario
+    depends_on:
+      db-inventario: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  carrito:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/carrito/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4005
+      REDIS_URL: redis://db-carrito:6379
+    depends_on:
+      db-carrito: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  pedidos-pagos:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/pedidos-pagos/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4006
+      DATABASE_URL: postgresql://pedidos:${DB_CLAVE}@db-pedidos:5432/pedidos
+    depends_on:
+      db-pedidos: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  notificaciones:
+    <<: *servicio-node
+    build: { context: ., dockerfile: servicios/notificaciones/Dockerfile }
+    environment:
+      <<: *entorno-comun
+      PUERTO: 4007
+      MONGO_URL: mongodb://db-notificaciones:27017/notificaciones
+    depends_on:
+      db-notificaciones: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  # ───────────── Entrada única y frontend ─────────────
+  gateway:
+    <<: *servicio-node
+    build: { context: ., dockerfile: gateway/Dockerfile }
+    ports: ["8080:8080"]
+    environment:
+      <<: *entorno-comun
+      PUERTO: 8080
+      URL_PUBLICA: http://localhost:8080
+      CORS_ORIGENES: http://localhost:3000,http://localhost:5173
+      RABBITMQ_API: http://rabbitmq:15672/api
+      RABBITMQ_USUARIO: ${RABBITMQ_USUARIO}
+      RABBITMQ_CLAVE: ${RABBITMQ_CLAVE}
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+      usuarios: { condition: service_healthy }
+
+  web:
+    build: { context: ./web, args: { VITE_API_URL: http://localhost:8080 } }
+    restart: unless-stopped
+    networks: [plaza]
+    ports: ["3000:80"]
+    depends_on:
+      gateway: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  plaza:
+    name: plaza-red
+
+volumes:
+  rabbitmq-datos:
+  db-usuarios:
+  db-vendedores:
+  db-inventario:
+  db-pedidos:
+  db-catalogo:
+  db-notificaciones:
+  db-carrito:

@@ -1,0 +1,20 @@
+{
+  "name": "plaza-sinu",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Plaza Sinú — marketplace multivendedor basado en microservicios (Proyecto Final Optativa I)",
+  "type": "module",
+  "workspaces": [
+    "compartido",
+    "gateway",
+    "servicios/*"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "e2e": "node pruebas/e2e/flujo-compra.mjs",
+    "resiliencia": "node pruebas/e2e/resiliencia.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

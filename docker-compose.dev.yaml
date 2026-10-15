@@ -1,0 +1,12 @@
+# Solo para desarrollo local con `npm run dev` en cada servicio:
+#   docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d rabbitmq db-usuarios db-vendedores db-inventario db-pedidos db-catalogo db-notificaciones db-carrito
+# Publica los puertos de las BDs y de RabbitMQ en localhost (en la demo NO se usa).
+services:
+  rabbitmq: { ports: ["5672:5672", "15672:15672"] }
+  db-usuarios: { ports: ["5433:5432"] }
+  db-vendedores: { ports: ["5434:5432"] }
+  db-inventario: { ports: ["5435:5432"] }
+  db-pedidos: { ports: ["5436:5432"] }
+  db-catalogo: { ports: ["27018:27017"] }
+  db-notificaciones: { ports: ["27019:27017"] }
+  db-carrito: { ports: ["6380:6379"] }
