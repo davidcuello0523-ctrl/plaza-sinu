@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Pedidos y Pagos
+  version: 1.0.0
+  description: |
+    Orquesta la **saga de compra**: lee el carrito (REST), congela los precios del catálogo (REST),
+    reserva stock en inventario (REST), crea el pedido con sub-pedidos por vendedor y registra el pago
+    en una **pasarela simulada**.
+
+    **Tarjetas de prueba:** `4242 4242 4242 4242` → aprobado · `4000 0000 0000 0002` → rechazado (fondos insuficientes).
+    Nunca se guarda el número completo ni el CVV: solo marca y últimos 4 dígitos.
+
+    Publica: `pedido.creado`, `pago.aprobado`, `pago.rechazado`, `pedido.estado_cambiado`.
+    Consume: `reserva.confirmada`, `reserva.liberada`, `notificacion.enviada` (para la traza).
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4006
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Pedidos
+  - name: Pagos
+  - name: Métricas
+  - name: Salud
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    IdPedido: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: STOCK_INSUFICIENTE }
+            mensaje: { type: string, example: Solo quedan 2 unidades de Casco MTB ventilado }
+            detalles: { type: array, items: { type: object } }
+            correlationId: { type: string }
+    Direccion:
+      type: object
+      required: [nombreRecibe, telefono, ciudad, direccion]
+      properties:
+        nombreRecibe: { type: string, example: Laura Petro }
+        telefono: { type: string, example: 300 123 4567 }
+        ciudad: { type: string, example: Montería }
+        direccion: { type: string, example: "Cra. 6 #28-14, barrio Centro" }
+        indicaciones: { type: string, example: Casa de rejas verdes }
+    Item:
+      type: object
+      properties:
+        productoId: { type: string, example: prd-009 }
+        nombre: { type: string, example: Casco MTB ventilado }
+        categoria: { type: string, example: bicicletas }
+        precioUnitario: { type: integer, example: 159000, description: COP (snapshot al crear el pedido) }
+        cantidad: { type: integer, example: 1 }
+        subtotal: { type: integer, example: 159000 }
+    SubPedido:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        vendedorId: { type: string }
+        vendedorUsuarioId: { type: string }
+        nombreTienda: { type: string, example: Rueda Libre }
+        estado: { type: string, enum: [PENDIENTE_PAGO, PAGADO, PREPARANDO, ENVIADO, ENTREGADO, CANCELADO] }
+        subtotal: { type: integer }
+        unidades: { type: integer }
+        items: { type: array, items: { $ref: "#/components/schemas/Item" } }
+    Pago:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        estado: { type: string, enum: [APROBADO, RECHAZADO] }
+        marca: { type: string, example: Visa }
+        ultimos4: { type: string, example: "4242" }
+        titular: { type: string }
+        monto: { type: integer }
+        referencia: { type: string, example: SIM-9F3A21C0 }
+        motivo: { type: string, nullable: true }
+        creadoEn: { type: string, format: date-time }
+    Pedido:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string, example: PS-000123 }
+        clienteId: { type: string }
+        clienteNombre: { type: string }
+        estado: { type: string, enum: [PENDIENTE_PAGO, PAGADO, PAGO_RECHAZADO, RECHAZADO_SIN_STOCK, CANCELADO, COMPLETADO] }
+        total: { type: integer, example: 1009000 }
+        unidades: { type: integer, example: 3 }
+        direccion: { $ref: "#/components/schemas/Direccion" }
+        reservaId: { type: string, nullable: true }
+        correlationId: { type: string }
+        motivo: { type: string, nullable: true }
+        creadoEn: { type: string, format: date-time }
+        subpedidos: { type: array, items: { $ref: "#/components/schemas/SubPedido" } }
+        pagos: { type: array, items: { $ref: "#/components/schemas/Pago" } }
+    PasoTraza:
+      type: object
+      properties:
+        servicio: { type: string, example: inventario }
+        accion: { type: string, example: 3 uds reservadas por 15 min }
+        detalle: { type: string }
+        via: { type: string, enum: [REST, EVENTO] }
+        correlationId: { type: string }
+        ocurridoEn: { type: string, format: date-time }
+  responses:
+    E400: { description: Petición inválida (p. ej. falta Idempotency-Key), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E401: { description: Sin token o token vencido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Rol o recurso sin permiso, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: Pedido no encontrado, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E409: { description: Conflicto de estado (TRANSICION_INVALIDA, PEDIDO_NO_PAGABLE…), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida (detalle por campo), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E503: { description: Un servicio necesario no responde, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+paths:
+  /pedidos:
+    post:
+      tags: [Pedidos]
+      summary: Checkout — crear el pedido a partir del carrito (rol cliente)
+      description: |
+        Pasos: lee el carrito → congela precios del catálogo → reserva stock 15 min en inventario → guarda el pedido
+        `PENDIENTE_PAGO` con un sub-pedido por vendedor → publica `pedido.creado`.
+        Si inventario no responde → 503 y no se guarda nada. Si no hay stock → 409 y el pedido queda `RECHAZADO_SIN_STOCK`.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Clave única por intento de compra. Repetir con la misma clave devuelve el mismo pedido (200).
+          schema: { type: string, example: 7c0e8f3a-compra-1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [direccion], properties: { direccion: { $ref: "#/components/schemas/Direccion" } } }
+      responses:
+        "201": { description: Pedido creado, content: { application/json: { schema: { $ref: "#/components/schemas/Pedido" } } } }
+        "200": { description: Repetición con la misma Idempotency-Key (mismo pedido), content: { application/json: { schema: { $ref: "#/components/schemas/Pedido" } } } }
+        "400": { $ref: "#/components/responses/E400" }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "409": { description: "STOCK_INSUFICIENTE (detalles incluye productoId y pedidoId), CARRITO_INVALIDO o PRODUCTO_NO_DISPONIBLE", content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "422": { description: Dirección inválida o CARRITO_VACIO, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "503": { $ref: "#/components/responses/E503" }
+    get:
+      tags: [Pedidos]
+      summary: "Listar pedidos (cliente: los suyos · vendedor: sus sub-pedidos · admin: todos)"
+      parameters:
+        - { name: estado, in: query, schema: { type: string, enum: [PENDIENTE_PAGO, PAGADO, PAGO_RECHAZADO, RECHAZADO_SIN_STOCK, CANCELADO, COMPLETADO] } }
+        - { name: pagina, in: query, schema: { type: integer, default: 1 } }
+        - { name: porPagina, in: query, schema: { type: integer, default: 10, maximum: 50 } }
+      responses:
+        "200":
+          description: Página de pedidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datos: { type: array, items: { $ref: "#/components/schemas/Pedido" } }
+                  pagina: { type: integer }
+                  porPagina: { type: integer }
+                  total: { type: integer }
+                  totalPaginas: { type: integer }
+        "401": { $ref: "#/components/responses/E401" }
+        "422": { $ref: "#/components/responses/E422" }
+  /pedidos/{id}:
+    get:
+      tags: [Pedidos]
+      summary: Detalle de un pedido (autorización por recurso)
+      parameters: [{ $ref: "#/components/parameters/IdPedido" }]
+      responses:
+        "200": { description: Pedido, content: { application/json: { schema: { $ref: "#/components/schemas/Pedido" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /pedidos/{id}/traza:
+    get:
+      tags: [Pedidos]
+      summary: Traza de la saga (qué microservicio hizo cada paso, REST o evento, correlationId)
+      parameters: [{ $ref: "#/components/parameters/IdPedido" }]
+      responses:
+        "200":
+          description: Pasos en orden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pedido: { type: object, properties: { id: { type: string }, codigo: { type: string }, estado: { type: string }, correlationId: { type: string } } }
+                  pasos: { type: array, items: { $ref: "#/components/schemas/PasoTraza" } }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /pedidos/{id}/pagos:
+    post:
+      tags: [Pagos]
+      summary: Pagar el pedido con la pasarela simulada (dueño, rol cliente)
+      parameters: [{ $ref: "#/components/parameters/IdPedido" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [numeroTarjeta, titular, vencimiento, cvv]
+              properties:
+                numeroTarjeta: { type: string }
+                titular: { type: string }
+                vencimiento: { type: string, description: MM/AA }
+                cvv: { type: string }
+            examples:
+              aprobada: { summary: Aprueba, value: { numeroTarjeta: "4242 4242 4242 4242", titular: Laura Petro, vencimiento: "12/30", cvv: "123" } }
+              rechazada: { summary: Rechaza (fondos insuficientes), value: { numeroTarjeta: "4000 0000 0000 0002", titular: Laura Petro, vencimiento: "12/30", cvv: "123" } }
+      responses:
+        "201":
+          description: Pago aprobado; pedido PAGADO; se publica pago.aprobado (inventario confirma la reserva)
+          content: { application/json: { schema: { type: object, properties: { pago: { $ref: "#/components/schemas/Pago" }, pedido: { $ref: "#/components/schemas/Pedido" } } } } }
+        "402": { description: "PAGO_RECHAZADO: pedido PAGO_RECHAZADO; se publica pago.rechazado (inventario libera la reserva)", content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+        "422": { description: Tarjeta inválida, vencida o no es de prueba, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  /pedidos/{id}/estado:
+    patch:
+      tags: [Pedidos]
+      summary: El vendedor avanza SU sub-pedido (PAGADO → PREPARANDO → ENVIADO → ENTREGADO)
+      parameters: [{ $ref: "#/components/parameters/IdPedido" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subpedidoId, estado]
+              properties:
+                subpedidoId: { type: string }
+                estado: { type: string, enum: [PREPARANDO, ENVIADO, ENTREGADO] }
+      responses:
+        "200": { description: Pedido actualizado (vista del vendedor), content: { application/json: { schema: { $ref: "#/components/schemas/Pedido" } } } }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+        "422": { $ref: "#/components/responses/E422" }
+  /pedidos/{id}/cancelar:
+    post:
+      tags: [Pedidos]
+      summary: Cancelar un pedido pendiente de pago (libera la reserva)
+      parameters: [{ $ref: "#/components/parameters/IdPedido" }]
+      responses:
+        "200": { description: Pedido CANCELADO, content: { application/json: { schema: { $ref: "#/components/schemas/Pedido" } } } }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+        "503": { $ref: "#/components/responses/E503" }
+  /metricas:
+    get:
+      tags: [Métricas]
+      summary: Métricas del marketplace (solo admin)
+      responses:
+        "200":
+          description: Ventas totales, pedidos por estado, ventas por vendedor, por categoría y por día (14 días)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ventasTotales: { type: integer }
+                  pedidosTotales: { type: integer }
+                  pedidosPorEstado: { type: object, additionalProperties: { type: integer } }
+                  ventasPorVendedor: { type: array, items: { type: object, properties: { nombreTienda: { type: string }, total: { type: integer }, unidades: { type: integer } } } }
+                  ventasPorCategoria: { type: array, items: { type: object, properties: { categoria: { type: string }, total: { type: integer }, unidades: { type: integer } } } }
+                  ventasPorDia: { type: array, items: { type: object, properties: { fecha: { type: string, example: "2026-10-15" }, total: { type: integer }, pedidos: { type: integer } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+  /metricas/vendedor:
+    get:
+      tags: [Métricas]
+      summary: Resumen del puesto (rol vendedor)
+      responses:
+        "200":
+          description: Ventas de hoy, totales, sub-pedidos por atender y en camino
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ventasHoy: { type: integer }
+                  ventasTotales: { type: integer }
+                  unidadesVendidas: { type: integer }
+                  porAtender: { type: integer }
+                  enCamino: { type: integer }
+                  entregados: { type: integer }
+                  ultimosSubpedidos: { type: array, items: { type: object } }
+        "403": { $ref: "#/components/responses/E403" }
+  /salud:
+    get: { tags: [Salud], security: [], summary: Liveness (proceso arriba), responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], security: [], summary: Readiness (Postgres y RabbitMQ conectados), responses: { "200": { description: Listo }, "503": { description: Alguna dependencia caída } } }

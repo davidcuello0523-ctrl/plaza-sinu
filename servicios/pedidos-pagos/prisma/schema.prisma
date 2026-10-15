@@ -1,0 +1,114 @@
+// Modelo de datos del servicio PEDIDOS-PAGOS (base de datos propia: db-pedidos).
+// Guarda una COPIA (snapshot) de nombre y precio de cada producto: si mañana el
+// vendedor cambia el precio en el catálogo, el pedido conserva lo que se cobró.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pedido {
+  id             String      @id @default(uuid())
+  codigo         String      @unique
+  clienteId      String
+  clienteNombre  String
+  clienteEmail   String?
+  // PENDIENTE_PAGO | PAGADO | PAGO_RECHAZADO | RECHAZADO_SIN_STOCK | CANCELADO | COMPLETADO
+  estado         String
+  total          Int
+  unidades       Int
+  direccion      Json
+  idempotencyKey String
+  reservaId      String?
+  correlationId  String
+  motivo         String?
+  creadoEn       DateTime    @default(now())
+  actualizadoEn  DateTime    @updatedAt
+  subpedidos     SubPedido[]
+  pagos          Pago[]
+  pasos          PasoTraza[]
+
+  // Idempotencia: el mismo cliente con la misma Idempotency-Key = el mismo pedido.
+  @@unique([clienteId, idempotencyKey])
+  @@index([clienteId])
+}
+
+// Parte del pedido que le toca a UN vendedor (cada puesto despacha lo suyo).
+model SubPedido {
+  id                String       @id @default(uuid())
+  pedidoId          String
+  vendedorId        String
+  vendedorUsuarioId String
+  nombreTienda      String
+  // PENDIENTE_PAGO | PAGADO | PREPARANDO | ENVIADO | ENTREGADO | CANCELADO
+  estado            String
+  subtotal          Int
+  unidades          Int
+  actualizadoEn     DateTime     @updatedAt
+  pedido            Pedido       @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  items             ItemPedido[]
+
+  @@index([vendedorUsuarioId])
+}
+
+model ItemPedido {
+  id             String    @id @default(uuid())
+  subPedidoId    String
+  productoId     String
+  nombre         String
+  categoria      String?
+  imagen         String?
+  precioUnitario Int
+  cantidad       Int
+  subtotal       Int
+  subPedido      SubPedido @relation(fields: [subPedidoId], references: [id], onDelete: Cascade)
+}
+
+// Pago con la pasarela simulada. NUNCA se guarda el número completo ni el CVV.
+model Pago {
+  id         String   @id @default(uuid())
+  pedidoId   String
+  estado     String // APROBADO | RECHAZADO
+  marca      String
+  ultimos4   String
+  titular    String
+  monto      Int
+  referencia String
+  motivo     String?
+  creadoEn   DateTime @default(now())
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+}
+
+// Pasos de la saga: alimentan la pantalla "Traza del pedido".
+model PasoTraza {
+  id            String   @id @default(uuid())
+  pedidoId      String
+  servicio      String
+  accion        String
+  detalle       String?
+  via           String // REST | EVENTO
+  correlationId String?
+  ocurridoEn    DateTime @default(now())
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  @@index([pedidoId])
+}
+
+// Contador para los códigos legibles PS-000123.
+model Contador {
+  nombre String @id
+  valor  Int
+}
+
+// Ids de eventos ya procesados (consumidores idempotentes).
+model EventoProcesado {
+  id         String   @id
+  tipo       String
+  procesadoEn DateTime @default(now())
+}
