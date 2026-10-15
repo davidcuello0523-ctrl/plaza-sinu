@@ -1,0 +1,32 @@
+{
+  "name": "@plaza/usuarios",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Microservicio de usuarios: registro, login, JWT, perfil y roles",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node src/index.js",
+    "db:push": "prisma db push --skip-generate",
+    "generate": "prisma generate",
+    "seed": "node src/seed.js",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
+  },
+  "dependencies": {
+    "@plaza/compartido": "1.0.0",
+    "@prisma/client": "^6.19.0",
+    "bcryptjs": "^3.0.2",
+    "prisma": "^6.19.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "supertest": "^7.1.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": ["src/**/*.js", "!src/generated/**", "!src/index.js", "!src/seed.js"]
+  }
+}

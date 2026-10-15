@@ -1,0 +1,146 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Usuarios
+  version: 1.0.0
+  description: |
+    Registro, inicio de sesión, renovación de sesión (refresh token rotativo), perfil y roles.
+    Emite el JWT que usan el gateway y los demás servicios. **No sabe nada de tiendas ni productos.**
+    Publica el evento `usuario.registrado`.
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4001
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Autenticación
+  - name: Usuarios
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: VALIDACION }
+            mensaje: { type: string, example: Los datos enviados no son válidos }
+            detalles:
+              type: array
+              items: { type: object, properties: { campo: { type: string }, mensaje: { type: string } } }
+            correlationId: { type: string, example: 4f6c0c1e-6a0e-4b8f-9d0e-2a1b3c4d5e6f }
+    Usuario:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string, example: Laura Petro }
+        email: { type: string, example: cliente@plazasinu.co }
+        rol: { type: string, enum: [cliente, vendedor, admin] }
+        ciudad: { type: string, example: Montería }
+        telefono: { type: string }
+        activo: { type: boolean }
+        creadoEn: { type: string, format: date-time }
+    Sesion:
+      type: object
+      properties:
+        accessToken: { type: string, description: JWT de acceso (15 min) }
+        refreshToken: { type: string, description: Token de renovación (7 días, un solo uso) }
+        usuario: { $ref: "#/components/schemas/Usuario" }
+  responses:
+    E401: { description: Sin token, token inválido o vencido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Rol sin permiso, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida (detalle por campo), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+paths:
+  /auth/registro:
+    post:
+      tags: [Autenticación]
+      summary: Crear una cuenta (cliente o vendedor)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, email, clave]
+              properties:
+                nombre: { type: string }
+                email: { type: string }
+                clave: { type: string, description: Mínimo 8 caracteres y un número }
+                rol: { type: string, enum: [cliente, vendedor], default: cliente }
+                ciudad: { type: string }
+                telefono: { type: string }
+            example: { nombre: Sofía Montes, email: sofia@correo.co, clave: Clave1234, rol: cliente, ciudad: Montería }
+      responses:
+        "201": { description: Cuenta creada y sesión iniciada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
+        "409": { description: Correo ya registrado (EMAIL_EN_USO), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "422": { $ref: "#/components/responses/E422" }
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email, clave], properties: { email: { type: string }, clave: { type: string } } }
+            example: { email: cliente@plazasinu.co, clave: Demo123* }
+      responses:
+        "200": { description: Sesión iniciada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "422": { $ref: "#/components/responses/E422" }
+        "429": { description: Demasiados intentos (rate limit del gateway) }
+  /auth/refresh:
+    post:
+      tags: [Autenticación]
+      summary: Renovar la sesión con el refresh token (rotativo)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [refreshToken], properties: { refreshToken: { type: string } } } } }
+      responses:
+        "200": { description: Nuevos tokens; el anterior queda revocado, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+  /auth/logout:
+    post:
+      tags: [Autenticación]
+      summary: Cerrar sesión (revoca el refresh token)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [refreshToken], properties: { refreshToken: { type: string } } } } }
+      responses:
+        "204": { description: Sesión cerrada }
+  /usuarios/yo:
+    get:
+      tags: [Usuarios]
+      summary: Mi perfil
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Perfil, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+    patch:
+      tags: [Usuarios]
+      summary: Actualizar mi perfil (nombre, ciudad, teléfono)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { nombre: { type: string }, ciudad: { type: string }, telefono: { type: string } } }
+            example: { ciudad: Cereté }
+      responses:
+        "200": { description: Perfil actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "422": { $ref: "#/components/responses/E422" }
+  /usuarios:
+    get:
+      tags: [Usuarios]
+      summary: Listar usuarios (solo admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista, content: { application/json: { schema: { type: object, properties: { datos: { type: array, items: { $ref: "#/components/schemas/Usuario" } } } } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+  /salud:
+    get: { tags: [Salud], summary: Liveness (proceso arriba), responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], summary: Readiness (Postgres y RabbitMQ conectados), responses: { "200": { description: Listo }, "503": { description: Alguna dependencia caída } } }

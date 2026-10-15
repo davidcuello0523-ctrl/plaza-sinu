@@ -1,0 +1,46 @@
+// Modelo de datos del servicio USUARIOS (base de datos propia: db-usuarios).
+// Ningún otro servicio lee estas tablas: para saber de un usuario usan el JWT.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  cliente
+  vendedor
+  admin
+}
+
+model Usuario {
+  id            String         @id @default(uuid())
+  nombre        String
+  email         String         @unique
+  hashClave     String
+  rol           Rol            @default(cliente)
+  ciudad        String?
+  telefono      String?
+  activo        Boolean        @default(true)
+  creadoEn      DateTime       @default(now())
+  actualizadoEn DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+}
+
+// Refresh token rotativo: se guarda solo su hash (SHA-256), nunca el token.
+model RefreshToken {
+  id         String    @id @default(uuid())
+  usuarioId  String
+  tokenHash  String    @unique
+  expiraEn   DateTime
+  revocadoEn DateTime?
+  creadoEn   DateTime  @default(now())
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+}
