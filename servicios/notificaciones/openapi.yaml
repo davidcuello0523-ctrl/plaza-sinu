@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Notificaciones
+  version: 1.0.0
+  description: |
+    Consume eventos de RabbitMQ (cola durable `notificaciones.eventos`, con DLQ `notificaciones.eventos.dlq`)
+    y genera notificaciones in-app + correo simulado (guardado en BD y en el log).
+    Las empuja en tiempo real por **SSE** (`/notificaciones/stream`).
+
+    Eventos consumidos: `usuario.registrado`, `vendedor.aprobado`, `vendedor.suspendido`, `pedido.creado`,
+    `pago.aprobado`, `pago.rechazado`, `inventario.stock_bajo`, `pedido.estado_cambiado`.
+    Publica `notificacion.enviada` (para la traza del pedido).
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4007
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Notificaciones
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: NO_ENCONTRADO }
+            mensaje: { type: string, example: Notificación no encontrada }
+            detalles: { type: array, items: { type: object } }
+            correlationId: { type: string }
+    Notificacion:
+      type: object
+      properties:
+        id: { type: string, example: 6710a1b2c3d4e5f601234567 }
+        usuarioId: { type: string, format: uuid }
+        rol: { type: string, enum: [cliente, vendedor, admin] }
+        tipo: { type: string, enum: [bienvenida, pedido, pago, stock, envio, puesto] }
+        titulo: { type: string, example: Pago aprobado – pedido PS-000123 }
+        mensaje: { type: string, example: "Pagaste $ 159.000 con VISA •••• 4242. Los vendedores ya están preparando tu pedido." }
+        enlace: { type: string, example: /pedidos/0b6f2a1e-1111-4c1e-9a55-000000000001 }
+        leida: { type: boolean }
+        pedidoId: { type: string }
+        codigoPedido: { type: string, example: PS-000123 }
+        eventoId: { type: string }
+        eventoTipo: { type: string, example: pago.aprobado }
+        correlationId: { type: string }
+        creadoEn: { type: string, format: date-time }
+  responses:
+    E401: { description: Sin token o token inválido/vencido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: La notificación es de otro usuario, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: No existe, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Parámetros inválidos, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+security:
+  - bearerAuth: []
+paths:
+  /notificaciones:
+    get:
+      tags: [Notificaciones]
+      summary: Mis notificaciones (más recientes primero)
+      parameters:
+        - { in: query, name: noLeidas, schema: { type: string, enum: ["1", "0"] }, description: "1 = solo no leídas" }
+        - { in: query, name: pagina, schema: { type: integer, minimum: 1, default: 1 } }
+        - { in: query, name: porPagina, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+      responses:
+        "200":
+          description: Lista paginada + contador de no leídas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datos: { type: array, items: { $ref: "#/components/schemas/Notificacion" } }
+                  pagina: { type: integer }
+                  porPagina: { type: integer }
+                  total: { type: integer }
+                  totalPaginas: { type: integer }
+                  noLeidas: { type: integer, example: 3 }
+        "401": { $ref: "#/components/responses/E401" }
+        "422": { $ref: "#/components/responses/E422" }
+  /notificaciones/{id}/leida:
+    patch:
+      tags: [Notificaciones]
+      summary: Marcar una notificación como leída (solo el dueño)
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Notificación actualizada, content: { application/json: { schema: { $ref: "#/components/schemas/Notificacion" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /notificaciones/leer-todas:
+    patch:
+      tags: [Notificaciones]
+      summary: Marcar todas mis notificaciones como leídas
+      responses:
+        "200": { description: Cantidad actualizada, content: { application/json: { schema: { type: object, properties: { actualizadas: { type: integer, example: 4 } } } } } }
+        "401": { $ref: "#/components/responses/E401" }
+  /notificaciones/stream:
+    get:
+      tags: [Notificaciones]
+      summary: Stream en tiempo real (Server-Sent Events)
+      description: |
+        `EventSource` no permite enviar headers, por eso el JWT va en `?token=`.
+        Al conectar llega `event: hola` con `{ noLeidas }`; cada notificación nueva llega como
+        `event: notificacion` con el JSON de la notificación. Cada 25 s se envía un comentario de latido.
+      security: []
+      parameters:
+        - { in: query, name: token, required: true, schema: { type: string }, description: JWT de acceso }
+      responses:
+        "200":
+          description: Flujo SSE abierto
+          content:
+            text/event-stream:
+              example: "event: hola\ndata: {\"noLeidas\":2}\n\nevent: notificacion\ndata: {\"titulo\":\"Pago aprobado – pedido PS-000123\"}\n\n"
+        "401": { $ref: "#/components/responses/E401" }
+  /salud:
+    get: { tags: [Salud], security: [], summary: Liveness (proceso arriba), responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], security: [], summary: Readiness (MongoDB y RabbitMQ conectados), responses: { "200": { description: Listo }, "503": { description: Alguna dependencia caída } } }
