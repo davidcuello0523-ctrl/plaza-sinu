@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Microservicio carrito",
+  "description": "Microservicio carrito: carrito por cliente en Redis, agrupado por vendedor y revalidado contra catálogo e inventario",
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/index.js",
     "start": "node src/index.js",
-    "seed": "node src/seed.js",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
   },
   "dependencies": {

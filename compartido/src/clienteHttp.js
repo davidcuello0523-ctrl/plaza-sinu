@@ -5,7 +5,13 @@
 //  - errores traducidos: si el otro servicio no responde → 503 con mensaje claro.
 import { ErrorApp, ErrorServicioNoDisponible } from "./errores.js";
 
-const capitalizar = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const NOMBRES = {
+  usuarios: "Usuarios", vendedores: "Vendedores", catalogo: "Catálogo", inventario: "Inventario",
+  carrito: "Carrito", "pedidos-pagos": "Pedidos y pagos", notificaciones: "Notificaciones",
+};
+const nombreLegible = (s) => NOMBRES[s] || s;
+// Si el contenedor está detenido o la conexión se rechaza, reintentar no sirve de nada.
+const SIN_REINTENTO = new Set(["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED"]);
 
 // Datos de la petición original que viajan a la siguiente llamada.
 export const contexto = (req) => ({
@@ -15,7 +21,7 @@ export const contexto = (req) => ({
 
 export function crearClienteHttp({ servicio, urlBase, timeoutMs = 3000 }) {
   const noDisponible = () =>
-    new ErrorServicioNoDisponible(`${capitalizar(servicio)} no disponible, intenta en unos segundos`);
+    new ErrorServicioNoDisponible(`${nombreLegible(servicio)} no disponible, intenta en unos segundos`);
 
   async function pedir(metodo, ruta, { cuerpo, ctx = {}, intentos } = {}) {
     const maxIntentos = intentos ?? (metodo === "GET" ? 2 : 1);
@@ -33,8 +39,9 @@ export function crearClienteHttp({ servicio, urlBase, timeoutMs = 3000 }) {
           },
           body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
         });
-      } catch {
-        if (intento < maxIntentos) continue; // red caída o timeout: reintentar solo si es GET
+      } catch (err) {
+        // red caída o timeout: reintentar solo si es GET
+        if (intento < maxIntentos && !SIN_REINTENTO.has(err.cause?.code)) continue;
         throw noDisponible();
       }
       if (res.status >= 500 && intento < maxIntentos) continue;

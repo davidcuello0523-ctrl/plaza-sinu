@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Carrito
+  version: 1.0.0
+  description: |
+    Carrito de compras por cliente guardado en **Redis** (TTL de 7 días). Agrupa los productos **por vendedor**
+    con subtotales por puesto, y en cada consulta re-valida el precio con **catálogo** y el stock con **inventario** (REST).
+    Si inventario no responde, el carrito se muestra igual pero marcado `valido: false` (degradación elegante).
+    Consume `pago.aprobado` para vaciar el carrito: se vacía solo cuando el pago se aprueba.
+    Solo el rol **cliente** puede usar el carrito.
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4005
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Carrito
+  - name: Interno
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    claveInterna: { type: apiKey, in: header, name: X-Clave-Interna }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: STOCK_INSUFICIENTE }
+            mensaje: { type: string, example: Solo quedan 2 unidades de Casco MTB ventilado }
+            detalles:
+              type: array
+              items: { type: object }
+              example: [{ productoId: prd-009, disponible: 2, solicitado: 3 }]
+            correlationId: { type: string }
+    ItemCarrito:
+      type: object
+      properties:
+        productoId: { type: string, example: prd-009 }
+        nombre: { type: string, example: Casco MTB ventilado }
+        imagen: { type: string }
+        categoria: { type: string, example: bicicletas }
+        precio: { type: integer, description: Precio actual en COP, example: 159000 }
+        precioAlAgregar: { type: integer, example: 159000 }
+        cantidad: { type: integer, example: 2 }
+        subtotal: { type: integer, example: 318000 }
+        disponible: { type: integer, nullable: true, description: null si inventario no respondió, example: 2 }
+        estadoStock: { type: string, enum: [disponible, ultimas_unidades, agotado, desconocido] }
+        avisos: { type: array, items: { type: string } }
+    Carrito:
+      type: object
+      properties:
+        grupos:
+          type: array
+          items:
+            type: object
+            properties:
+              vendedorId: { type: string }
+              vendedorUsuarioId: { type: string }
+              nombreTienda: { type: string, example: Rueda Libre }
+              colorTienda: { type: string, example: "#2F8F5B" }
+              items: { type: array, items: { $ref: "#/components/schemas/ItemCarrito" } }
+              subtotal: { type: integer, example: 318000 }
+              unidades: { type: integer, example: 2 }
+        total: { type: integer, example: 738000 }
+        unidades: { type: integer, example: 3 }
+        avisos:
+          type: array
+          items: { type: string }
+          example: ["El precio de Casco MTB ventilado cambió de $ 159.000 a $ 149.000"]
+        valido: { type: boolean, description: false si algún producto no tiene stock suficiente o no se pudo verificar }
+        actualizadoEn: { type: string, format: date-time, nullable: true }
+  responses:
+    Carrito: { description: Carrito agrupado por vendedor, content: { application/json: { schema: { $ref: "#/components/schemas/Carrito" } } } }
+    E401: { description: Sin token o token inválido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Solo los clientes pueden comprar, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: Producto no encontrado / no está en el carrito, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E409: { description: Stock insuficiente (STOCK_INSUFICIENTE), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida (detalle por campo), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E503: { description: Catálogo o inventario no disponible, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+security: [{ bearerAuth: [] }]
+paths:
+  /carrito:
+    get:
+      tags: [Carrito]
+      summary: Ver mi carrito (re-validado contra catálogo e inventario)
+      responses:
+        "200": { $ref: "#/components/responses/Carrito" }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "503": { $ref: "#/components/responses/E503" }
+    delete:
+      tags: [Carrito]
+      summary: Vaciar mi carrito
+      responses:
+        "204": { description: Carrito vacío }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+  /carrito/items:
+    post:
+      tags: [Carrito]
+      summary: Agregar un producto (o sumar unidades si ya estaba)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productoId, cantidad]
+              properties:
+                productoId: { type: string }
+                cantidad: { type: integer, minimum: 1, maximum: 20 }
+            example: { productoId: prd-009, cantidad: 1 }
+      responses:
+        "201": { $ref: "#/components/responses/Carrito" }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+        "422": { $ref: "#/components/responses/E422" }
+        "503": { $ref: "#/components/responses/E503" }
+  /carrito/items/{productoId}:
+    parameters:
+      - { name: productoId, in: path, required: true, schema: { type: string }, example: prd-009 }
+    patch:
+      tags: [Carrito]
+      summary: Cambiar la cantidad de un producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [cantidad], properties: { cantidad: { type: integer, minimum: 1, maximum: 20 } } }
+            example: { cantidad: 2 }
+      responses:
+        "200": { $ref: "#/components/responses/Carrito" }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+        "422": { $ref: "#/components/responses/E422" }
+    delete:
+      tags: [Carrito]
+      summary: Quitar un producto del carrito
+      responses:
+        "200": { $ref: "#/components/responses/Carrito" }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /interno/carrito/{usuarioId}:
+    parameters:
+      - { name: usuarioId, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Interno]
+      summary: (Interno) Carrito validado de un cliente — lo usa pedidos-pagos. El gateway no expone esta ruta.
+      security: [{ claveInterna: [] }]
+      responses:
+        "200": { $ref: "#/components/responses/Carrito" }
+        "403": { description: Falta la clave interna }
+    delete:
+      tags: [Interno]
+      summary: (Interno) Vaciar el carrito de un cliente
+      security: [{ claveInterna: [] }]
+      responses:
+        "204": { description: Carrito vacío }
+        "403": { description: Falta la clave interna }
+  /salud:
+    get: { tags: [Salud], security: [], summary: Liveness (proceso arriba), responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], security: [], summary: Readiness (Redis y RabbitMQ conectados), responses: { "200": { description: Listo }, "503": { description: Alguna dependencia caída } } }
