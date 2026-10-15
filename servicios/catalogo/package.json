@@ -1,0 +1,33 @@
+{
+  "name": "@plaza/catalogo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Microservicio catalogo",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/seed.js",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
+  },
+  "dependencies": {
+    "@plaza/compartido": "1.0.0",
+    "zod": "^4.0.0",
+    "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "supertest": "^7.1.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/generated/**",
+      "!src/index.js",
+      "!src/seed.js"
+    ]
+  }
+}
