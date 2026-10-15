@@ -1,0 +1,85 @@
+// Modelo de datos del servicio INVENTARIO (base de datos propia: db-inventario).
+// Aquí vive la verdad del stock. Catálogo solo guarda una bandera derivada
+// (disponible / últimas unidades / agotado) que le llega por eventos.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// disponible = fisico - reservado (se calcula, no se guarda)
+model Stock {
+  productoId        String   @id
+  vendedorUsuarioId String?
+  nombreProducto    String?
+  fisico            Int      @default(0)
+  reservado         Int      @default(0)
+  umbral            Int      @default(3)
+  actualizadoEn     DateTime @updatedAt
+
+  @@index([vendedorUsuarioId])
+}
+
+enum EstadoReserva {
+  ACTIVA
+  CONFIRMADA
+  LIBERADA
+}
+
+// Una reserva por pedido: aparta unidades mientras el cliente paga (vence en 15 min).
+model Reserva {
+  id               String        @id @default(uuid())
+  pedidoId         String        @unique
+  estado           EstadoReserva @default(ACTIVA)
+  venceEn          DateTime
+  motivoLiberacion String?
+  creadoEn         DateTime      @default(now())
+  actualizadoEn    DateTime      @updatedAt
+  items            ReservaItem[]
+
+  @@index([estado, venceEn])
+}
+
+model ReservaItem {
+  id         String  @id @default(uuid())
+  reservaId  String
+  productoId String
+  cantidad   Int
+  reserva    Reserva @relation(fields: [reservaId], references: [id], onDelete: Cascade)
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
+  RESERVA
+  LIBERACION
+}
+
+// Kardex: cada cambio de stock deja un movimiento con los saldos resultantes.
+model Movimiento {
+  id              String         @id @default(uuid())
+  productoId      String
+  tipo            TipoMovimiento
+  cantidad        Int
+  saldoFisico     Int
+  saldoDisponible Int
+  referencia      String?
+  nota            String?
+  creadoEn        DateTime       @default(now())
+
+  @@index([productoId, creadoEn])
+}
+
+// Idempotencia de consumidores: ids de eventos ya procesados.
+model EventoProcesado {
+  id          String   @id
+  tipo        String
+  procesadoEn DateTime @default(now())
+}

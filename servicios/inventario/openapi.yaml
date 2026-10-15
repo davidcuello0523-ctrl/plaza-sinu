@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Inventario
+  version: 1.0.0
+  description: |
+    Stock por producto, **reservas con vencimiento** (15 min), confirmación y liberación,
+    kardex de movimientos y umbral de stock bajo. Las reservas bloquean las filas con
+    `SELECT … FOR UPDATE` dentro de una transacción: nunca se vende la misma unidad dos veces.
+
+    Publica `inventario.actualizado`, `inventario.stock_bajo`, `reserva.confirmada`, `reserva.liberada`.
+    Consume `pago.aprobado` (confirma), `pago.rechazado` (libera: compensación) y `producto.publicado` (crea stock en 0).
+
+    Las rutas `/reservas*` son **internas** (solo pedidos-pagos, con header `X-Clave-Interna`); el gateway no las expone.
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4004
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Inventario
+  - name: Reservas (internas)
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    claveInterna: { type: apiKey, in: header, name: X-Clave-Interna }
+  parameters:
+    productoId: { name: productoId, in: path, required: true, schema: { type: string }, example: prd-009 }
+    reservaId: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: STOCK_INSUFICIENTE }
+            mensaje: { type: string, example: Solo quedan 2 unidades de Casco MTB ventilado }
+            detalles: { type: array, items: { type: object } }
+            correlationId: { type: string }
+    Stock:
+      type: object
+      properties:
+        productoId: { type: string, example: prd-009 }
+        nombreProducto: { type: string, example: Casco MTB ventilado }
+        fisico: { type: integer, example: 2, description: Unidades en bodega }
+        reservado: { type: integer, example: 0, description: Apartadas por pedidos sin pagar }
+        disponible: { type: integer, example: 2, description: fisico - reservado }
+        umbral: { type: integer, example: 3 }
+        estado: { type: string, enum: [disponible, ultimas_unidades, agotado] }
+        stockBajo: { type: boolean }
+    Items:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        required: [productoId, cantidad]
+        properties:
+          productoId: { type: string, example: prd-009 }
+          cantidad: { type: integer, minimum: 1, example: 1 }
+    Reserva:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        pedidoId: { type: string }
+        estado: { type: string, enum: [ACTIVA, CONFIRMADA, LIBERADA] }
+        venceEn: { type: string, format: date-time }
+        motivoLiberacion: { type: string, nullable: true, enum: [pago_rechazado, vencida, cancelado] }
+        items: { $ref: "#/components/schemas/Items" }
+    Movimiento:
+      type: object
+      properties:
+        id: { type: string }
+        productoId: { type: string }
+        tipo: { type: string, enum: [ENTRADA, SALIDA, AJUSTE, RESERVA, LIBERACION] }
+        cantidad: { type: integer }
+        saldoFisico: { type: integer }
+        saldoDisponible: { type: integer }
+        referencia: { type: string }
+        nota: { type: string }
+        creadoEn: { type: string, format: date-time }
+  responses:
+    E401: { description: Sin token o token inválido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Sin permiso (no es el dueño, o falta la clave interna), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: No encontrado, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E409: { description: Conflicto (STOCK_INSUFICIENTE o RESERVA_CERRADA), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+paths:
+  /inventario:
+    get:
+      tags: [Inventario]
+      summary: Stock del vendedor autenticado (admin ve todo)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista, content: { application/json: { schema: { type: object, properties: { datos: { type: array, items: { $ref: "#/components/schemas/Stock" } } } } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+  /inventario/disponibilidad:
+    post:
+      tags: [Inventario]
+      summary: Disponibilidad en lote (la usa carrito; también el frontend autenticado)
+      security: [{ bearerAuth: [] }, { claveInterna: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [items], properties: { items: { $ref: "#/components/schemas/Items" } } }
+            example: { items: [{ productoId: prd-009, cantidad: 3 }, { productoId: prd-008, cantidad: 1 }] }
+      responses:
+        "200":
+          description: Resultado por producto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        productoId: { type: string }
+                        disponible: { type: integer }
+                        solicitado: { type: integer }
+                        alcanza: { type: boolean }
+                        estado: { type: string }
+        "401": { $ref: "#/components/responses/E401" }
+        "422": { $ref: "#/components/responses/E422" }
+  /inventario/{productoId}:
+    get:
+      tags: [Inventario]
+      summary: Stock en vivo de un producto (público)
+      parameters: [{ $ref: "#/components/parameters/productoId" }]
+      responses:
+        "200": { description: Stock, content: { application/json: { schema: { $ref: "#/components/schemas/Stock" } } } }
+        "404": { $ref: "#/components/responses/E404" }
+    put:
+      tags: [Inventario]
+      summary: Ajustar stock físico y umbral (vendedor dueño o admin)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/productoId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fisico]
+              properties:
+                fisico: { type: integer, minimum: 0 }
+                umbral: { type: integer, minimum: 0 }
+                nota: { type: string }
+            example: { fisico: 15, umbral: 3, nota: Llegó mercancía }
+      responses:
+        "200": { description: Stock ajustado (publica inventario.actualizado), content: { application/json: { schema: { $ref: "#/components/schemas/Stock" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "422": { $ref: "#/components/responses/E422" }
+  /inventario/{productoId}/movimientos:
+    get:
+      tags: [Inventario]
+      summary: Kardex del producto (últimos 100; dueño o admin)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/productoId" }]
+      responses:
+        "200": { description: Movimientos, content: { application/json: { schema: { type: object, properties: { datos: { type: array, items: { $ref: "#/components/schemas/Movimiento" } } } } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /reservas:
+    post:
+      tags: [Reservas (internas)]
+      summary: Reservar unidades para un pedido (todo o nada)
+      security: [{ claveInterna: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pedidoId, items]
+              properties:
+                pedidoId: { type: string }
+                items: { $ref: "#/components/schemas/Items" }
+                minutos: { type: integer, default: 15 }
+            example: { pedidoId: 3f1c…, items: [{ productoId: prd-009, cantidad: 1 }] }
+      responses:
+        "201": { description: Reserva creada (ACTIVA), content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
+        "200": { description: Ya existía la reserva de ese pedido (idempotente), content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
+        "403": { $ref: "#/components/responses/E403" }
+        "409": { $ref: "#/components/responses/E409" }
+        "422": { $ref: "#/components/responses/E422" }
+  /reservas/{id}/confirmar:
+    post:
+      tags: [Reservas (internas)]
+      summary: Confirmar (descuento definitivo + SALIDA en el kardex). Idempotente.
+      security: [{ claveInterna: [] }]
+      parameters: [{ $ref: "#/components/parameters/reservaId" }]
+      responses:
+        "200": { description: Reserva CONFIRMADA, content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+  /reservas/{id}/liberar:
+    post:
+      tags: [Reservas (internas)]
+      summary: Liberar (devuelve las unidades; compensación de la saga). Idempotente.
+      security: [{ claveInterna: [] }]
+      parameters: [{ $ref: "#/components/parameters/reservaId" }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { motivo: { type: string, enum: [pago_rechazado, vencida, cancelado] } } }
+      responses:
+        "200": { description: Reserva LIBERADA, content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "409": { $ref: "#/components/responses/E409" }
+  /salud:
+    get: { tags: [Salud], summary: Liveness (proceso arriba), responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], summary: Readiness (Postgres y RabbitMQ conectados), responses: { "200": { description: Listo }, "503": { description: Alguna dependencia caída } } }
