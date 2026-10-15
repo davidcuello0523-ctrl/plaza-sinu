@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Vendedores
+  version: 1.0.0
+  description: |
+    Solicitud, aprobación y consulta de **puestos** (tiendas) del marketplace.
+    Un puesto nace `PENDIENTE` y un administrador lo aprueba o suspende.
+    **No guarda productos** (eso es del servicio catálogo).
+    Publica los eventos `vendedor.aprobado` y `vendedor.suspendido`.
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4002
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Puestos
+  - name: Administración
+  - name: Interno
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    claveInterna: { type: apiKey, in: header, name: x-clave-interna }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: NO_ENCONTRADO }
+            mensaje: { type: string, example: Puesto no encontrado }
+            detalles: { type: array, items: { type: object } }
+            correlationId: { type: string }
+    Vendedor:
+      type: object
+      properties:
+        id: { type: string, format: uuid, example: 00000000-0000-4000-c000-000000000002 }
+        usuarioId: { type: string, format: uuid }
+        nombreTienda: { type: string, example: Rueda Libre }
+        slug: { type: string, example: rueda-libre }
+        descripcion: { type: string }
+        categoriaPrincipal: { type: string, enum: [tecnologia, bicicletas, ropa, hogar, artesanias, papeleria, deportes] }
+        ciudad: { type: string, example: Montería }
+        color: { type: string, example: "#2F8F5B" }
+        nit: { type: string, example: 901345678-2 }
+        telefono: { type: string }
+        estado: { type: string, enum: [PENDIENTE, APROBADO, SUSPENDIDO, RECHAZADO] }
+        motivoEstado: { type: string, nullable: true }
+        reputacion: { type: number, example: 4.7 }
+        totalResenas: { type: integer, example: 138 }
+        creadoEn: { type: string, format: date-time }
+        aprobadoEn: { type: string, format: date-time, nullable: true }
+  responses:
+    E401: { description: Sin token o token inválido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Rol sin permiso, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: No existe o no es visible, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+paths:
+  /vendedores/solicitudes:
+    post:
+      tags: [Puestos]
+      summary: Solicitar la apertura de un puesto (rol vendedor)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombreTienda, categoriaPrincipal, ciudad]
+              properties:
+                nombreTienda: { type: string }
+                descripcion: { type: string }
+                categoriaPrincipal: { type: string }
+                ciudad: { type: string }
+                color: { type: string }
+                nit: { type: string, description: "Opcional; si no viene se simula" }
+                telefono: { type: string }
+            example: { nombreTienda: Frutas del Sinú, descripcion: Frutas frescas de temporada, categoriaPrincipal: hogar, ciudad: Montería, color: "#2F8F5B" }
+      responses:
+        "201": { description: Solicitud creada (estado PENDIENTE), content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "409": { description: Ya tiene una solicitud o puesto (SOLICITUD_EXISTENTE), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "422": { $ref: "#/components/responses/E422" }
+  /vendedores:
+    get:
+      tags: [Puestos]
+      summary: Listar puestos (público solo aprobados; admin puede filtrar por estado)
+      parameters:
+        - { in: query, name: ciudad, schema: { type: string }, example: Montería }
+        - { in: query, name: categoria, schema: { type: string }, example: bicicletas }
+        - { in: query, name: estado, schema: { type: string, enum: [PENDIENTE, APROBADO, SUSPENDIDO, RECHAZADO] }, description: Solo tiene efecto con token de admin }
+      responses:
+        "200": { description: Lista, content: { application/json: { schema: { type: object, properties: { datos: { type: array, items: { $ref: "#/components/schemas/Vendedor" } } } } } } }
+        "422": { $ref: "#/components/responses/E422" }
+  /vendedores/yo:
+    get:
+      tags: [Puestos]
+      summary: Mi puesto (rol vendedor)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Mi puesto, content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { description: Aún no ha solicitado puesto, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    patch:
+      tags: [Puestos]
+      summary: Editar mi puesto (descripción, color, teléfono)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { descripcion: { type: string }, color: { type: string }, telefono: { type: string } } }
+            example: { color: "#16324F" }
+      responses:
+        "200": { description: Actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "404": { $ref: "#/components/responses/E404" }
+        "422": { $ref: "#/components/responses/E422" }
+  /vendedores/{id}:
+    get:
+      tags: [Puestos]
+      summary: Ver un puesto (público si está aprobado; dueño y admin siempre)
+      parameters: [{ in: path, name: id, required: true, schema: { type: string }, example: 00000000-0000-4000-c000-000000000002 }]
+      responses:
+        "200": { description: Puesto, content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "404": { $ref: "#/components/responses/E404" }
+  /vendedores/{id}/estado:
+    patch:
+      tags: [Administración]
+      summary: Aprobar, suspender o rechazar un puesto (admin)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: string }, example: 00000000-0000-4000-c000-000000000008 }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [estado], properties: { estado: { type: string, enum: [APROBADO, SUSPENDIDO, RECHAZADO] }, motivo: { type: string } } }
+            example: { estado: APROBADO }
+      responses:
+        "200": { description: Estado cambiado (publica vendedor.aprobado / vendedor.suspendido), content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "422": { $ref: "#/components/responses/E422" }
+  /interno/vendedores/por-usuario/{usuarioId}:
+    get:
+      tags: [Interno]
+      summary: Puesto de un usuario (solo servicio→servicio; el gateway lo bloquea)
+      security: [{ claveInterna: [] }]
+      parameters: [{ in: path, name: usuarioId, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Puesto, content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "403": { description: Falta la clave interna }
+        "404": { $ref: "#/components/responses/E404" }
+  /interno/vendedores/{id}:
+    get:
+      tags: [Interno]
+      summary: Puesto por id, cualquier estado (solo servicio→servicio)
+      security: [{ claveInterna: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Puesto, content: { application/json: { schema: { $ref: "#/components/schemas/Vendedor" } } } }
+        "403": { description: Falta la clave interna }
+        "404": { $ref: "#/components/responses/E404" }
+  /salud:
+    get: { tags: [Salud], summary: Liveness, responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], summary: Readiness (Postgres y RabbitMQ), responses: { "200": { description: Listo }, "503": { description: Dependencia caída } } }

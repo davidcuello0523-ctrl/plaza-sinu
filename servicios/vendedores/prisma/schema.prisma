@@ -1,0 +1,42 @@
+// Modelo de datos del servicio VENDEDORES (base de datos propia: db-vendedores).
+// Guarda los "puestos" (tiendas). NO guarda productos: eso es de catalogo.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoVendedor {
+  PENDIENTE
+  APROBADO
+  SUSPENDIDO
+  RECHAZADO
+}
+
+model Vendedor {
+  id                 String         @id @default(uuid())
+  usuarioId          String         @unique // id del usuario dueño (viene del JWT, no de otra BD)
+  nombreTienda       String
+  slug               String         @unique
+  descripcion        String         @default("")
+  categoriaPrincipal String
+  ciudad             String
+  color              String         @default("#E4572E")
+  nit                String
+  telefono           String?
+  estado             EstadoVendedor @default(PENDIENTE)
+  motivoEstado       String?
+  reputacion         Float          @default(0)
+  totalResenas       Int            @default(0)
+  creadoEn           DateTime       @default(now())
+  actualizadoEn      DateTime       @updatedAt
+  aprobadoEn         DateTime?
+
+  @@index([estado])
+}
