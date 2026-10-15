@@ -187,6 +187,12 @@ services:
     depends_on:
       rabbitmq: { condition: service_healthy }
       usuarios: { condition: service_healthy }
+      vendedores: { condition: service_healthy }
+      catalogo: { condition: service_healthy }
+      inventario: { condition: service_healthy }
+      carrito: { condition: service_healthy }
+      pedidos-pagos: { condition: service_healthy }
+      notificaciones: { condition: service_healthy }
 
   web:
     build: { context: ./web, args: { VITE_API_URL: http://localhost:8080 } }
