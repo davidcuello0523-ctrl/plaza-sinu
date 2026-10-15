@@ -1,0 +1,206 @@
+openapi: 3.0.3
+info:
+  title: Plaza Sinú — Servicio de Catálogo
+  version: 1.0.0
+  description: |
+    Productos, categorías, atributos variables por categoría, imágenes y búsqueda con filtros y paginación.
+    **No es dueño del stock**: guarda una copia del estado (`estadoStock`) que le envía inventario
+    con el evento `inventario.actualizado`. Al publicar consulta a vendedores (REST) si el puesto está aprobado.
+    Publica `producto.publicado`; consume `inventario.actualizado`, `vendedor.aprobado` y `vendedor.suspendido`.
+servers:
+  - url: http://localhost:8080
+    description: A través del API Gateway (recomendado)
+  - url: http://localhost:4003
+    description: Directo (solo desarrollo local)
+tags:
+  - name: Productos
+  - name: Categorías
+  - name: Interno
+  - name: Salud
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    claveInterna: { type: apiKey, in: header, name: x-clave-interna }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: PROHIBIDO }
+            mensaje: { type: string, example: Tu puesto aún no está aprobado }
+            detalles: { type: array, items: { type: object, properties: { campo: { type: string }, mensaje: { type: string } } } }
+            correlationId: { type: string }
+    Producto:
+      type: object
+      properties:
+        id: { type: string, example: prd-009 }
+        nombre: { type: string, example: Casco MTB ventilado }
+        slug: { type: string, example: casco-mtb-ventilado }
+        descripcion: { type: string }
+        precio: { type: integer, description: Pesos colombianos (entero), example: 159000 }
+        categoria: { type: string, enum: [tecnologia, bicicletas, ropa, hogar, artesanias, papeleria, deportes] }
+        atributos:
+          type: object
+          additionalProperties: true
+          description: Varían por categoría (talla, rin, voltaje, vueltas…)
+          example: { rin: N/A, talla: M/L, material: EPS + policarbonato }
+        imagenes: { type: array, items: { type: string }, example: [/productos/prd-009/imagen.svg] }
+        vendedorId: { type: string }
+        vendedorUsuarioId: { type: string }
+        nombreTienda: { type: string, example: Rueda Libre }
+        colorTienda: { type: string, example: "#2F8F5B" }
+        ciudad: { type: string, example: Montería }
+        publicado: { type: boolean }
+        eliminado: { type: boolean }
+        vendedorActivo: { type: boolean }
+        estadoStock: { type: string, enum: [disponible, ultimas_unidades, agotado] }
+        stockDisponible: { type: integer, example: 2 }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+    ProductoEntrada:
+      type: object
+      required: [nombre, precio, categoria]
+      properties:
+        nombre: { type: string }
+        descripcion: { type: string }
+        precio: { type: integer, description: Entero positivo en COP }
+        categoria: { type: string }
+        atributos: { type: object, additionalProperties: true }
+        imagenes: { type: array, items: { type: string } }
+        publicado: { type: boolean, default: true }
+  responses:
+    E401: { description: Sin token o token inválido, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E403: { description: Sin permiso (rol, no es el dueño, o puesto no aprobado), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E404: { description: No existe o no es visible, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E422: { description: Validación fallida, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    E503: { description: Vendedores no disponible, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+paths:
+  /productos:
+    get:
+      tags: [Productos]
+      summary: Buscar productos (público) con filtros, orden y paginación
+      parameters:
+        - { in: query, name: q, schema: { type: string }, description: Texto (ignora tildes), example: casco }
+        - { in: query, name: categoria, schema: { type: string }, example: bicicletas }
+        - { in: query, name: vendedor, schema: { type: string }, description: id del puesto }
+        - { in: query, name: precioMin, schema: { type: integer } }
+        - { in: query, name: precioMax, schema: { type: integer } }
+        - { in: query, name: soloDisponibles, schema: { type: boolean } }
+        - { in: query, name: estadoStock, schema: { type: string, enum: [disponible, ultimas_unidades, agotado] } }
+        - { in: query, name: mios, schema: { type: boolean }, description: Con token de vendedor lista sus productos (incluye ocultos) }
+        - { in: query, name: orden, schema: { type: string, enum: [recientes, precio_asc, precio_desc, nombre], default: recientes } }
+        - { in: query, name: pagina, schema: { type: integer, default: 1 } }
+        - { in: query, name: porPagina, schema: { type: integer, default: 12, maximum: 60 } }
+      responses:
+        "200":
+          description: Página de productos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datos: { type: array, items: { $ref: "#/components/schemas/Producto" } }
+                  pagina: { type: integer }
+                  porPagina: { type: integer }
+                  total: { type: integer }
+                  totalPaginas: { type: integer }
+        "422": { $ref: "#/components/responses/E422" }
+    post:
+      tags: [Productos]
+      summary: Publicar un producto (vendedor con puesto APROBADO)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductoEntrada" }
+            example: { nombre: Bicicleta BMX rin 20, descripcion: Ideal para trucos, precio: 750000, categoria: bicicletas, atributos: { rin: "20", talla: Única, material: Acero, cambios: Single } }
+      responses:
+        "201": { description: Creado (publica producto.publicado), content: { application/json: { schema: { $ref: "#/components/schemas/Producto" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "422": { $ref: "#/components/responses/E422" }
+        "503": { $ref: "#/components/responses/E503" }
+  /productos/{id}:
+    parameters: [{ in: path, name: id, required: true, schema: { type: string }, example: prd-009 }]
+    get:
+      tags: [Productos]
+      summary: Detalle de un producto (público si es visible; dueño y admin siempre)
+      responses:
+        "200": { description: Producto, content: { application/json: { schema: { $ref: "#/components/schemas/Producto" } } } }
+        "404": { $ref: "#/components/responses/E404" }
+    put:
+      tags: [Productos]
+      summary: Editar un producto (solo el vendedor dueño)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductoEntrada" }
+            example: { nombre: Casco MTB ventilado, precio: 149000, categoria: bicicletas, atributos: { talla: M/L } }
+      responses:
+        "200": { description: Actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Producto" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "422": { $ref: "#/components/responses/E422" }
+    delete:
+      tags: [Productos]
+      summary: Eliminar (borrado lógico) — dueño o admin
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: Eliminado }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+  /productos/{id}/publicacion:
+    patch:
+      tags: [Productos]
+      summary: Publicar u ocultar un producto (dueño)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [publicado], properties: { publicado: { type: boolean } } }, example: { publicado: false } } }
+      responses:
+        "200": { description: Actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Producto" } } } }
+        "401": { $ref: "#/components/responses/E401" }
+        "403": { $ref: "#/components/responses/E403" }
+        "404": { $ref: "#/components/responses/E404" }
+        "422": { $ref: "#/components/responses/E422" }
+  /productos/{id}/imagen.svg:
+    get:
+      tags: [Productos]
+      summary: Ilustración SVG generada del producto (público)
+      parameters: [{ in: path, name: id, required: true, schema: { type: string }, example: prd-001 }]
+      responses:
+        "200": { description: Imagen, content: { image/svg+xml: { schema: { type: string } } } }
+        "404": { $ref: "#/components/responses/E404" }
+  /categorias:
+    get:
+      tags: [Categorías]
+      summary: Categorías con la cantidad de productos visibles
+      responses:
+        "200":
+          description: Lista
+          content:
+            application/json:
+              schema: { type: object, properties: { datos: { type: array, items: { type: object, properties: { slug: { type: string }, nombre: { type: string }, cantidad: { type: integer } } } } } }
+              example: { datos: [{ slug: bicicletas, nombre: Bicicletas y accesorios, cantidad: 7 }] }
+  /interno/productos:
+    get:
+      tags: [Interno]
+      summary: Snapshot de varios productos para carrito y pedidos (solo servicio→servicio)
+      security: [{ claveInterna: [] }]
+      parameters: [{ in: query, name: ids, required: true, schema: { type: string }, example: "prd-001,prd-009" }]
+      responses:
+        "200": { description: Snapshot, content: { application/json: { schema: { type: object, properties: { datos: { type: array, items: { type: object } } } } } } }
+        "403": { description: Falta la clave interna }
+        "422": { $ref: "#/components/responses/E422" }
+  /salud:
+    get: { tags: [Salud], summary: Liveness, responses: { "200": { description: Arriba } } }
+  /salud/listo:
+    get: { tags: [Salud], summary: Readiness (MongoDB y RabbitMQ), responses: { "200": { description: Listo }, "503": { description: Dependencia caída } } }
