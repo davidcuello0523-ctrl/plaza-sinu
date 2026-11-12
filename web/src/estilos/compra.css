@@ -205,3 +205,64 @@
   .paso { animation: aparece-paso 0.3s ease-out both; }
 }
 @keyframes aparece-paso { from { opacity: 0; transform: translateX(-6px); } }
+
+.entrar-caja-ancha { max-width: 540px; }
+.reg { --pila: 20px; }
+.reg-pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; list-style: none; margin: 0; padding: 0; }
+.reg-pasos li { display: flex; align-items: center; gap: 8px; font: 600 0.88rem/1.2 var(--ps-titulo); color: var(--ps-tinta-2); }
+.reg-numero {
+  flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  border: var(--ps-borde); background: var(--ps-superficie); font: 700 0.85rem/1 var(--ps-titulo);
+}
+.reg-pasos li.actual { color: var(--ps-tinta); }
+.reg-pasos li.actual .reg-numero { background: var(--ps-naranja); color: #15181C; box-shadow: var(--ps-sombra-sm); }
+.reg-pasos li.hecho .reg-numero { background: var(--ps-exito); color: #FFFFFF; border-color: var(--ps-exito); }
+.reg-progreso { height: 6px; border-radius: 999px; background: var(--ps-piedra-2); overflow: hidden; margin-top: 12px; }
+.reg-progreso div { height: 100%; background: var(--ps-naranja); border-radius: inherit; transition: width 0.3s ease; }
+.reg-paso { animation: reg-entra 0.25s ease-out; }
+@keyframes reg-entra { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+
+.reg-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border: 0; padding: 0; margin: 0; }
+.reg-roles legend { font-weight: 600; font-size: 0.9rem; padding: 0; margin-bottom: 8px; }
+.reg-rol {
+  position: relative; display: grid; gap: 4px; padding: 16px; cursor: pointer;
+  border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+}
+.reg-rol:hover { transform: translate(-1px, -1px); box-shadow: var(--ps-sombra-sm); }
+.reg-rol strong { font: 700 1rem/1.2 var(--ps-titulo); }
+.reg-rol small { color: var(--ps-tinta-2); font-size: 0.84rem; line-height: 1.35; }
+.reg-rol.activo { background: var(--ps-naranja-suave); border-color: var(--ps-naranja); box-shadow: var(--ps-sombra-sm); }
+.reg-rol.activo .icono { color: var(--ps-naranja-texto); }
+.reg-rol input { position: absolute; opacity: 0; pointer-events: none; }
+.reg-rol:focus-within { outline: 3px solid var(--ps-naranja); outline-offset: 2px; }
+
+.reg-fuerza { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.reg-fuerza i { height: 5px; border-radius: 999px; background: var(--ps-piedra-2); }
+.reg-fuerza[data-fuerza="1"] i:nth-child(-n + 1) { background: var(--ps-error); }
+.reg-fuerza[data-fuerza="2"] i:nth-child(-n + 2) { background: var(--ps-aviso); }
+.reg-fuerza[data-fuerza="3"] i:nth-child(-n + 3) { background: var(--ps-exito); }
+.reg-fuerza[data-fuerza="4"] i { background: var(--ps-exito); }
+
+.reg-documento { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.reg-telefono { display: flex; }
+.reg-telefono span {
+  display: grid; place-items: center; padding: 0 12px; border: var(--ps-borde); border-right: 0;
+  border-radius: var(--ps-radio) 0 0 var(--ps-radio); background: var(--ps-piedra-2); font: 600 0.92rem var(--ps-titulo);
+}
+.reg-telefono .entrada { border-radius: 0 var(--ps-radio) var(--ps-radio) 0; }
+
+.reg-resumen { padding: 14px 16px; border: 1.5px dashed var(--ps-linea); border-radius: var(--ps-radio); background: var(--ps-superficie); }
+.reg-resumen strong { font-family: var(--ps-titulo); }
+.reg-resumen dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 10px 0 0; font-size: 0.92rem; }
+.reg-resumen dt { color: var(--ps-tinta-2); }
+.reg-resumen dd { margin: 0; overflow-wrap: anywhere; }
+.reg-terminos { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; cursor: pointer; }
+.reg-terminos input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ps-naranja); flex: none; }
+.reg-acciones { display: flex; gap: 12px; }
+.reg-acciones .boton-primario { flex: 1; }
+
+@media (max-width: 480px) {
+  .reg-paso-texto { font-size: 0.78rem; }
+  .reg-roles, .reg-documento { grid-template-columns: 1fr; }
+}

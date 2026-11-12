@@ -19,11 +19,15 @@ export function crearServicioUsuarios({ repo, bus }) {
   }
 
   return {
-    async registrar({ nombre, email, clave, rol, ciudad, telefono }, ctx = {}) {
+    async registrar({ nombre, email, clave, rol, ciudad, telefono, tipoDocumento, numeroDocumento, fechaNacimiento, direccion, aceptaTerminos }, ctx = {}) {
       email = email.toLowerCase();
       if (await repo.buscarPorEmail(email)) throw new ErrorConflicto("Ya existe una cuenta con ese correo", "EMAIL_EN_USO");
       const hashClave = await bcrypt.hash(clave, 10);
-      const usuario = await repo.crear({ nombre, email, hashClave, rol, ciudad, telefono });
+      const usuario = await repo.crear({
+        nombre, email, hashClave, rol, ciudad, telefono, tipoDocumento, numeroDocumento, direccion,
+        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
+        aceptoTerminosEn: aceptaTerminos ? new Date() : undefined,
+      });
       bus.publicar("usuario.registrado", { usuarioId: usuario.id, nombre, email, rol: usuario.rol }, ctx);
       return emitirTokens(usuario);
     },

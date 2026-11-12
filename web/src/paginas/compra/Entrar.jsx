@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { urlRecurso } from "../../api/cliente.js";
-import { CIUDADES } from "../../api/formato.js";
 import Icono from "../../componentes/Icono.jsx";
 import { inicioDeRol, useSesion } from "../../estado/sesion.jsx";
+import FormularioRegistro from "./Registro.jsx";
 import "../../estilos/compra.css";
 
 const PUESTOS = [
@@ -23,10 +23,10 @@ const DEMO = [
 
 export default function Entrar({ modo }) {
   const registro = modo === "registro";
-  const { entrar, registrar } = useSesion();
+  const { entrar } = useSesion();
   const navegar = useNavigate();
   const ubicacion = useLocation();
-  const [datos, setDatos] = useState({ nombre: "", email: "", clave: "", rol: "cliente", ciudad: "Montería" });
+  const [datos, setDatos] = useState({ email: "", clave: "" });
   const [verClave, setVerClave] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
@@ -38,7 +38,7 @@ export default function Entrar({ modo }) {
     e.preventDefault();
     setEnviando(true); setError(null); setErrores({});
     try {
-      const usuario = registro ? await registrar(datos) : await entrar(datos.email, datos.clave);
+      const usuario = await entrar(datos.email, datos.clave);
       navegar(ubicacion.state?.desde || inicioDeRol(usuario.rol), { replace: true });
     } catch (err) {
       setError(err.status === 429 ? "Demasiados intentos. Espera un minuto y vuelve a probar." : err.message);
@@ -79,57 +79,37 @@ export default function Entrar({ modo }) {
 
       <section className="entrar-formulario">
         <Link to="/" className="boton boton-plano boton-sm volver"><Icono nombre="atras" tamano={18} /> Volver a la plaza</Link>
-        <div className="entrar-caja pila">
+        <div className={`entrar-caja pila ${registro ? "entrar-caja-ancha" : ""}`}>
           <div>
             <h1>{registro ? "Crea tu cuenta" : "Entra a la plaza"}</h1>
             <p className="secundario" style={{ marginTop: 8 }}>
-              {registro ? "Compra en los puestos de Córdoba o abre el tuyo." : "Sigue tus pedidos, atiende tu puesto o revisa la sala de máquinas."}
+              {registro ? "Tres pasos y listo: compra en los puestos de Córdoba o abre el tuyo." : "Sigue tus pedidos, atiende tu puesto o revisa la sala de máquinas."}
             </p>
           </div>
 
-          {error && <div className="caja-error" role="alert">{error}</div>}
-
-          <form className="pila" onSubmit={enviar} noValidate>
-            {registro && campo("nombre", "Nombre completo", { autoComplete: "name", required: true })}
-            {campo("email", "Correo", { type: "email", autoComplete: "email", required: true })}
-            <label className={`campo ${errores.clave ? "campo-error" : ""}`}>
-              <span>Contraseña</span>
-              <div className="clave">
-                <input className="entrada" type={verClave ? "text" : "password"} value={datos.clave} onChange={cambiar("clave")}
-                  autoComplete={registro ? "new-password" : "current-password"} required aria-invalid={Boolean(errores.clave)} />
-                <button type="button" className="boton boton-plano boton-icono" onClick={() => setVerClave((v) => !v)}
-                  aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}>
-                  <Icono nombre={verClave ? "ojo-tachado" : "ojo"} />
-                </button>
-              </div>
-              {registro && !errores.clave && <small>Mínimo 8 caracteres y al menos un número.</small>}
-              {errores.clave && <small className="mensaje-error">{errores.clave}</small>}
-            </label>
-
-            {registro && (
-              <>
-                <fieldset className="segmentado">
-                  <legend>Quiero</legend>
-                  {[["cliente", "Comprar"], ["vendedor", "Vender en mi puesto"]].map(([valor, texto]) => (
-                    <label key={valor} className={datos.rol === valor ? "activo" : ""}>
-                      <input type="radio" name="rol" value={valor} checked={datos.rol === valor} onChange={cambiar("rol")} />
-                      {texto}
-                    </label>
-                  ))}
-                </fieldset>
-                <label className="campo">
-                  <span>Ciudad</span>
-                  <select className="selector" value={datos.ciudad} onChange={cambiar("ciudad")}>
-                    {CIUDADES.filter((c) => c !== "Todas").map((c) => <option key={c}>{c}</option>)}
-                  </select>
+          {registro ? <FormularioRegistro desde={ubicacion.state?.desde} /> : (
+            <>
+              {error && <div className="caja-error" role="alert">{error}</div>}
+              <form className="pila" onSubmit={enviar} noValidate>
+                {campo("email", "Correo", { type: "email", autoComplete: "email", required: true })}
+                <label className={`campo ${errores.clave ? "campo-error" : ""}`}>
+                  <span>Contraseña</span>
+                  <div className="clave">
+                    <input className="entrada" type={verClave ? "text" : "password"} value={datos.clave} onChange={cambiar("clave")}
+                      autoComplete="current-password" required aria-invalid={Boolean(errores.clave)} />
+                    <button type="button" className="boton boton-plano boton-icono" onClick={() => setVerClave((v) => !v)}
+                      aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                      <Icono nombre={verClave ? "ojo-tachado" : "ojo"} />
+                    </button>
+                  </div>
+                  {errores.clave && <small className="mensaje-error">{errores.clave}</small>}
                 </label>
-              </>
-            )}
-
-            <button className="boton boton-primario boton-ancho" disabled={enviando}>
-              {enviando ? "Un momento…" : registro ? "Crear cuenta" : "Entrar"}
-            </button>
-          </form>
+                <button className="boton boton-primario boton-ancho" disabled={enviando}>
+                  {enviando ? "Un momento…" : "Entrar"}
+                </button>
+              </form>
+            </>
+          )}
 
           <p>
             {registro ? "¿Ya tienes cuenta? " : "¿Primera vez en la plaza? "}

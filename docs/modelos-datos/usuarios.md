@@ -13,6 +13,11 @@ erDiagram
     Rol rol "cliente | vendedor | admin"
     String ciudad "opcional"
     String telefono "opcional"
+    String tipoDocumento "CC | CE | TI | PP, opcional"
+    String numeroDocumento "opcional"
+    DateTime fechaNacimiento "opcional"
+    String direccion "opcional"
+    DateTime aceptoTerminosEn "opcional"
     Boolean activo
     DateTime creadoEn
     DateTime actualizadoEn
@@ -37,7 +42,12 @@ erDiagram
 | `hashClave` | String | requerido | Hash bcrypt. La clave nunca se guarda en texto plano |
 | `rol` | enum `Rol` | `cliente` por defecto | `cliente`, `vendedor` o `admin` |
 | `ciudad` | String | opcional | Ciudad del usuario |
-| `telefono` | String | opcional | Teléfono de contacto |
+| `telefono` | String | opcional, 7 a 15 dígitos | Celular de contacto |
+| `tipoDocumento` | String | opcional: `CC`, `CE`, `TI` o `PP` | Tipo de documento de identidad |
+| `numeroDocumento` | String | opcional, 5 a 15 letras o números | Número de documento |
+| `fechaNacimiento` | DateTime | opcional; el registro exige mayoría de edad | Fecha de nacimiento |
+| `direccion` | String | opcional, 5 a 120 caracteres | Dirección de entrega (cliente) o del negocio (vendedor) |
+| `aceptoTerminosEn` | DateTime | opcional | Momento en que aceptó los términos y el tratamiento de datos |
 | `activo` | Boolean | `true` por defecto | Permite desactivar cuentas |
 | `creadoEn` / `actualizadoEn` | DateTime | automáticos | Auditoría |
 

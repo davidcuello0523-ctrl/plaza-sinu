@@ -24,6 +24,21 @@ describe("API usuarios", () => {
     await request(app).post("/auth/registro").send({ ...nuevo, email: "x@plaza.co", rol: "admin" }).expect(422);
   });
 
+  test("POST /auth/registro con datos completos guarda documento, nacimiento y dirección", async () => {
+    const completo = { ...nuevo, email: "completo@plaza.co", telefono: "3001234567", tipoDocumento: "CC", numeroDocumento: "1067891234", fechaNacimiento: "2001-04-15", direccion: "Cra 9 # 27-15", aceptaTerminos: true };
+    const res = await request(app).post("/auth/registro").send(completo).expect(201);
+    const yo = await request(app).get("/usuarios/yo").set("authorization", `Bearer ${res.body.accessToken}`).expect(200);
+    expect(yo.body).toMatchObject({ tipoDocumento: "CC", numeroDocumento: "1067891234", direccion: "Cra 9 # 27-15" });
+    expect(yo.body.aceptoTerminosEn).toBeDefined();
+    expect(yo.body.hashClave).toBeUndefined();
+  });
+
+  test("POST /auth/registro de un menor de edad o con documento inválido → 422", async () => {
+    const hace10 = new Date(Date.now() - 10 * 365.25 * 86400000).toISOString().slice(0, 10);
+    const res = await request(app).post("/auth/registro").send({ ...nuevo, email: "menor@plaza.co", fechaNacimiento: hace10, tipoDocumento: "XX" }).expect(422);
+    expect(res.body.error.detalles.map((d) => d.campo)).toEqual(expect.arrayContaining(["fechaNacimiento", "tipoDocumento"]));
+  });
+
   test("POST /auth/registro duplicado → 409", async () => {
     await request(app).post("/auth/registro").send(nuevo).expect(409);
   });

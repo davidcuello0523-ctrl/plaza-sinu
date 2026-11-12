@@ -70,8 +70,13 @@ paths:
                 clave: { type: string, description: Mínimo 8 caracteres y un número }
                 rol: { type: string, enum: [cliente, vendedor], default: cliente }
                 ciudad: { type: string }
-                telefono: { type: string }
-            example: { nombre: Sofía Montes, email: sofia@correo.co, clave: Clave1234, rol: cliente, ciudad: Montería }
+                telefono: { type: string, description: 7 a 15 dígitos }
+                tipoDocumento: { type: string, enum: [CC, CE, TI, PP] }
+                numeroDocumento: { type: string, description: 5 a 15 letras o números }
+                fechaNacimiento: { type: string, format: date, description: Debe ser mayor de edad }
+                direccion: { type: string }
+                aceptaTerminos: { type: boolean, enum: [true] }
+            example: { nombre: Sofía Montes Díaz, email: sofia@correo.co, clave: Clave1234, rol: cliente, ciudad: Montería, telefono: "3001234567", tipoDocumento: CC, numeroDocumento: "1067891234", fechaNacimiento: "2001-04-15", direccion: "Cra 9 # 27-15", aceptaTerminos: true }
       responses:
         "201": { description: Cuenta creada y sesión iniciada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
         "409": { description: Correo ya registrado (EMAIL_EN_USO), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }

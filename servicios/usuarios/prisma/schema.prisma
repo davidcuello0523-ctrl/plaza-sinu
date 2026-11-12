@@ -23,6 +23,11 @@ model Usuario {
   rol           Rol            @default(cliente)
   ciudad        String?
   telefono      String?
+  tipoDocumento   String?
+  numeroDocumento String?
+  fechaNacimiento DateTime?
+  direccion       String?
+  aceptoTerminosEn DateTime?
   activo        Boolean        @default(true)
   creadoEn      DateTime       @default(now())
   actualizadoEn DateTime       @updatedAt
