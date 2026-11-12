@@ -74,7 +74,7 @@ p { margin: 0; }
 
 /* ---------- Estructura ---------- */
 .contenedor { width: 100%; max-width: var(--ps-ancho); margin: 0 auto; padding: 0 var(--ps-gutter); }
-.pagina { padding: clamp(24px, 4vw, 48px) 0 80px; }
+.pagina { padding-top: clamp(24px, 4vw, 48px); padding-bottom: 80px; }
 .pila > * + * { margin-top: var(--pila, 16px); }
 .fila { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .entre { justify-content: space-between; }
