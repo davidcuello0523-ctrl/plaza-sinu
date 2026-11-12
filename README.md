@@ -9,6 +9,8 @@ Marketplace multivendedor de Córdoba (Colombia) construido con **arquitectura d
 | **Universidad** | Universidad Cooperativa de Colombia, sede Montería — Ingeniería de Sistemas |
 | **Docente** | Maria Claudia |
 
+> **Demo en línea:** https://plaza-sinu.vercel.app (cliente `cliente@plazasinu.co` / `Demo123*`)
+
 > **¿Es docente y evalúa el proyecto?** Empiece por la [matriz de cumplimiento](docs/matriz-cumplimiento.md): cada requisito y entregable del enunciado con el archivo o la evidencia que lo demuestra.
 
 ![Arquitectura general](docs/arquitectura/01-arquitectura-general.png)

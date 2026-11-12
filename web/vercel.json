@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/:ruta*", "destination": "http://98.80.118.58:8080/:ruta*" },
+    { "source": "/docs/:ruta*", "destination": "http://98.80.118.58:8080/docs/:ruta*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
