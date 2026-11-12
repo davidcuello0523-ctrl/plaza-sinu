@@ -7,7 +7,7 @@ Marketplace multivendedor de Córdoba (Colombia) construido con **arquitectura d
 | **Integrantes** | David Cuello · Miguel Miranda |
 | **Curso** | Optativa I — Arquitectura de Microservicios (Proyecto Final, enunciado n.º 2 "Marketplace de Comercio Electrónico") |
 | **Universidad** | Universidad Cooperativa de Colombia, sede Montería — Ingeniería de Sistemas |
-| **Docente** | [Nombre del docente] |
+| **Docente** | Maria Claudia |
 
 > **¿Es docente y evalúa el proyecto?** Empiece por la [matriz de cumplimiento](docs/matriz-cumplimiento.md): cada requisito y entregable del enunciado con el archivo o la evidencia que lo demuestra.
 
