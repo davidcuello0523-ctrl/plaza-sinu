@@ -4,7 +4,10 @@ const EVIDENCIAS = "docs/evidencias";
 const GATEWAY = process.env.GATEWAY_URL || "http://localhost:8080";
 const RABBIT = process.env.RABBIT_URL || "http://localhost:15672";
 
-const foto = (page, nombre, opciones = {}) => page.screenshot({ path: `${EVIDENCIAS}/${nombre}.png`, ...opciones });
+const foto = async (page, nombre, opciones = {}) => {
+  await page.waitForTimeout(700);
+  return page.screenshot({ path: `${EVIDENCIAS}/${nombre}.png`, ...opciones });
+};
 
 async function entrar(page, correo, clave = "Demo123*") {
   await page.goto("/entrar");
@@ -83,11 +86,23 @@ test("flujo obligatorio de compra desde el navegador", async ({ page }) => {
     await expect(page.getByRole("alert")).toBeVisible();
     await foto(page, "11-error-401-credenciales");
     await page.goto("/registro");
-    await page.getByLabel("Nombre completo").fill("Laura Petro");
     await page.getByLabel("Correo").fill("cliente@plazasinu.co");
-    await page.locator('input[autocomplete="new-password"]').fill("Demo12345");
-    await page.getByRole("button", { name: "Crear cuenta" }).click();
-    await expect(page.getByRole("alert")).toBeVisible();
+    await page.locator('input[autocomplete="new-password"]').first().fill("Sinu2026*");
+    await page.getByLabel("Repite la contraseña").fill("Sinu2026*");
+    await foto(page, "23-registro-paso1-cuenta");
+    await page.getByRole("button", { name: /Continuar/ }).click();
+    await page.getByLabel("Nombres").fill("Laura");
+    await page.getByLabel("Apellidos").fill("Petro Hoyos");
+    await page.getByLabel("Número").fill("1067891234");
+    await page.getByLabel("Fecha de nacimiento").fill("2001-04-15");
+    await page.getByLabel("Celular").fill("3001234567");
+    await foto(page, "24-registro-paso2-datos");
+    await page.getByRole("button", { name: /Continuar/ }).click();
+    await page.getByLabel(/Dirección/).fill("Cra 9 # 27-15, barrio Centro");
+    await page.getByRole("checkbox").check();
+    await foto(page, "25-registro-paso3-resumen");
+    await page.getByRole("button", { name: "Crear mi cuenta" }).click();
+    await expect(page.getByRole("alert")).toContainText("Ya existe una cuenta con ese correo");
     await foto(page, "12-error-409-correo-registrado");
   });
 
@@ -133,5 +148,21 @@ test("flujo obligatorio de compra desde el navegador", async ({ page }) => {
       await page.waitForTimeout(1200);
       await foto(page, nombre, { fullPage: true });
     }
+  });
+
+  await test.step("11. Modo oscuro y fotos de productos", async () => {
+    await page.goto("/catalogo?categoria=artesanias");
+    await expect(page.locator(".tarjeta-producto").first()).toBeVisible();
+    await foto(page, "27-catalogo-fotos-artesanias");
+    await page.goto("/productos/prd-029");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Sombrero vueltiao/);
+    await foto(page, "28-producto-foto-real");
+    await page.getByRole("button", { name: "Modo oscuro" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-tema", "oscuro");
+    await page.goto("/catalogo?categoria=deportes");
+    await expect(page.locator(".tarjeta-producto").first()).toBeVisible();
+    await foto(page, "26-modo-oscuro-catalogo");
+    await page.goto("/mi-puesto");
+    await foto(page, "29-modo-oscuro-mi-puesto");
   });
 });

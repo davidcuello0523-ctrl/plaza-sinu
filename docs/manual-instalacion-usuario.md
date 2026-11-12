@@ -65,6 +65,20 @@ La aplicación tiene tres zonas:
 
 ### 2.1 Cliente
 
+#### Crear una cuenta
+
+En **Crea tu cuenta** el registro va en tres pasos, con una barra de progreso:
+
+1. **Tu cuenta:** elige *Quiero comprar* o *Quiero vender*, escribe tu correo y una contraseña. Un medidor muestra qué tan segura es, y debes repetirla.
+2. **Tus datos:** nombres, apellidos, tipo y número de documento, fecha de nacimiento (debes ser mayor de edad) y celular.
+3. **Dónde estás:** ciudad y dirección de entrega (o de tu negocio, si vendes). Revisa el resumen, acepta los términos y pulsa **Crear mi cuenta**.
+
+Cada paso revisa los datos antes de seguir y marca el campo que falta. Si el correo ya existe, vuelve al primer paso y lo señala.
+
+![Registro, paso 1](evidencias/23-registro-paso1-cuenta.png)
+![Registro, paso 2](evidencias/24-registro-paso2-datos.png)
+![Registro, paso 3](evidencias/25-registro-paso3-resumen.png)
+
 #### Iniciar sesión
 
 En **Entrar** escribe tu correo y contraseña. Si te equivocas de clave, la aplicación lo dice sin borrar el formulario.
@@ -112,7 +126,7 @@ La campana de la barra superior se actualiza **en vivo**: pedido recibido, pago 
 
 #### Solicitar un puesto
 
-1. En **Crea tu cuenta** elige **Vender en mi puesto**.
+1. En **Crea tu cuenta** elige **Quiero vender** en el primer paso.
 2. Entra a **Mi Puesto**: aparece el formulario **Abre tu puesto en Plaza Sinú**: nombre del puesto, qué vendes, categoría principal, ciudad, NIT y teléfono (opcionales) y color del toldo, con una vista previa del puesto.
 3. Pulsa **Enviar solicitud**. El puesto queda **En revisión** hasta que el administrador lo apruebe. Puedes probar este estado con `pendiente@plazasinu.co`.
 
@@ -160,11 +174,23 @@ Los botones **Swagger** y **RabbitMQ** de la cabecera abren la documentación de
 ![Métricas](evidencias/15-metricas.png)
 ![Vendedores](evidencias/16-admin-vendedores.png)
 
-### 2.4 Modo sustentación
+### 2.4 Modo oscuro
+
+El botón de luna de la barra superior cambia toda la aplicación a colores oscuros, y el de sol la devuelve a modo claro. La elección se recuerda en ese navegador. Si nunca se ha tocado, la aplicación sigue el modo del computador o del celular.
+
+![Modo oscuro](evidencias/26-modo-oscuro-catalogo.png)
+
+### 2.5 Fotos de productos
+
+Algunos productos de demostración tienen fotos reales (sombreros vueltiaos, mochila, hamacas, bicicletas, balón, tenis, entre otros); los demás usan una ilustración. Los créditos de cada foto están en [creditos-imagenes.md](creditos-imagenes.md).
+
+![Fotos de artesanías](evidencias/27-catalogo-fotos-artesanias.png)
+
+### 2.6 Modo sustentación
 
 Abre cualquier página con `?demo=1` (o entra como admin) y aparece un panel flotante con los 7 pasos del flujo obligatorio. Cada paso se marca solo cuando el gateway ve ocurrir el evento o la petición correspondiente.
 
-### 2.5 Mensajes de error
+### 2.7 Mensajes de error
 
 | Mensaje | Qué significa | Qué hacer |
 |---|---|---|

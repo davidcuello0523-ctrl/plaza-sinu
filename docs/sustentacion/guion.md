@@ -109,7 +109,7 @@ Mostrar `docs/pruebas/plan-de-pruebas.md`. Si hay tiempo:
 cd servicios/inventario; npm test; cd ../..
 ```
 
-- 144 pruebas unitarias y de API, E2E 24/24, resiliencia 11/11, concurrencia con Postgres real y una prueba de UI con Playwright.
+- 147 pruebas unitarias y de API, E2E 24/24, resiliencia 11/11, concurrencia con Postgres real y una prueba de UI con Playwright.
 - Resiliencia: con notificaciones caído se sigue vendiendo y los mensajes esperan en la cola; con inventario caído el checkout responde 503 y no queda nada a medias.
 
 ## 10. Demostración — David maneja, Miguel narra (3 min)

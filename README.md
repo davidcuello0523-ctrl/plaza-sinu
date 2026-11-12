@@ -130,11 +130,11 @@ docker compose logs --no-log-prefix | Select-String "<correlationId>"
 
 | Comando | Qué corre | Último resultado |
 |---|---|---|
-| `npm install` y luego `npm test` | Jest + Supertest en los 8 paquetes | **144/144** |
+| `npm install` y luego `npm test` | Jest + Supertest en los 8 paquetes | **147/147** |
 | `npm run e2e` | Flujo obligatorio completo contra Docker | **24/24** |
 | `npm run resiliencia` | Servicios caídos, concurrencia y tokens | **11/11** |
 | `npx playwright install chromium` y luego `npm run ui` | Flujo obligatorio en el navegador | **1/1** |
-| `npm run evidencias` | La prueba de UI más las capturas y `docker-ps.txt` | 18 capturas |
+| `npm run evidencias` | La prueba de UI más las capturas y `docker-ps.txt` | 29 capturas |
 
 Detalle en el [plan de pruebas](docs/pruebas/plan-de-pruebas.md).
 

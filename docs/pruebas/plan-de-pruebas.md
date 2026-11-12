@@ -1,6 +1,6 @@
 # Plan de pruebas — Plaza Sinú
 
-Última ejecución completa: **12/11/2026**, con la solución levantada desde cero (`docker compose down -v` y `docker compose up --build`, 17 contenedores `healthy`).
+Última ejecución completa: **12/11/2026** (actualizada con el registro en 3 pasos, el modo oscuro y las fotos de productos), con la solución levantada desde cero (`docker compose down -v` y `docker compose up --build`, 17 contenedores `healthy`).
 
 ## 1. Objetivo
 
@@ -76,14 +76,14 @@ docker stop puente-inventario
 | Servicio | Pruebas | Resultado | Cobertura de líneas |
 |---|---|---|---|
 | gateway | 7 | 7/7 ✅ | 53,3 % |
-| usuarios | 15 | 15/15 ✅ | 75,7 % |
+| usuarios | 17 | 17/17 ✅ | 76,7 % |
 | vendedores | 14 | 14/14 ✅ | 90,4 % |
-| catalogo | 23 | 23/23 ✅ | 85,2 % |
+| catalogo | 24 | 24/24 ✅ | 85,8 % |
 | inventario | 18 | 18/18 ✅ (incluye concurrencia con Postgres real) | 64,0 % |
 | carrito | 19 | 19/19 ✅ | 86,3 % |
 | pedidos-pagos | 28 | 28/28 ✅ | 85,5 % |
 | notificaciones | 20 | 20/20 ✅ | 74,3 % |
-| **Total** | **144** | **144/144 ✅** | |
+| **Total** | **147** | **147/147 ✅** | |
 
 La cobertura del gateway es más baja porque el proxy hacia los servicios y el monitor de RabbitMQ se prueban de punta a punta en el E2E, no con dobles.
 
@@ -93,7 +93,7 @@ La cobertura del gateway es más baja porque el proxy hacia los servicios y el m
 |---|---|---|
 | E2E del flujo obligatorio | **24/24 ✅** | [`resultados-e2e.md`](resultados-e2e.md) |
 | Resiliencia | **11/11 ✅** | [`resultados-resiliencia.md`](resultados-resiliencia.md) |
-| UI con Playwright | **1/1 ✅** (9 pasos) | [`docs/evidencias/`](../evidencias/) |
+| UI con Playwright | **1/1 ✅** (11 pasos, 29 capturas) | [`docs/evidencias/`](../evidencias/) |
 
 ## 7. Tabla de casos
 
@@ -140,3 +140,8 @@ La cobertura del gateway es más baja porque el proxy hacia los servicios y el m
 | DOC-01 | Swagger agregado del gateway | gateway | `/docs` con los 7 servicios | ✅ | [17](../evidencias/17-swagger-gateway.png) |
 | MQ-01 | Colas durables con DLQ | RabbitMQ | 5 colas + 5 DLQ | ✅ | [18](../evidencias/18-rabbitmq-colas.png) |
 | DOC-02 | 17 contenedores sanos | Docker | Todos `healthy` | ✅ | [docker-ps.txt](../evidencias/docker-ps.txt) |
+| UI-05 | Registro en 3 pasos con validación por paso | web, usuarios | Correo, contraseña, datos personales y dirección; 409 si el correo ya existe | ✅ | [23](../evidencias/23-registro-paso1-cuenta.png) · [24](../evidencias/24-registro-paso2-datos.png) · [25](../evidencias/25-registro-paso3-resumen.png) · [12](../evidencias/12-error-409-correo-registrado.png) |
+| UI-06 | Modo oscuro desde la barra superior | web | Cambia el tema y lo recuerda | ✅ | [26](../evidencias/26-modo-oscuro-catalogo.png) · [29](../evidencias/29-modo-oscuro-mi-puesto.png) |
+| UI-07 | Fotos reales de productos | catalogo, web | La foto se sirve por `GET /productos/:id/foto.jpg` | ✅ | [27](../evidencias/27-catalogo-fotos-artesanias.png) · [28](../evidencias/28-producto-foto-real.png) |
+| API-01 | Registro con documento, nacimiento y dirección; menor de edad → 422 | usuarios | 201 con datos guardados / 422 | ✅ | `servicios/usuarios/tests/api.test.js` |
+| API-02 | Foto de producto; id inválido o sin foto → 404 | catalogo | 200 `image/jpeg` / 404 | ✅ | `servicios/catalogo/tests/api.test.js` |

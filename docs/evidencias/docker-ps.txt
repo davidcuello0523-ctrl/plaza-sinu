@@ -1,18 +1,18 @@
-NAME                             IMAGE                             COMMAND                  SERVICE             CREATED          STATUS                    PORTS
-plaza-sinu-carrito-1             plaza-sinu-carrito                "docker-entrypoint.s…"   carrito             18 minutes ago   Up 18 minutes (healthy)   4005/tcp
-plaza-sinu-catalogo-1            plaza-sinu-catalogo               "docker-entrypoint.s…"   catalogo            18 minutes ago   Up 18 minutes (healthy)   4003/tcp
-plaza-sinu-db-carrito-1          redis:7-alpine                    "docker-entrypoint.s…"   db-carrito          31 minutes ago   Up 31 minutes (healthy)   6379/tcp
-plaza-sinu-db-catalogo-1         mongo:7                           "docker-entrypoint.s…"   db-catalogo         31 minutes ago   Up 31 minutes (healthy)   27017/tcp
-plaza-sinu-db-inventario-1       postgres:16-alpine                "docker-entrypoint.s…"   db-inventario       31 minutes ago   Up 31 minutes (healthy)   5432/tcp
-plaza-sinu-db-notificaciones-1   mongo:7                           "docker-entrypoint.s…"   db-notificaciones   31 minutes ago   Up 31 minutes (healthy)   27017/tcp
-plaza-sinu-db-pedidos-1          postgres:16-alpine                "docker-entrypoint.s…"   db-pedidos          31 minutes ago   Up 31 minutes (healthy)   5432/tcp
-plaza-sinu-db-usuarios-1         postgres:16-alpine                "docker-entrypoint.s…"   db-usuarios         31 minutes ago   Up 31 minutes (healthy)   5432/tcp
-plaza-sinu-db-vendedores-1       postgres:16-alpine                "docker-entrypoint.s…"   db-vendedores       31 minutes ago   Up 31 minutes (healthy)   5432/tcp
-plaza-sinu-gateway-1             plaza-sinu-gateway                "docker-entrypoint.s…"   gateway             18 minutes ago   Up 18 minutes (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
-plaza-sinu-inventario-1          plaza-sinu-inventario             "docker-entrypoint.s…"   inventario          18 minutes ago   Up 18 minutes (healthy)   4004/tcp
-plaza-sinu-notificaciones-1      plaza-sinu-notificaciones         "docker-entrypoint.s…"   notificaciones      18 minutes ago   Up 18 minutes (healthy)   4007/tcp
-plaza-sinu-pedidos-pagos-1       plaza-sinu-pedidos-pagos          "docker-entrypoint.s…"   pedidos-pagos       8 minutes ago    Up 8 minutes (healthy)    4006/tcp
-plaza-sinu-rabbitmq-1            rabbitmq:3.13-management-alpine   "docker-entrypoint.s…"   rabbitmq            31 minutes ago   Up 31 minutes (healthy)   0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
-plaza-sinu-usuarios-1            plaza-sinu-usuarios               "docker-entrypoint.s…"   usuarios            14 minutes ago   Up 14 minutes (healthy)   4001/tcp
-plaza-sinu-vendedores-1          plaza-sinu-vendedores             "docker-entrypoint.s…"   vendedores          18 minutes ago   Up 18 minutes (healthy)   4002/tcp
-plaza-sinu-web-1                 plaza-sinu-web                    "/docker-entrypoint.…"   web                 18 minutes ago   Up 18 minutes (healthy)   0.0.0.0:3000->80/tcp, [::]:3000->80/tcp
+NAME                             IMAGE                                                                     COMMAND                  SERVICE             CREATED          STATUS                    PORTS
+plaza-sinu-carrito-1             sha256:7f19f0cb349b92e8eede69b7b4b5911a828ceb19624ba8b24341f76095248510   "docker-entrypoint.s…"   carrito             3 hours ago      Up 3 hours (healthy)      4005/tcp
+plaza-sinu-catalogo-1            plaza-sinu-catalogo                                                       "docker-entrypoint.s…"   catalogo            6 minutes ago    Up 6 minutes (healthy)    4003/tcp
+plaza-sinu-db-carrito-1          redis:7-alpine                                                            "docker-entrypoint.s…"   db-carrito          3 hours ago      Up 3 hours (healthy)      6379/tcp
+plaza-sinu-db-catalogo-1         mongo:7                                                                   "docker-entrypoint.s…"   db-catalogo         3 hours ago      Up 3 hours (healthy)      27017/tcp
+plaza-sinu-db-inventario-1       postgres:16-alpine                                                        "docker-entrypoint.s…"   db-inventario       3 hours ago      Up 3 hours (healthy)      5432/tcp
+plaza-sinu-db-notificaciones-1   mongo:7                                                                   "docker-entrypoint.s…"   db-notificaciones   3 hours ago      Up 3 hours (healthy)      27017/tcp
+plaza-sinu-db-pedidos-1          postgres:16-alpine                                                        "docker-entrypoint.s…"   db-pedidos          3 hours ago      Up 3 hours (healthy)      5432/tcp
+plaza-sinu-db-usuarios-1         postgres:16-alpine                                                        "docker-entrypoint.s…"   db-usuarios         3 hours ago      Up 3 hours (healthy)      5432/tcp
+plaza-sinu-db-vendedores-1       postgres:16-alpine                                                        "docker-entrypoint.s…"   db-vendedores       3 hours ago      Up 3 hours (healthy)      5432/tcp
+plaza-sinu-gateway-1             sha256:2df9184e37cae3581c539fde013506ce0488706a8cac53ba0ac40747b6dc53ce   "docker-entrypoint.s…"   gateway             3 hours ago      Up 3 hours (healthy)      0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+plaza-sinu-inventario-1          sha256:71da827276a7befdf4d83dfea33fd4dcdf7820ff2df0f0434c3189ea9639915e   "docker-entrypoint.s…"   inventario          3 hours ago      Up 3 hours (healthy)      4004/tcp
+plaza-sinu-notificaciones-1      sha256:adcaf69ebbf2492ccd94c18ce21dd69dbecb4a3a2a7b8186d1793a833adfac6a   "docker-entrypoint.s…"   notificaciones      3 hours ago      Up 3 hours (healthy)      4007/tcp
+plaza-sinu-pedidos-pagos-1       sha256:9da03303be4ccbb146ece21b8346666a2bee6b3e67407963312086a55906e711   "docker-entrypoint.s…"   pedidos-pagos       3 hours ago      Up 3 hours (healthy)      4006/tcp
+plaza-sinu-rabbitmq-1            rabbitmq:3.13-management-alpine                                           "docker-entrypoint.s…"   rabbitmq            3 hours ago      Up 3 hours (healthy)      0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
+plaza-sinu-usuarios-1            sha256:37f4717def5ae4e0ceeaee028f7f409ef30d6122ada7ef69439b15ce2604df82   "docker-entrypoint.s…"   usuarios            23 minutes ago   Up 23 minutes (healthy)   4001/tcp
+plaza-sinu-vendedores-1          sha256:75fb2ba9ed2d285f11e3926013e63448287c1af40755dde475fb9e91ba337068   "docker-entrypoint.s…"   vendedores          29 minutes ago   Up 29 minutes (healthy)   4002/tcp
+plaza-sinu-web-1                 plaza-sinu-web                                                            "/docker-entrypoint.…"   web                 6 minutes ago    Up 6 minutes (healthy)    0.0.0.0:3000->80/tcp, [::]:3000->80/tcp
