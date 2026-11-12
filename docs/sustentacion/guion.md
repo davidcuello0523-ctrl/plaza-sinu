@@ -124,6 +124,8 @@ cd servicios/inventario; npm test; cd ../..
 8. Cambiar a la ventana del admin → **Radar de eventos**: los eventos de esta compra.
 9. Cierre (si queda tiempo): copiar el comando de logs de la traza y pegarlo en PowerShell para ver la misma compra en los 5 servicios.
 
+**Experiencia de usuario (David, 1 min, opcional si hay tiempo):** crear una cuenta con el registro en tres pasos, tocar la luna para el modo oscuro y abrir Artesanías para mostrar el sombrero vueltiao con su foto real.
+
 **Frase de cierre (Miguel):** "Una compra atravesó siete servicios, dos protocolos y tres motores de base de datos, y en ningún momento quedó algo a medias."
 
 ---
