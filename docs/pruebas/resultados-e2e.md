@@ -1,6 +1,6 @@
 # Resultados E2E — flujo obligatorio de compra
 
-Ejecutado: 15/10/2026, 1:09:53 p. m. · Gateway: http://localhost:8080
+Ejecutado: 12/11/2026, 8:49:06 a. m. · Gateway: http://localhost:8080
 
 **Resultado: 24/24 casos correctos**
 
@@ -9,7 +9,7 @@ Ejecutado: 15/10/2026, 1:09:53 p. m. · Gateway: http://localhost:8080
 | 1 | 1. Iniciar sesión (usuarios emite JWT) | ✅ | status 200 |
 | 2 | 2. Consultar productos (catálogo con estado de stock) | ✅ | 7 bicicletas · Bicicleta MTB rin 29 Shimano → disponible |
 | 3 | 3. Agregar al carrito (valida precio y stock) | ✅ | status 201 · total 3700000 |
-| 4 | 4. Generar pedido → PENDIENTE_PAGO | ✅ | status 201 · PS-000123 · correlationId a39c2cd2-284c-481b-bccf-4314ba6588fd |
+| 4 | 4. Generar pedido → PENDIENTE_PAGO | ✅ | status 201 · PS-000123 · correlationId 894a0306-740d-41bf-9745-eb9822808593 |
 | 5 | 4b. Repetir POST /pedidos con la misma Idempotency-Key no duplica | ✅ | status 200 · mismo id |
 | 6 | 5. Inventario reserva las unidades | ✅ | disponible 25 → 23 (físico 25) |
 | 7 | 6. Registrar pago (tarjeta 4242 → aprobado) | ✅ | status 201 · •••• 4242 |
