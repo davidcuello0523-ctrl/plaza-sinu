@@ -18,7 +18,7 @@ Este documento es la **fuente de verdad** de cómo se hablan los servicios: ruta
 - Cada servicio tiene `GET /salud`, `GET /salud/listo` (con verificación de BD y `rabbitmq`), `GET /docs` y `GET /openapi.json` (lo da `crearApp` a partir de `openapi.yaml`).
 - Pruebas: Jest (ESM) + Supertest con dobles en memoria, como en `servicios/usuarios/tests/`. `npm test` dentro del servicio debe pasar.
 - Dockerfile: copia el de `servicios/usuarios/Dockerfile` cambiando nombre y puerto. Los servicios con Mongo o Redis no llevan openssl, `prisma generate` ni `db push`.
-- Comentarios en español, solo donde haya una decisión importante. Nombres del dominio en español.
+- Sin comentarios en el código: las decisiones se documentan en `docs/decisiones-tecnicas.md`. Nombres del dominio en español.
 
 ## 2. Puertos y variables
 

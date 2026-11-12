@@ -16,7 +16,8 @@ Formato ADR breve: **contexto → decisión → alternativas → consecuencias**
 | Seguridad | JWT HS256 (15 min) + refresh token rotativo (7 días), bcrypt, helmet, CORS, rate limit | `compartido/src/auth.js`, `servicios/usuarios` |
 | Logs | pino (JSON) con `correlationId` y `usuarioId` | `compartido/src/logger.js`, `compartido/src/app.js` |
 | Frontend | React + Vite + React Router, servido por NGINX | `web/` |
-| Pruebas | Jest + Supertest, scripts E2E en Node, Playwright | `servicios/*/tests`, `pruebas/` |
+| Pruebas | Jest + Supertest, scripts E2E en Node, Playwright (`npm run ui`) | `servicios/*/tests`, `pruebas/e2e`, `pruebas/ui` |
+| Arranque en Windows | Script de PowerShell que copia `.env`, levanta Docker y espera al gateway | `scripts/levantar.ps1` |
 | Docs API | OpenAPI 3 + swagger-ui-express | `servicios/*/openapi.yaml`, `gateway/src/docs.js` |
 | Contenedores | Docker (multi-etapa, `node:22-alpine`, usuario no root) + Docker Compose | `*/Dockerfile`, `docker-compose.yaml` |
 
