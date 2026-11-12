@@ -31,7 +31,7 @@
 .pc-salir { color: var(--ps-error-texto); border-top: 1.5px dashed var(--ps-linea); border-radius: 0; padding-top: 4px; }
 
 @media (max-width: 900px) {
-  .con-panel { grid-template-columns: 1fr; gap: 0; padding-left: 0; }
+  .con-panel { grid-template-columns: minmax(0, 1fr); gap: 0; padding-left: 0; }
   .panel-cliente {
     position: static; margin: 12px var(--ps-gutter) 0; max-height: none; overflow: visible;
     padding: 6px; box-shadow: var(--ps-sombra-sm);

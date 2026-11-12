@@ -175,14 +175,14 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 
 /* ---------- Estados vacíos, carga, error ---------- */
 .vacio { display: grid; place-items: center; gap: 12px; padding: 48px 16px; text-align: center; color: var(--ps-tinta-2); }
-.vacio h3 { color: var(--ps-tinta); }
+.vacio-titulo { color: var(--ps-tinta); font-size: 1.15rem; letter-spacing: -0.01em; }
 .esqueleto { background: linear-gradient(90deg, var(--ps-piedra-2), #F2F0EA, var(--ps-piedra-2)); background-size: 200% 100%; animation: brillo 1.4s linear infinite; border-radius: var(--ps-radio); }
 @keyframes brillo { to { background-position: -200% 0; } }
 .caja-error { border: 1.5px solid var(--ps-error); background: var(--ps-error-suave); color: var(--ps-error-texto); border-radius: var(--ps-radio); padding: 12px 14px; }
 .caja-aviso { border: 1.5px solid var(--ps-aviso); background: var(--ps-aviso-suave); color: var(--ps-aviso-texto); border-radius: var(--ps-radio); padding: 12px 14px; }
 
 /* ---------- Tablas ---------- */
-.tabla-envoltura { overflow-x: auto; border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie); }
+.tabla-envoltura { position: relative; overflow-x: auto; border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie); }
 .tabla { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 .tabla th { text-align: left; font: 600 0.82rem/1.3 var(--ps-titulo); color: var(--ps-tinta-2); padding: 12px 14px; border-bottom: var(--ps-borde); background: var(--ps-piedra); }
 .tabla td { padding: 12px 14px; border-bottom: 1px solid var(--ps-linea); vertical-align: middle; }
