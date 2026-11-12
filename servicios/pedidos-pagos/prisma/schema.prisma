@@ -65,7 +65,7 @@ model ItemPedido {
 model Pago {
   id         String   @id @default(uuid())
   pedidoId   String
-  estado     String // APROBADO | RECHAZADO
+  estado     String
   marca      String
   ultimos4   String
   titular    String
@@ -82,7 +82,7 @@ model PasoTraza {
   servicio      String
   accion        String
   detalle       String?
-  via           String // REST | EVENTO
+  via           String
   correlationId String?
   ocurridoEn    DateTime @default(now())
   pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)

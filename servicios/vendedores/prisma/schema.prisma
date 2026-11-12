@@ -18,7 +18,7 @@ enum EstadoVendedor {
 
 model Vendedor {
   id                 String         @id @default(uuid())
-  usuarioId          String         @unique // id del usuario dueño (viene del JWT, no de otra BD)
+  usuarioId          String         @unique
   nombreTienda       String
   slug               String         @unique
   descripcion        String         @default("")
