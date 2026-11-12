@@ -12,9 +12,14 @@
   "scripts": {
     "test": "npm test --workspaces --if-present",
     "e2e": "node pruebas/e2e/flujo-compra.mjs",
-    "resiliencia": "node pruebas/e2e/resiliencia.mjs"
+    "resiliencia": "node pruebas/e2e/resiliencia.mjs",
+    "ui": "playwright test",
+    "evidencias": "playwright test && docker compose ps > docs/evidencias/docker-ps.txt"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
   }
 }
