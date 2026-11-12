@@ -6,6 +6,7 @@ const id = (n) => `00000000-0000-4000-a000-${String(n).padStart(12, "0")}`;
 
 export const USUARIOS_DEMO = [
   { id: id(1), nombre: "Administración Plaza Sinú", email: "admin@plazasinu.co", rol: "admin", ciudad: "Montería" },
+  { id: id(2), nombre: "Pacho", email: "pacho@plazasinu.co", rol: "admin", ciudad: "Montería", clave: process.env.CLAVE_ADMIN_PACHO },
   { id: id(11), nombre: "Laura Petro", email: "cliente@plazasinu.co", rol: "cliente", ciudad: "Montería" },
   { id: id(12), nombre: "Andrés Doria", email: "cliente2@plazasinu.co", rol: "cliente", ciudad: "Cereté" },
   { id: id(13), nombre: "Valentina Hoyos", email: "cliente3@plazasinu.co", rol: "cliente", ciudad: "Lorica" },
@@ -22,8 +23,10 @@ export const USUARIOS_DEMO = [
 
 export async function sembrar(prisma) {
   const hashClave = await bcrypt.hash(CLAVE_DEMO, 10);
-  for (const u of USUARIOS_DEMO) {
-    await prisma.usuario.upsert({ where: { id: u.id }, update: {}, create: { ...u, hashClave } });
+  for (const { clave, ...u } of USUARIOS_DEMO) {
+    if (u.email === "pacho@plazasinu.co" && !clave) continue;
+    const hash = clave ? await bcrypt.hash(clave, 10) : hashClave;
+    await prisma.usuario.upsert({ where: { id: u.id }, update: {}, create: { ...u, hashClave: hash } });
   }
   return USUARIOS_DEMO.length;
 }

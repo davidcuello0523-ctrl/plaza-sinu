@@ -93,6 +93,7 @@ services:
       <<: *entorno-comun
       PUERTO: 4001
       DATABASE_URL: postgresql://usuarios:${DB_CLAVE}@db-usuarios:5432/usuarios
+      CLAVE_ADMIN_PACHO: ${CLAVE_ADMIN_PACHO:-}
     depends_on:
       db-usuarios: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }
