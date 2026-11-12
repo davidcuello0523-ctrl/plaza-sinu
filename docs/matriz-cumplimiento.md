@@ -22,7 +22,7 @@ Cada requisito técnico mínimo (sección 3 del enunciado), el flujo obligatorio
 | 12 | Pruebas de los servicios y resultados documentados | ✅ | 144 pruebas unitarias y de API, E2E 24/24, resiliencia 11/11, concurrencia con Postgres real y UI con Playwright | [plan-de-pruebas.md](pruebas/plan-de-pruebas.md) · [resultados-e2e.md](pruebas/resultados-e2e.md) · [resultados-resiliencia.md](pruebas/resultados-resiliencia.md) |
 | 13 | Git/GitHub para control de versiones | ✅ | Repositorio con historial de commits por tema (`tipo(alcance): descripción`) | `git log` · [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | 14 | Diagramas de arquitectura y de comunicación | ✅ | Arquitectura general, comunicación (REST y eventos) y dos diagramas de secuencia, en Mermaid con PNG y SVG | [arquitectura/](arquitectura/) |
-| 15 | Demostración funcional de un flujo completo | ✅ | Flujo obligatorio en vivo con Modo sustentación (`?demo=1`), traza del pedido y notificación en tiempo real | [guion.md](sustentacion/guion.md) · [capturas 01–09](evidencias/) · prueba de UI |
+| 15 | Demostración funcional de un flujo completo | ✅ | Flujo obligatorio en vivo con Modo sustentación (`?demo=1`), traza del pedido y notificación en tiempo real. Demo en línea: https://plaza-sinu.vercel.app | [guion.md](sustentacion/guion.md) · [capturas 01–09](evidencias/) · prueba de UI |
 
 ## Flujo de demostración obligatorio (sección 4)
 

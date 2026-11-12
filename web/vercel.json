@@ -4,8 +4,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/:ruta*", "destination": "http://98.80.118.58:8080/:ruta*" },
-    { "source": "/docs/:ruta*", "destination": "http://98.80.118.58:8080/docs/:ruta*" },
+    { "source": "/api/:ruta*", "destination": "http://184.195.91.251:8080/:ruta*" },
+    { "source": "/docs/:ruta*", "destination": "http://184.195.91.251:8080/docs/:ruta*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
