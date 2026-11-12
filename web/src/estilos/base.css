@@ -181,6 +181,7 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 .pestana:hover { color: var(--ps-tinta); background: var(--ps-piedra); }
 .pestana[aria-current="page"] { color: var(--ps-tinta); background: var(--ps-piedra); border-color: var(--ps-tinta); }
 .zona-rio { background: var(--ps-rio); color: #EAF0F6; border-bottom-color: var(--ps-rio); }
+.zona-rio .secundario { color: #A9BCD0; }
 .zona-rio .pestana { color: #A9BCD0; }
 .zona-rio .pestana:hover { color: #fff; background: var(--ps-rio-2); }
 .zona-rio .pestana[aria-current="page"] { color: var(--ps-tinta); background: var(--ps-piedra); border-color: var(--ps-piedra); }
