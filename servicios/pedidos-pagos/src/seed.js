@@ -44,7 +44,7 @@ function construir(h) {
   const correlationId = `seed-${codigo}`;
   const lineas = h.items.map(([id, cantidad]) => {
     const p = PRODUCTOS[id];
-    return { productoId: id, nombre: p.nombre, categoria: p.categoria, imagen: null, precioUnitario: p.precio, cantidad, ...TIENDAS[p.tienda] };
+    return { productoId: id, nombre: p.nombre, categoria: p.categoria, imagen: `/productos/${id}/imagen.svg`, precioUnitario: p.precio, cantidad, ...TIENDAS[p.tienda] };
   });
   const { subpedidos, total, unidades } = calcularTotales(lineas);
   const paso = (min, servicio, accion, detalle, via = "REST") => ({ servicio, accion, detalle, via, correlationId, ocurridoEn: t(min) });
