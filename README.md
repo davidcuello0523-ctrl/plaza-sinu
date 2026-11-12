@@ -166,6 +166,7 @@ plaza-sinu/
 
 | Documento | Contenido |
 |---|---|
+| [Informe del proyecto (PDF)](docs/informe/Informe_Plaza_Sinu_Cuello_Miranda.pdf) · [Word](docs/informe/Informe_Plaza_Sinu_Cuello_Miranda.docx) | Informe final para la entrega |
 | [Matriz de cumplimiento](docs/matriz-cumplimiento.md) | Cada requisito y entregable con su evidencia |
 | [Decisiones técnicas](docs/decisiones-tecnicas.md) | Tecnologías y 15 ADR |
 | [Contratos entre servicios](docs/contratos.md) | Convenciones, rutas internas, eventos y datos de demo |

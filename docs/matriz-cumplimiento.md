@@ -53,7 +53,7 @@ Cada requisito técnico mínimo (sección 3 del enunciado), el flujo obligatorio
 | 9 | Documento de decisiones técnicas y tecnologías | ✅ | [decisiones-tecnicas.md](decisiones-tecnicas.md) (15 ADR) |
 | 10 | Plan y evidencias de pruebas | ✅ | [plan-de-pruebas.md](pruebas/plan-de-pruebas.md) · [evidencias/](evidencias/) |
 | 11 | Manual breve de instalación y usuario | ✅ | [manual-instalacion-usuario.md](manual-instalacion-usuario.md) |
-| 12 | Presentación de sustentación | ✅ | [guion.md](sustentacion/guion.md), [preguntas-probables.md](sustentacion/preguntas-probables.md), [checklist-demo.md](sustentacion/checklist-demo.md) e informe en Word/PDF |
+| 12 | Presentación de sustentación | ✅ | [guion.md](sustentacion/guion.md), [preguntas-probables.md](sustentacion/preguntas-probables.md), [checklist-demo.md](sustentacion/checklist-demo.md) e [informe en Word/PDF](informe/Informe_Plaza_Sinu_Cuello_Miranda.pdf) |
 | 13 | Demostración funcional | ✅ | Modo sustentación (`?demo=1`) y [checklist-demo.md](sustentacion/checklist-demo.md) |
 
 ## Estructura de la sustentación (sección 6)
