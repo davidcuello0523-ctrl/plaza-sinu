@@ -99,7 +99,7 @@ test("flujo obligatorio de compra desde el navegador", async ({ page }) => {
     await foto(page, "13-mapa-servicios", { fullPage: true });
     await page.goto("/sala/eventos");
     await page.waitForTimeout(2000);
-    await foto(page, "14-radar-eventos", { fullPage: true });
+    await foto(page, "14-radar-eventos");
     await page.goto("/sala/metricas");
     await page.waitForTimeout(1500);
     await foto(page, "15-metricas", { fullPage: true });
