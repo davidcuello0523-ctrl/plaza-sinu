@@ -1,5 +1,3 @@
-// Radar de eventos: todo lo que pasa por RabbitMQ (y los pasos REST del flujo
-// obligatorio que ve el gateway), en vivo y filtrable por tipo o correlationId.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/cliente.js";
 import { hora } from "../../api/formato.js";
@@ -18,7 +16,7 @@ export default function Eventos() {
   const [pausado, setPausado] = useState(false);
   const pausaRef = useRef(false);
   pausaRef.current = pausado;
-  const enCola = useRef([]); // lo que llega en pausa se muestra al reanudar
+  const enCola = useRef([]);
 
   useEffect(() => {
     api("/monitor/eventos")

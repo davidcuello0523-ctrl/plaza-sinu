@@ -1,4 +1,3 @@
-// Acceso a datos (Mongoose). Única capa que conoce MongoDB.
 import { Correo, EventoProcesado, Notificacion } from "./modelos.js";
 
 const plano = (doc) => {

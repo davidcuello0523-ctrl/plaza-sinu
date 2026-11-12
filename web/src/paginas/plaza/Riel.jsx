@@ -1,4 +1,3 @@
-// Riel horizontal con desplazamiento por "snap" y botones para teclado/ratón.
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import Icono from "../../componentes/Icono.jsx";

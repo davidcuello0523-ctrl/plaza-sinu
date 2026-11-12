@@ -1,4 +1,3 @@
-// Ensambla la app Express con sus dependencias inyectadas (las pruebas pasan dobles).
 import { fileURLToPath } from "node:url";
 import { crearApp, finalizarApp } from "@plaza/compartido";
 import { crearServicioNotificaciones } from "./servicios/notificaciones.servicio.js";
@@ -12,6 +11,6 @@ export function construirApp({ repo, bus, logger, verificaciones, hub = crearHub
   const servicio = crearServicioNotificaciones({ repo, hub, bus, logger });
   const app = crearApp({ servicio: "notificaciones", logger, rutaOpenapi, verificaciones });
   app.use(crearRutas(crearControlador(servicio, hub)));
-  app.locals.servicio = servicio; // index.js lo usa para el consumidor de eventos
+  app.locals.servicio = servicio;
   return finalizarApp(app, logger);
 }

@@ -1,4 +1,3 @@
-# Imagen del servicio NOTIFICACIONES. Contexto de build = raíz del repo.
 FROM node:22-alpine AS dependencias
 WORKDIR /app
 COPY package.json package-lock.json ./

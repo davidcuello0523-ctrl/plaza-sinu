@@ -1,7 +1,3 @@
-// Mensajería asíncrona con RabbitMQ.
-// Exchange topic "plaza.eventos": cada servicio publica con la clave = tipo
-// del evento (p. ej. "pago.aprobado") y cada consumidor tiene SU cola durable,
-// así que si un consumidor está caído los mensajes esperan en su cola.
 import amqp from "amqplib";
 import { randomUUID } from "node:crypto";
 
@@ -9,7 +5,6 @@ export const EXCHANGE = "plaza.eventos";
 const EXCHANGE_DLX = "plaza.dlx";
 const MAX_INTENTOS = 3;
 
-// Formato común de todos los eventos.
 export function crearEvento(tipo, datos, { origen, correlationId } = {}) {
   return {
     id: randomUUID(),
@@ -26,9 +21,8 @@ export function crearBus({ servicio, url = process.env.RABBITMQ_URL, logger }) {
   let conexion = null;
   let canal = null;
   let conectado = false;
-  const consumidores = []; // se re-registran al reconectar
+  const consumidores = [];
   const observadores = [];
-  // shortcut: pendientes en memoria si el broker cae; se pierden si el proceso muere → usar patrón outbox en producción
   const pendientes = [];
 
   async function conectar() {
@@ -70,7 +64,6 @@ export function crearBus({ servicio, url = process.env.RABBITMQ_URL, logger }) {
     });
   }
 
-  // Publica un evento. Devuelve el evento creado (útil para registrar la traza).
   function publicar(tipo, datos, { correlationId } = {}) {
     const evento = crearEvento(tipo, datos, { origen: servicio, correlationId });
     if (conectado) enviar(evento);
@@ -94,13 +87,11 @@ export function crearBus({ servicio, url = process.env.RABBITMQ_URL, logger }) {
       try {
         evento = JSON.parse(msg.content.toString());
       } catch {
-        canal.nack(msg, false, false); // mensaje corrupto → DLQ directo
+        canal.nack(msg, false, false);
         return;
       }
       const log = logger.child({ correlationId: evento.correlationId, evento: evento.tipo, eventoId: evento.id });
       try {
-        // Idempotencia: RabbitMQ garantiza "al menos una vez", así que un
-        // mismo evento puede llegar dos veces; si ya lo procesamos, se ignora.
         if (procesados && (await procesados.existe(evento.id))) {
           log.info("evento duplicado ignorado");
         } else {
@@ -123,18 +114,16 @@ export function crearBus({ servicio, url = process.env.RABBITMQ_URL, logger }) {
     });
   }
 
-  // Suscribe un consumidor durable. Si aún no hay conexión, se registra al conectar.
   async function consumir(opciones) {
     consumidores.push(opciones);
     if (conectado) await registrar(opciones);
   }
 
-  // Cola temporal que ve TODOS los eventos (la usa el gateway para el radar).
   async function registrarObservador(manejador) {
     const { queue } = await canal.assertQueue("", { exclusive: true, autoDelete: true });
     await canal.bindQueue(queue, EXCHANGE, "#");
     await canal.consume(queue, (msg) => {
-      try { manejador(JSON.parse(msg.content.toString())); } catch { /* mensaje ilegible: se ignora */ }
+      try { manejador(JSON.parse(msg.content.toString())); } catch {}
     }, { noAck: true });
   }
 

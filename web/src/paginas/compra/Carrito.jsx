@@ -1,5 +1,3 @@
-// Carrito agrupado por puesto. Al abrirlo, el servicio carrito vuelve a validar
-// precios (catálogo) y stock (inventario) y devuelve los avisos.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -14,7 +12,7 @@ export default function Carrito() {
   const { setCarrito, avisar } = usePlaza();
   const [carrito, setLocal] = useState(null);
   const [error, setError] = useState(null);
-  const [ocupado, setOcupado] = useState(null); // productoId que se está actualizando
+  const [ocupado, setOcupado] = useState(null);
 
   const aplicar = useCallback((c) => { setLocal(c); setCarrito(c); }, [setCarrito]);
 

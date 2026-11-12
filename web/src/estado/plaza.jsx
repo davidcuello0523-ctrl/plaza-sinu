@@ -1,5 +1,3 @@
-// Estado compartido de la plaza: carrito (contador), ciudad elegida,
-// notificaciones en vivo (SSE) y avisos emergentes.
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { abrirStream, api } from "../api/cliente.js";
 import { useSesion } from "./sesion.jsx";
@@ -15,7 +13,7 @@ export function ProveedorPlaza({ children }) {
   const [notificaciones, setNotificaciones] = useState([]);
   const [noLeidas, setNoLeidas] = useState(0);
   const [avisos, setAvisos] = useState([]);
-  const oyentes = useRef(new Set()); // otras pantallas que quieren enterarse de cada notificación
+  const oyentes = useRef(new Set());
 
   const avisar = useCallback((texto, tono = "neutro") => {
     const id = crypto.randomUUID();
@@ -25,12 +23,12 @@ export function ProveedorPlaza({ children }) {
 
   const elegirCiudad = (c) => {
     setCiudad(c);
-    try { localStorage.setItem("plaza.ciudad", c); } catch { /* sin almacenamiento */ }
+    try { localStorage.setItem("plaza.ciudad", c); } catch {}
   };
 
   const recargarCarrito = useCallback(async () => {
     if (usuario?.rol !== "cliente") return setCarrito(null);
-    try { setCarrito(await api("/carrito")); } catch { /* el contador puede esperar */ }
+    try { setCarrito(await api("/carrito")); } catch {}
   }, [usuario?.rol]);
 
   const recargarNotificaciones = useCallback(async () => {
@@ -39,12 +37,11 @@ export function ProveedorPlaza({ children }) {
       const r = await api("/notificaciones?porPagina=20");
       setNotificaciones(r.datos || []);
       setNoLeidas(r.noLeidas ?? (r.datos || []).filter((n) => !n.leida).length);
-    } catch { /* la campana puede esperar */ }
+    } catch {}
   }, [usuario]);
 
   useEffect(() => { recargarCarrito(); }, [recargarCarrito]);
 
-  // Notificaciones en tiempo real por SSE: llegan sin recargar la página.
   useEffect(() => {
     if (!usuario) { setNotificaciones([]); setNoLeidas(0); return; }
     recargarNotificaciones();
@@ -63,7 +60,7 @@ export function ProveedorPlaza({ children }) {
       fuente.onerror = async () => {
         fuente.close();
         if (cerrado) return;
-        await api("/usuarios/yo").catch(() => {}); // si el token venció, esto lo renueva
+        await api("/usuarios/yo").catch(() => {});
         setTimeout(() => !cerrado && conectar(), 3000);
       };
     };

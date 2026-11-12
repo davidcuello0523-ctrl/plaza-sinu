@@ -1,5 +1,3 @@
-// Dobles de prueba: repositorio en memoria (misma interfaz que el de Prisma),
-// bus que anota eventos y clientes REST falsos para carrito/catálogo/inventario.
 import { randomUUID } from "node:crypto";
 import { ErrorApp, ErrorServicioNoDisponible, crearLogger } from "@plaza/compartido";
 import { codigoPedido } from "../src/servicios/dominio.js";
@@ -80,7 +78,6 @@ export const PRODUCTOS = [
   { id: "prd-2", nombre: "Sombrero vueltiao", precio: 420000, categoria: "artesanias", imagen: null, vendedorId: "v-b", vendedorUsuarioId: VENDEDOR_B.id, nombreTienda: "Tienda B", publicado: true, eliminado: false },
 ];
 
-// modo inventario: "ok" | "sin_stock" | "caido"
 export function clientesFalsos({ items = [{ productoId: "prd-1", cantidad: 2 }, { productoId: "prd-2", cantidad: 1 }], inventario = "ok" } = {}) {
   const llamadas = { reservas: [], liberadas: [] };
   return {

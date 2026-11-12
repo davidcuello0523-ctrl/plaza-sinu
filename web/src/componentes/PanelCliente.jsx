@@ -1,5 +1,3 @@
-// Panel lateral del cliente: atajos a las secciones de compra y a las categorías.
-// En pantallas angostas se vuelve una barra horizontal desplazable.
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSesion } from "../estado/sesion.jsx";
 import { usePlaza } from "../estado/plaza.jsx";

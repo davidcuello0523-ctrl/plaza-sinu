@@ -1,5 +1,3 @@
-// Rutas REST del carrito. Solo los clientes compran; las rutas /interno/
-// son para pedidos-pagos y el gateway nunca las expone.
 import { Router } from "express";
 import { z } from "zod";
 import { ErrorProhibido, autenticar, soloInterno, validar } from "@plaza/compartido";

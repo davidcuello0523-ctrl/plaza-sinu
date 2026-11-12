@@ -1,5 +1,3 @@
-// Lógica del catálogo: listar, ver, publicar y editar productos.
-// Autorización POR RECURSO: un vendedor solo toca SUS productos.
 import { randomUUID } from "node:crypto";
 import { ErrorApp, ErrorNoEncontrado, ErrorProhibido } from "@plaza/compartido";
 import { CATEGORIAS } from "../categorias.js";
@@ -28,7 +26,6 @@ export function crearServicioCatalogo({ repo, bus, clientes }) {
   return {
     async listar(filtros, usuario) {
       const f = { ...filtros };
-      // ?mios=1 → el vendedor ve todos sus productos, también los ocultos.
       if (filtros.mios && usuario?.rol === "vendedor") f.duenoUsuarioId = usuario.id;
       const { datos, total } = await repo.buscar(f);
       return { datos, pagina: f.pagina, porPagina: f.porPagina, total, totalPaginas: Math.ceil(total / f.porPagina) };
@@ -42,8 +39,6 @@ export function crearServicioCatalogo({ repo, bus, clientes }) {
     },
 
     async crear(usuario, datos, ctx) {
-      // El catálogo pregunta a vendedores (REST) si el puesto está aprobado:
-      // necesita la respuesta YA para decidir, por eso no es un evento.
       let vendedor;
       try {
         vendedor = await clientes.vendedores.get(`/interno/vendedores/por-usuario/${usuario.id}`, ctx);
@@ -64,7 +59,7 @@ export function crearServicioCatalogo({ repo, bus, clientes }) {
         colorTienda: vendedor.color,
         ciudad: vendedor.ciudad,
         vendedorActivo: true,
-        estadoStock: "agotado", // inventario crea el stock en 0 y avisa cuando cambie
+        estadoStock: "agotado",
         stockDisponible: 0,
       });
       if (p.publicado) avisarPublicado(p, ctx);
@@ -95,7 +90,6 @@ export function crearServicioCatalogo({ repo, bus, clientes }) {
       return CATEGORIAS.map((c) => ({ ...c, cantidad: conteo[c.slug] || 0 }));
     },
 
-    // Snapshot para carrito y pedidos (ruta interna).
     async porIds(ids) {
       return (await repo.buscarPorIds(ids)).map((p) => ({
         id: p.id, nombre: p.nombre, precio: p.precio, categoria: p.categoria, imagen: p.imagenes?.[0],

@@ -1,4 +1,3 @@
-// Controladores: traducen HTTP ↔ lógica y eligen el código de estado.
 import { ErrorPeticion, contexto } from "@plaza/compartido";
 
 export function crearControlador(servicio) {
@@ -10,7 +9,6 @@ export function crearControlador(servicio) {
         { usuario: req.usuario, idempotencyKey: String(idempotencyKey).slice(0, 100), direccion: req.body.direccion },
         contexto(req),
       );
-      // 201 si se creó ahora; 200 si es la repetición de una petición anterior.
       res.status(repetido ? 200 : 201).json(pedido);
     },
     listar: async (req, res) => res.json(await servicio.listar(req.usuario, req.validado.query)),

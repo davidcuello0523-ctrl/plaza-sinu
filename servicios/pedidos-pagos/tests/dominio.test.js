@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS de las reglas de dominio (sin BD ni HTTP).
 import {
   calcularTotales, luhnValido, procesarPago, tarjetaVencida, validarTransicionPedido, validarTransicionSubpedido,
 } from "../src/servicios/dominio.js";

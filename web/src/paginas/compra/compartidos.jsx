@@ -1,10 +1,8 @@
-// Piezas propias del flujo de compra: franja de toldo por puesto y formulario de pago.
 import { useState } from "react";
 import Icono from "../../componentes/Icono.jsx";
 
 const PALETA = ["#1F6FB2", "#2F8F5B", "#B0457A", "#8A5A2B", "#C98A12", "#3D6B7A", "#C23B3B", "#6B7A2E"];
 
-// Color estable por nombre de tienda cuando el servicio no manda colorTienda.
 export function colorDeTienda(grupo) {
   if (grupo?.colorTienda) return grupo.colorTienda;
   const nombre = grupo?.nombreTienda || "";
@@ -28,7 +26,6 @@ const vencimiento = (v) => {
   return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
 };
 
-// Formulario de tarjeta. Nunca guarda nada: solo entrega los datos a onPagar.
 export function FormularioPago({ onPagar, enviando, textoBoton = "Pagar" }) {
   const [tarjeta, setTarjeta] = useState({ numeroTarjeta: "", titular: "", vencimiento: "", cvv: "" });
   const cambiar = (campo, valor) => setTarjeta((t) => ({ ...t, [campo]: valor }));

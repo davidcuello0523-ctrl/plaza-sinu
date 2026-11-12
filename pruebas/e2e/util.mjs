@@ -1,4 +1,3 @@
-// Utilidades de las pruebas E2E: llamadas al gateway, esperas y reporte ✅/❌.
 import { writeFileSync, mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 
@@ -27,7 +26,6 @@ export async function login(email) {
   return r.datos.accessToken;
 }
 
-// Espera a que una condición asíncrona se cumpla (consistencia eventual).
 export async function esperar(fn, { msMax = 8000, cada = 300 } = {}) {
   const fin = Date.now() + msMax;
   let ultimo;

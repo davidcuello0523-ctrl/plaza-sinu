@@ -1,4 +1,3 @@
-# Frontend: se compila con Vite y se sirve como estático con NGINX.
 FROM node:22-alpine AS compilacion
 WORKDIR /app
 COPY package.json package-lock.json ./

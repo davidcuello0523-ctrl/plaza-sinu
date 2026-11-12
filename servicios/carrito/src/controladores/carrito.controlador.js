@@ -1,4 +1,3 @@
-// Controladores: traducen HTTP ↔ lógica del carrito.
 import { contexto } from "@plaza/compartido";
 
 export function crearControlador(servicio) {
@@ -12,7 +11,6 @@ export function crearControlador(servicio) {
       await servicio.vaciar(req.usuario.id);
       res.status(204).end();
     },
-    // Rutas internas (pedidos-pagos lee y vacía el carrito de un cliente).
     verInterno: async (req, res) => res.json(await servicio.ver(req.params.usuarioId, contexto(req))),
     vaciarInterno: async (req, res) => {
       await servicio.vaciar(req.params.usuarioId);

@@ -1,7 +1,3 @@
-// Punto de entrada de @plaza/compartido.
-// Solo utilidades TÉCNICAS. Aquí no hay modelos de dominio (Producto, Pedido…):
-// si los compartiéramos, cambiar un servicio obligaría a desplegar los demás
-// y volveríamos a un monolito distribuido.
 export * from "./errores.js";
 export * from "./auth.js";
 export * from "./validar.js";

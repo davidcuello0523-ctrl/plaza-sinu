@@ -1,4 +1,3 @@
-// Tarjeta de producto: imagen a sangre con el sello del puesto, precio y stock.
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -9,7 +8,6 @@ import Icono from "../../componentes/Icono.jsx";
 import { iniciales } from "./comun.js";
 import "../../estilos/plaza.css";
 
-// Barra de 5 segmentos: cuánto queda del producto, sin dar la cifra exacta.
 export function BarraStock({ estado, disponible }) {
   const llenos = estado === "agotado" ? 0 : estado === "ultimas_unidades" ? 1 : Math.min(5, Math.max(2, Math.ceil((disponible ?? 10) / 6)));
   const ultimas = disponible === 1 ? "Queda 1 unidad" : disponible ? `Quedan ${disponible} unidades` : "Últimas unidades";
@@ -24,7 +22,6 @@ export function BarraStock({ estado, disponible }) {
   );
 }
 
-// Botón "Agregar" reutilizable (tarjeta y detalle).
 export function useAgregar() {
   const { usuario } = useSesion();
   const { setCarrito, avisar } = usePlaza();

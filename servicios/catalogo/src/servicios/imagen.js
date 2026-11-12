@@ -1,10 +1,5 @@
-// Ilustración SVG generada por producto (sin enlaces externos que puedan caerse).
-// Dibujo plano según la categoría, sobre el color del puesto. Sin texto del
-// usuario dentro del SVG: así no hay riesgo de inyección.
-
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
-// Número estable a partir del id: el mismo producto siempre se ve igual.
 function semilla(texto) {
   let h = 2166136261;
   for (const c of texto) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
@@ -56,7 +51,7 @@ export function generarImagen({ id, categoria, colorTienda }) {
   const s = semilla(id);
   const fondo = HEX.test(colorTienda || "") ? colorTienda : "#E4572E";
   const acento = ACENTOS[s % ACENTOS.length] === fondo ? ACENTOS[(s + 1) % ACENTOS.length] : ACENTOS[s % ACENTOS.length];
-  const giro = (s % 13) - 6; // -6° … 6°: productos de la misma categoría no se ven idénticos
+  const giro = (s % 13) - 6;
   const dibujo = (DIBUJOS[categoria] || DIBUJOS.hogar)(acento);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-hidden="true">
   <defs><pattern id="r" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(${30 + giro * 4})">

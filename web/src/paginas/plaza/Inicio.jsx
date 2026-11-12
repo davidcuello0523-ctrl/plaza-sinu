@@ -1,4 +1,3 @@
-// Inicio de La Plaza: los puestos abiertos hoy y rieles por categoría.
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/cliente.js";

@@ -1,4 +1,3 @@
-// Arranque del API Gateway (puerto 8080, el único expuesto al navegador).
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearMonitor } from "./monitor.js";
 import { construirGateway } from "./app.js";

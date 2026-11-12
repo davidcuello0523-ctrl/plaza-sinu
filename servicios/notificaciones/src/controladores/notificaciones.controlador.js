@@ -1,5 +1,3 @@
-// Controladores HTTP de notificaciones (incluye el stream SSE).
-
 export function crearControlador(servicio, hub) {
   return {
     listar: async (req, res) => {

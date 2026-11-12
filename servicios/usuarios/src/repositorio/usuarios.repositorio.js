@@ -1,5 +1,3 @@
-// Capa de acceso a datos (Prisma). Es la ÚNICA que conoce la base de datos.
-
 export function crearRepositorioUsuarios(prisma) {
   return {
     buscarPorEmail: (email) => prisma.usuario.findUnique({ where: { email } }),

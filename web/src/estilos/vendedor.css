@@ -1,11 +1,8 @@
-/* Zona Mi Puesto (vendedor). Prefijo de clases: vend- */
-
 .vend-toldo { height: 14px; }
 .vend-toldo::after { height: 8px; background-size: 44px 8px; }
 .vend-zona .zona-cabecera { margin-top: -8px; }
 .vend-h { font-size: 1.05rem; margin-bottom: 12px; }
 
-/* ---------- Resumen (bento) ---------- */
 .vend-atender {
   display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
   padding: clamp(20px, 3vw, 32px); min-height: 280px; text-decoration: none;
@@ -27,7 +24,6 @@
 .vend-lista-avisos li { display: grid; gap: 2px; }
 @media (max-width: 600px) { .vend-ultimos .vend-lista li { grid-template-columns: 1fr auto; } }
 
-/* ---------- Solicitud ---------- */
 .vend-solicitud { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); gap: 28px; align-items: start; }
 @media (max-width: 860px) { .vend-solicitud { grid-template-columns: 1fr; } }
 .vend-titulo-solicitud { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 10px 0 6px; }
@@ -44,7 +40,6 @@
 .vend-vista-cuerpo { padding: 28px 20px 22px; display: grid; gap: 6px; }
 .vend-sello-tienda { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; border: var(--ps-borde); color: #fff; font: 700 1.1rem/1 var(--ps-titulo); margin-bottom: 6px; }
 
-/* ---------- Productos ---------- */
 .vend-productos { list-style: none; margin: 0; padding: 0; background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); }
 .vend-productos li {
   display: grid; grid-template-columns: 72px minmax(0, 1fr) auto auto auto; align-items: center; gap: 16px;
@@ -67,7 +62,6 @@
 .vend-interruptor input { width: 20px; height: 20px; accent-color: var(--ps-naranja-texto); }
 .vend-boton-peligro { background: var(--ps-error-suave); color: var(--ps-error-texto); border-color: var(--ps-error); box-shadow: none; }
 
-/* ---------- Diálogo ---------- */
 .vend-dialogo {
   width: min(var(--ancho), calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 0;
   border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra); background: var(--ps-superficie); color: var(--ps-tinta);
@@ -85,7 +79,6 @@
 @keyframes vend-aparece { from { opacity: 0; transform: translateY(8px); } }
 @keyframes vend-desliza { from { transform: translateX(40px); opacity: 0; } }
 
-/* ---------- Inventario ---------- */
 .vend-tabla-stock td.cifra { font-size: 1.05rem; }
 .vend-fila-baja td:first-child { box-shadow: inset 5px 0 0 var(--ps-aviso); }
 .vend-fila-baja { background: #FFFBF0; }
@@ -96,7 +89,6 @@
 .vend-kardex li { display: grid; gap: 6px; padding: 12px 0 12px 16px; border-left: 2px solid var(--ps-tinta); position: relative; }
 .vend-kardex li::before { content: ""; position: absolute; left: -6px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: var(--ps-piedra); border: 1.5px solid var(--ps-tinta); }
 
-/* ---------- Pedidos ---------- */
 .vend-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .vend-chip {
   display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;

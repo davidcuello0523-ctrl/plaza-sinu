@@ -1,6 +1,3 @@
-// Clases de error y middleware central. Todos los servicios responden errores
-// con el MISMO formato: { error: { codigo, mensaje, detalles, correlationId } }.
-
 export class ErrorApp extends Error {
   constructor(status, codigo, mensaje, detalles = []) {
     super(mensaje);
@@ -32,15 +29,11 @@ export class ErrorServicioNoDisponible extends ErrorApp {
   constructor(mensaje = "Servicio no disponible, intenta en unos segundos") { super(503, "SERVICIO_NO_DISPONIBLE", mensaje); }
 }
 
-// Ruta inexistente → 404 con el formato común.
 export function rutaNoEncontrada(req, _res, next) {
   next(new ErrorNoEncontrado(`No existe la ruta ${req.method} ${req.originalUrl}`));
 }
 
-// Middleware de errores: traduce cualquier excepción al formato común.
-// Los errores no previstos se registran completos y se responden como 500 genérico.
 export function manejadorErrores(logger) {
-  // eslint-disable-next-line no-unused-vars
   return (err, req, res, _next) => {
     let error = err;
     if (err?.type === "entity.parse.failed") error = new ErrorPeticion("El cuerpo no es un JSON válido");

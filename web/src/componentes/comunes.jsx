@@ -1,11 +1,9 @@
-// Piezas pequeñas reutilizadas por todas las zonas.
 import { NavLink, Navigate, useLocation } from "react-router-dom";
 import { ESTADOS_PEDIDO, ESTADOS_STOCK } from "../api/formato.js";
 import { useSesion } from "../estado/sesion.jsx";
 import { usePlaza } from "../estado/plaza.jsx";
 import Icono from "./Icono.jsx";
 
-// Sello de estado: <Sello estado="PAGADO" /> o <Sello tono="aviso">Texto</Sello>
 export function Sello({ estado, stock, tono, children, plano = false }) {
   const def = (estado && ESTADOS_PEDIDO[estado]) || (stock && ESTADOS_STOCK[stock]) || {};
   return (
@@ -39,7 +37,6 @@ export function Vacio({ icono = "caja", titulo, children, accion, principal = fa
   );
 }
 
-// Muestra un ErrorApi con su mensaje y el correlationId para buscar en los logs.
 export function CajaError({ error, alReintentar }) {
   if (!error) return null;
   return (
@@ -56,7 +53,6 @@ export function CajaError({ error, alReintentar }) {
   );
 }
 
-// Protege una ruta por sesión y, opcionalmente, por rol.
 export function RutaProtegida({ roles, children }) {
   const { usuario } = useSesion();
   const ubicacion = useLocation();
@@ -73,7 +69,6 @@ export function RutaProtegida({ roles, children }) {
   return children;
 }
 
-// Encabezado de las zonas Vendedor y Admin con pestañas horizontales.
 export function CabeceraZona({ titulo, subtitulo, pestanas, oscura = false, extra }) {
   return (
     <header className={`zona-cabecera ${oscura ? "zona-rio" : ""}`}>

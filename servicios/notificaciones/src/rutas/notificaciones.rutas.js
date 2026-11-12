@@ -1,4 +1,3 @@
-// Rutas REST de notificaciones. Todas exigen JWT (el stream lo recibe por ?token=).
 import { Router } from "express";
 import { z } from "zod";
 import { autenticar, validar } from "@plaza/compartido";

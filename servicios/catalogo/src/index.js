@@ -1,4 +1,3 @@
-// Arranque del servicio: conecta MongoDB y RabbitMQ y levanta HTTP.
 import mongoose from "mongoose";
 import { crearBus, crearClienteHttp, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioProductos } from "./repositorio/productos.repositorio.js";

@@ -1,5 +1,3 @@
-// Pedidos del puesto: el vendedor solo ve SUS sub-pedidos y los avanza
-// PAGADO → PREPARANDO → ENVIADO → ENTREGADO (cada cambio notifica al cliente).
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -20,7 +18,6 @@ const FILTROS = [
 
 export default function Pedidos() {
   const { avisar, alNotificar } = usePlaza();
-  // shortcut: trae los 50 pedidos más recientes y filtra por estado del sub-pedido en el navegador; paginar si un puesto supera ese volumen
   const { datos, cargando, error, recargar } = useCarga(() => api("/pedidos?porPagina=50").then((r) => r.datos), []);
   const [filtro, setFiltro] = useState("PAGADO");
   const [avanzando, setAvanzando] = useState(null);

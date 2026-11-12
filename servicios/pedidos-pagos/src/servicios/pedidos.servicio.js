@@ -1,6 +1,3 @@
-// Lógica de pedidos y pagos: este servicio ORQUESTA la saga de compra.
-//   carrito (REST) → catálogo (REST, precios) → inventario (REST, reserva)
-//   → pedido guardado → pago (pasarela simulada) → eventos para el resto.
 import { randomUUID } from "node:crypto";
 import {
   ErrorApp, ErrorConflicto, ErrorNoEncontrado, ErrorProhibido,
@@ -9,7 +6,6 @@ import {
   ESTADOS_VENDIDOS, calcularTotales, formatoCOP, procesarPago, validarTransicionPedido, validarTransicionSubpedido,
 } from "./dominio.js";
 
-// Fecha local de Colombia (YYYY-MM-DD) para agrupar ventas por día.
 const diaBogota = (fecha) => new Date(fecha).toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
 
 const MOTIVOS_LIBERACION = {
@@ -19,8 +15,6 @@ const MOTIVOS_LIBERACION = {
 };
 
 export function crearServicioPedidos({ repo, bus, clientes }) {
-  // Marca de tiempo estrictamente creciente: los pasos creados en el mismo
-  // milisegundo conservan su orden en la traza.
   let ultimo = 0;
   const ahora = () => { ultimo = Math.max(Date.now(), ultimo + 1); return new Date(ultimo); };
   const paso = (servicio, accion, detalle, via, correlationId) => ({ servicio, accion, detalle, via, correlationId, ocurridoEn: ahora() });
@@ -36,8 +30,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
     return pedido;
   }
 
-  // Autorización POR RECURSO: el cliente ve sus pedidos; el vendedor solo
-  // los sub-pedidos de su puesto; el admin, todo.
   function vistaPara(pedido, usuario) {
     if (usuario.rol === "admin") return pedido;
     if (usuario.rol === "cliente" && pedido.clienteId === usuario.id) return pedido;
@@ -51,26 +43,20 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
   return {
     vistaPara,
 
-    // ---------- Checkout (saga orquestada) ----------
     async crear({ usuario, idempotencyKey, direccion }, ctx = {}) {
-      // 1. Idempotencia: repetir la petición devuelve el MISMO pedido.
       const previo = await repo.buscarPorIdempotencia(usuario.id, idempotencyKey);
       if (previo) return { pedido: previo, repetido: true };
 
       const cid = ctx.correlationId;
-      // 2. Leer el carrito (REST a carrito).
       const carrito = await clientes.carrito.get(`/interno/carrito/${usuario.id}`, ctx);
       const lineasCarrito = (carrito?.grupos || []).flatMap((g) => g.items);
       if (!lineasCarrito.length) throw new ErrorApp(422, "CARRITO_VACIO", "Tu carrito está vacío");
-      // Si inventario no respondió al carrito, el stock queda "desconocido":
-      // seguimos y la reserva decidirá (y dará 503 si inventario sigue caído).
       const stockSinVerificar = lineasCarrito.every((l) => l.estadoStock === "desconocido");
       if (carrito.valido === false && !stockSinVerificar) {
         throw new ErrorConflicto("Tu carrito tiene productos con problemas, revísalo antes de pagar", "CARRITO_INVALIDO",
           (carrito.avisos || []).map((mensaje) => ({ mensaje })));
       }
 
-      // 3. Precios ACTUALES del catálogo: se congelan en el pedido (snapshot).
       const ids = [...new Set(lineasCarrito.map((l) => l.productoId))];
       const { datos: productos } = await clientes.catalogo.get(`/interno/productos?ids=${ids.join(",")}`, ctx);
       const porId = new Map(productos.map((p) => [p.id, p]));
@@ -96,8 +82,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
         paso("catalogo", "precios congelados en el pedido", `Total ${formatoCOP(total)}`, "REST", cid),
       ];
 
-      // 4. Reservar stock (REST a inventario). Si inventario está caído, el
-      //    error 503 sale de aquí ANTES de guardar nada: nada queda a medias.
       let reserva;
       try {
         reserva = await clientes.inventario.post("/reservas", {
@@ -105,7 +89,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
         }, ctx);
       } catch (err) {
         if (err.status !== 409) throw err;
-        // Sin stock: el pedido queda registrado como RECHAZADO_SIN_STOCK.
         const codigo = await repo.siguienteCodigo();
         const rechazado = await repo.crearPedido({
           ...base, codigo, estado: "RECHAZADO_SIN_STOCK", motivo: err.message,
@@ -120,7 +103,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
           [...(err.detalles || []), { pedidoId: rechazado.id, codigo }]);
       }
 
-      // 5. Guardar el pedido PENDIENTE_PAGO con sus sub-pedidos y la traza.
       const codigo = await repo.siguienteCodigo();
       let pedido;
       try {
@@ -134,7 +116,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
           ],
         });
       } catch (e) {
-        // Compensación: si el pedido no se pudo guardar, la reserva se libera.
         await clientes.inventario.post(`/reservas/${reserva.id}/liberar`, {}, ctx).catch(() => {});
         if (e.codigo === "IDEMPOTENCIA") return { pedido: await repo.buscarPorIdempotencia(usuario.id, idempotencyKey), repetido: true };
         throw e;
@@ -148,7 +129,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
       return { pedido, repetido: false };
     },
 
-    // ---------- Pago con la pasarela simulada ----------
     async pagar({ usuario, pedidoId, tarjeta }, ctx = {}) {
       const pedido = await obtener(pedidoId);
       if (pedido.clienteId !== usuario.id) throw new ErrorProhibido("Solo el dueño del pedido puede pagarlo");
@@ -190,7 +170,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
         [{ pedidoId, codigo: pedido.codigo, estado: "PAGO_RECHAZADO" }]);
     },
 
-    // ---------- Consultas ----------
     async listar(usuario, { estado, pagina, porPagina }) {
       const filtro = { estado, pagina, porPagina };
       if (usuario.rol === "cliente") filtro.clienteId = usuario.id;
@@ -209,7 +188,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
       return { pedido: { id: pedido.id, codigo: pedido.codigo, estado: pedido.estado, correlationId: pedido.correlationId }, pasos };
     },
 
-    // ---------- El vendedor avanza su sub-pedido ----------
     async cambiarEstadoSubpedido({ usuario, pedidoId, subpedidoId, estado }, ctx = {}) {
       const pedido = await obtener(pedidoId);
       const sub = pedido.subpedidos.find((s) => s.id === subpedidoId);
@@ -231,7 +209,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
         resumen: `${pedido.codigo} · ${sub.nombreTienda}: ${sub.estado} → ${estado}`,
       }, { correlationId: cid || pedido.correlationId });
 
-      // Cuando TODOS los puestos entregaron, el pedido completo se cierra.
       const actualizado = await obtener(pedidoId);
       const activos = actualizado.subpedidos.filter((s) => s.estado !== "CANCELADO");
       if (activos.length && activos.every((s) => s.estado === "ENTREGADO") && actualizado.estado === "PAGADO") {
@@ -244,12 +221,10 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
       return vistaPara(await obtener(pedidoId), usuario);
     },
 
-    // ---------- Cancelación por el cliente ----------
     async cancelar({ usuario, pedidoId }, ctx = {}) {
       const pedido = await obtener(pedidoId);
       if (usuario.rol !== "admin" && pedido.clienteId !== usuario.id) throw new ErrorProhibido("Solo el dueño del pedido puede cancelarlo");
       validarTransicionPedido(pedido.estado, "CANCELADO");
-      // Primero se libera el stock (REST); si inventario no responde → 503 y el pedido no cambia.
       if (pedido.reservaId) await clientes.inventario.post(`/reservas/${pedido.reservaId}/liberar`, {}, ctx);
       const ok = await repo.transicionarPedido({
         pedidoId, desde: ["PENDIENTE_PAGO"], hacia: "CANCELADO", estadoSubpedidos: "CANCELADO", motivo: "Cancelado por el cliente",
@@ -259,7 +234,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
       return obtener(pedidoId);
     },
 
-    // ---------- Consumidores de eventos (actualizan la traza) ----------
     async alConfirmarReserva(evento) {
       const { pedidoId, unidades } = evento.datos;
       if (!(await repo.buscarPedido(pedidoId))) return;
@@ -289,7 +263,6 @@ export function crearServicioPedidos({ repo, bus, clientes }) {
       await repo.agregarPaso({ pedidoId, ...paso("notificaciones", quienes, eventoOrigen ? `por ${eventoOrigen}` : null, "EVENTO", evento.correlationId) });
     },
 
-    // ---------- Métricas ----------
     async metricas() {
       const pedidos = await repo.listarParaMetricas();
       const pedidosPorEstado = {};

@@ -1,7 +1,3 @@
-// Modelo de datos del servicio PEDIDOS-PAGOS (base de datos propia: db-pedidos).
-// Guarda una COPIA (snapshot) de nombre y precio de cada producto: si mañana el
-// vendedor cambia el precio en el catálogo, el pedido conserva lo que se cobró.
-
 generator client {
   provider      = "prisma-client-js"
   output        = "../src/generated/prisma"
@@ -19,7 +15,6 @@ model Pedido {
   clienteId      String
   clienteNombre  String
   clienteEmail   String?
-  // PENDIENTE_PAGO | PAGADO | PAGO_RECHAZADO | RECHAZADO_SIN_STOCK | CANCELADO | COMPLETADO
   estado         String
   total          Int
   unidades       Int
@@ -34,19 +29,16 @@ model Pedido {
   pagos          Pago[]
   pasos          PasoTraza[]
 
-  // Idempotencia: el mismo cliente con la misma Idempotency-Key = el mismo pedido.
   @@unique([clienteId, idempotencyKey])
   @@index([clienteId])
 }
 
-// Parte del pedido que le toca a UN vendedor (cada puesto despacha lo suyo).
 model SubPedido {
   id                String       @id @default(uuid())
   pedidoId          String
   vendedorId        String
   vendedorUsuarioId String
   nombreTienda      String
-  // PENDIENTE_PAGO | PAGADO | PREPARANDO | ENVIADO | ENTREGADO | CANCELADO
   estado            String
   subtotal          Int
   unidades          Int
@@ -70,7 +62,6 @@ model ItemPedido {
   subPedido      SubPedido @relation(fields: [subPedidoId], references: [id], onDelete: Cascade)
 }
 
-// Pago con la pasarela simulada. NUNCA se guarda el número completo ni el CVV.
 model Pago {
   id         String   @id @default(uuid())
   pedidoId   String
@@ -85,7 +76,6 @@ model Pago {
   pedido     Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 }
 
-// Pasos de la saga: alimentan la pantalla "Traza del pedido".
 model PasoTraza {
   id            String   @id @default(uuid())
   pedidoId      String
@@ -100,13 +90,11 @@ model PasoTraza {
   @@index([pedidoId])
 }
 
-// Contador para los códigos legibles PS-000123.
 model Contador {
   nombre String @id
   valor  Int
 }
 
-// Ids de eventos ya procesados (consumidores idempotentes).
 model EventoProcesado {
   id         String   @id
   tipo       String

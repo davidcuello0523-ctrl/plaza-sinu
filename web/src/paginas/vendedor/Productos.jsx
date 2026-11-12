@@ -1,4 +1,3 @@
-// Productos del puesto: publicar/ocultar, crear y editar con atributos según la categoría.
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -9,7 +8,6 @@ import { usePlaza } from "../../estado/plaza.jsx";
 import { Campo } from "./Solicitud.jsx";
 import { Dialogo, erroresPorCampo, useCarga } from "./utiles.jsx";
 
-// Atributos variables por categoría (el catálogo los guarda en MongoDB tal cual).
 const ATRIBUTOS = {
   tecnologia: [["marca", "Marca"], ["memoria", "Memoria"], ["voltaje", "Voltaje"], ["garantiaMeses", "Garantía (meses)"]],
   bicicletas: [["rin", "Rin"], ["talla", "Talla"], ["material", "Material"], ["cambios", "Cambios"]],
@@ -39,7 +37,6 @@ function FormularioProducto({ producto, categorias, alGuardar, alCerrar }) {
     e.preventDefault();
     setGuardando(true);
     setError(null);
-    // Solo se envían los atributos de la categoría elegida y con valor.
     const atributos = Object.fromEntries((ATRIBUTOS[form.categoria] || [])
       .map(([k]) => [k, String(form.atributos[k] ?? "").trim()]).filter(([, v]) => v));
     const cuerpo = { nombre: form.nombre, descripcion: form.descripcion, precio: Number(form.precio), categoria: form.categoria, atributos };
@@ -134,7 +131,7 @@ export default function Productos() {
   const { avisar } = usePlaza();
   const productos = useCarga(() => api("/productos?mios=1&porPagina=60&orden=recientes").then((r) => r.datos), []);
   const { datos: categorias } = useCarga(() => api("/categorias").then((r) => r.datos), []);
-  const [editando, setEditando] = useState(null); // null = cerrado, {} = nuevo, producto = editar
+  const [editando, setEditando] = useState(null);
 
   async function alternarPublicacion(p) {
     try {

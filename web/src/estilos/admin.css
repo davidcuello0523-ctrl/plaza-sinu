@@ -1,10 +1,5 @@
-/* ==========================================================================
-   Sala de máquinas (admin): mapa de servicios, radar, aprobación, métricas.
-   ========================================================================== */
-
 .sala h2 { margin-bottom: 4px; }
 
-/* ---------- Lienzo del mapa ---------- */
 .lienzo-panel { padding: clamp(12px, 2vw, 20px); overflow: hidden; }
 .lienzo { width: 100%; height: auto; font-family: var(--ps-texto); }
 .leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 12px; font-size: 0.85rem; color: #C9D6E3; }
@@ -60,13 +55,10 @@
 .bus-caido rect { stroke: #E05252; }
 .bus-caido .bus-estado { fill: #FF9A9A; }
 
-/* Un solo movimiento: el nodo late cuando publica o consume un evento. */
 .pulso .nodo-caja, .nodo-gateway.pulso rect { animation: latido 1.2s ease-out; }
 .enlace-activo { stroke: #FFFFFF; stroke-width: 2.6; animation: fluye 1.2s linear; }
 @keyframes latido { 0% { stroke: var(--ps-naranja); stroke-width: 6; } 100% { stroke-width: 1.5; } }
 @keyframes fluye { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
-
-/* Móvil: lista de tarjetas en vez del diagrama */
 .mapa-lista { display: none; list-style: none; margin: 0; padding: 0; gap: 10px; }
 .tarjeta-servicio {
   display: grid; gap: 4px; width: 100%; text-align: left; padding: 12px 14px; cursor: pointer;
@@ -81,14 +73,12 @@
   .mapa-lista { display: grid; }
 }
 
-/* Detalle del servicio elegido */
 .detalle-servicio { display: grid; gap: 12px; }
 .datos-servicio { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
 .datos-servicio dt { color: var(--ps-tinta-2); }
 .datos-servicio dd { margin: 0; }
 .contents { display: contents; }
 
-/* Colas y lista de servicios */
 .colas, .lista-servicios { list-style: none; margin: 12px 0 0; padding: 0; }
 .colas li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--ps-linea); }
 .colas li:last-child { border-bottom: 0; }
@@ -98,7 +88,6 @@
 .lista-servicios li > .mono { grid-column: 2; }
 .lista-servicios li:last-child { border-bottom: 0; }
 
-/* ---------- Radar ---------- */
 .radar-filtros { display: grid; gap: 16px; }
 .chips-tipo { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip-filtro {
@@ -127,13 +116,11 @@
   .radar-correlacion { grid-column: 2; grid-row: 1; }
 }
 
-/* ---------- Control segmentado ---------- */
 .segmentado { display: inline-flex; flex-wrap: wrap; border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie); overflow: hidden; }
 .segmentado button { min-height: 40px; padding: 0 14px; border: 0; border-right: 1px solid var(--ps-linea); background: transparent; cursor: pointer; font: 600 0.88rem var(--ps-titulo); }
 .segmentado button:last-child { border-right: 0; }
 .segmentado button.activo { background: var(--ps-tinta); color: #fff; }
 
-/* ---------- Vendedores ---------- */
 .lista-puestos { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .puesto-admin { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
 .muestra-color { width: 64px; height: 64px; border: var(--ps-borde); border-radius: var(--ps-radio); display: grid; place-items: center; color: #fff; font: 700 1.2rem var(--ps-titulo); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
@@ -148,7 +135,6 @@
 
 .enlace-codigo { font-weight: 600; color: var(--ps-naranja-texto); }
 
-/* ---------- Métricas ---------- */
 .metrica-total { display: grid; gap: 8px; align-content: start; }
 .metrica-total .cifra { font-size: clamp(2.2rem, 4.5vw, 3.4rem); line-height: 1; }
 .barras-vendedor { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px; }
@@ -169,7 +155,6 @@
 .estados-pedido { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .estados-pedido li { list-style: none; display: inline-flex; align-items: center; gap: 8px; }
 
-/* ---------- Modo sustentación ---------- */
 .demo-boton {
   position: fixed; left: 16px; bottom: 16px; z-index: 70;
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px;

@@ -1,5 +1,3 @@
-// Ensambla la app Express con sus dependencias inyectadas (repo, bus):
-// las pruebas pasan un repositorio en memoria sin base de datos.
 import { fileURLToPath } from "node:url";
 import { crearApp, finalizarApp } from "@plaza/compartido";
 import { crearServicioInventario } from "./servicios/inventario.servicio.js";

@@ -1,5 +1,3 @@
-// Set de iconos propio (SVG en línea, trazo 1.75, esquinas rectas suaves).
-// Uso: <Icono nombre="carrito" /> — decorativo por defecto (aria-hidden).
 const TRAZOS = {
   buscar: <><circle cx="10.5" cy="10.5" r="6" /><path d="M15 15l5 5" /></>,
   carrito: <><path d="M3 4h2.5l2.2 10.5h10.6L20.5 7H7" /><circle cx="9.5" cy="19" r="1.4" /><circle cx="17" cy="19" r="1.4" /></>,

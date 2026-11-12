@@ -1,5 +1,3 @@
-// Lógica de negocio de usuarios: registro, login, refresh rotativo y perfil.
-// No sabe nada de HTTP (eso es del controlador) ni de SQL (eso es del repositorio).
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "node:crypto";
 import { ErrorConflicto, ErrorNoAutenticado, ErrorNoEncontrado, firmarAcceso } from "@plaza/compartido";
@@ -7,7 +5,6 @@ import { ErrorConflicto, ErrorNoAutenticado, ErrorNoEncontrado, firmarAcceso } f
 const DIAS_REFRESH = 7;
 const sha256 = (texto) => createHash("sha256").update(texto).digest("hex");
 
-// Nunca devolvemos el hash de la contraseña.
 export const publico = ({ hashClave, ...usuario }) => usuario;
 
 export function crearServicioUsuarios({ repo, bus }) {
@@ -33,15 +30,12 @@ export function crearServicioUsuarios({ repo, bus }) {
 
     async login({ email, clave }) {
       const usuario = await repo.buscarPorEmail(email.toLowerCase());
-      // Mismo mensaje si el correo no existe o la clave es incorrecta: no revelamos qué cuentas existen.
       if (!usuario || !usuario.activo || !(await bcrypt.compare(clave, usuario.hashClave))) {
         throw new ErrorNoAutenticado("Correo o contraseña incorrectos");
       }
       return emitirTokens(usuario);
     },
 
-    // Rotación: cada refresh token sirve UNA vez. Si alguien reutiliza uno ya
-    // usado (posible robo), se revocan todas las sesiones de ese usuario.
     async refrescar(refreshToken) {
       const registro = await repo.buscarRefresh(sha256(refreshToken));
       if (!registro) throw new ErrorNoAutenticado("Sesión no válida, inicia sesión de nuevo");

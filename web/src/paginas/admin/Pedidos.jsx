@@ -1,4 +1,3 @@
-// Todos los pedidos del marketplace (admin), con su traza a un clic.
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/cliente.js";

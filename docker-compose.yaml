@@ -1,8 +1,3 @@
-# Plaza Sinú — toda la solución con un comando:  docker compose up --build
-# Solo se publican al host: web (3000), gateway (8080) y panel de RabbitMQ (15672).
-# Servicios y bases de datos viven en la red interna "plaza": el navegador no
-# puede saltarse el gateway.
-
 x-servicio-node: &servicio-node
   restart: unless-stopped
   networks: [plaza]
@@ -42,7 +37,6 @@ x-mongo: &mongo
     retries: 10
 
 services:
-  # ───────────── Infraestructura ─────────────
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     restart: unless-stopped
@@ -58,7 +52,6 @@ services:
       timeout: 5s
       retries: 10
 
-  # Una base de datos POR SERVICIO, cada una en su contenedor y su volumen.
   db-usuarios:
     <<: *postgres
     environment: { POSTGRES_USER: usuarios, POSTGRES_PASSWORD: "${DB_CLAVE}", POSTGRES_DB: usuarios }
@@ -93,7 +86,6 @@ services:
       timeout: 3s
       retries: 10
 
-  # ───────────── Microservicios ─────────────
   usuarios:
     <<: *servicio-node
     build: { context: ., dockerfile: servicios/usuarios/Dockerfile }
@@ -171,7 +163,6 @@ services:
       db-notificaciones: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }
 
-  # ───────────── Entrada única y frontend ─────────────
   gateway:
     <<: *servicio-node
     build: { context: ., dockerfile: gateway/Dockerfile }

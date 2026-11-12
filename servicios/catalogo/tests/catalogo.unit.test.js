@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS: consulta Mongo, regla de stock, consumidores de eventos, imagen y seed.
 import { construirConsulta } from "../src/repositorio/productos.repositorio.js";
 import { estadoDeStock } from "../src/categorias.js";
 import { crearManejadorEventos } from "../src/eventos/consumidores.js";

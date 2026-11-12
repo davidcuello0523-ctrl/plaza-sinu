@@ -1,5 +1,3 @@
-// Notificaciones de demostración para que la campana no arranque vacía.
-// Los usuarioId son los IDs fijos de docs/contratos.md.
 import mongoose from "mongoose";
 import { Notificacion } from "./repositorio/modelos.js";
 

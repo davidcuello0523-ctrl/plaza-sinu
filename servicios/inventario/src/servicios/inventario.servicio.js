@@ -1,5 +1,3 @@
-// Lógica de inventario: consultas, ajustes del vendedor y el ciclo de vida de
-// las reservas (reservar → confirmar | liberar). Publica los eventos de stock.
 import { ErrorNoEncontrado, ErrorProhibido } from "@plaza/compartido";
 import { disponible, estadoStock, vista } from "./reglas.js";
 
@@ -21,14 +19,12 @@ export function crearServicioInventario({ repo, bus, logger }) {
     return s;
   }
 
-  // Autorización por recurso: el vendedor solo toca SU stock; el admin, todo.
   function exigirDueno(stock, usuario) {
     if (usuario.rol === "admin") return;
     if (usuario.rol === "vendedor" && stock.vendedorUsuarioId === usuario.id) return;
     throw new ErrorProhibido("Solo el vendedor dueño del producto puede ver o ajustar su inventario");
   }
 
-  // Avisa a catálogo (bandera de disponibilidad) y, si bajó del umbral, al vendedor.
   function publicarCambios(stocks, ctx, { avisarStockBajo }) {
     for (const s of stocks) {
       const d = disponible(s);
@@ -112,7 +108,6 @@ export function crearServicioInventario({ repo, bus, logger }) {
       return formatoReserva(r.reserva);
     },
 
-    // Reservas no pagadas a tiempo: se devuelven las unidades al stock.
     async liberarVencidas() {
       for (const id of await repo.reservasVencidas(new Date())) {
         try {

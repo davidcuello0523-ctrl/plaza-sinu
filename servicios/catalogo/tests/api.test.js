@@ -1,4 +1,3 @@
-// Pruebas de API (Supertest) del catálogo.
 import request from "supertest";
 import { firmarAcceso } from "@plaza/compartido";
 import { construirApp } from "../src/app.js";

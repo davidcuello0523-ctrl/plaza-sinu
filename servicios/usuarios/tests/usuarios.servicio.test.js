@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS de la lógica de usuarios (sin HTTP ni base de datos).
 import { crearServicioUsuarios } from "../src/servicios/usuarios.servicio.js";
 import { verificarJwt } from "@plaza/compartido";
 import { busFalso, repoEnMemoria } from "./dobles.js";
@@ -38,7 +37,6 @@ describe("servicio de usuarios", () => {
     const nuevo = await servicio.refrescar(refreshToken);
     expect(nuevo.refreshToken).not.toBe(refreshToken);
     await expect(servicio.refrescar(refreshToken)).rejects.toMatchObject({ status: 401 });
-    // Reutilizar un token viejo revoca TODAS las sesiones (también el nuevo).
     await expect(servicio.refrescar(nuevo.refreshToken)).rejects.toMatchObject({ status: 401 });
   });
 });

@@ -1,12 +1,7 @@
-// Capa de acceso a datos (Prisma). Las operaciones que tocan stock corren en
-// UNA transacción y bloquean las filas con SELECT … FOR UPDATE: si dos clientes
-// compran la última unidad a la vez, el segundo espera al primero y luego ve
-// el stock ya descontado (nunca queda negativo).
 import { agruparItems, disponible, puedeTransicionar, validarAjuste, validarReserva } from "../servicios/reglas.js";
 
 const conItems = { items: { select: { productoId: true, cantidad: true } } };
 
-// ORDER BY evita interbloqueos cuando dos reservas piden los mismos productos en distinto orden.
 async function bloquearStocks(tx, productoIds) {
   const filas = await tx.$queryRaw`
     SELECT * FROM "Stock" WHERE "productoId" = ANY(${productoIds}) ORDER BY "productoId" FOR UPDATE`;
@@ -25,7 +20,6 @@ async function movimiento(tx, stock, tipo, cantidad, referencia, nota) {
 }
 
 export function crearRepositorioInventario(prisma) {
-  // Cierra una reserva ACTIVA (confirmar o liberar) con sus efectos en el stock.
   async function cerrarReserva(id, destino, motivo) {
     return prisma.$transaction(async (tx) => {
       const reserva = await bloquearReserva(tx, id);
@@ -72,7 +66,7 @@ export function crearRepositorioInventario(prisma) {
         if (existente) return { reserva: existente, nueva: false };
         const agrupados = agruparItems(items);
         const stocks = await bloquearStocks(tx, agrupados.map((i) => i.productoId));
-        validarReserva(stocks, agrupados); // lanza 409 y la transacción se revierte
+        validarReserva(stocks, agrupados);
         const reserva = await tx.reserva.create({ data: { pedidoId, venceEn, items: { create: agrupados } }, include: conItems });
         for (const { productoId, cantidad } of agrupados) {
           const s = await tx.stock.update({ where: { productoId }, data: { reservado: { increment: cantidad } } });

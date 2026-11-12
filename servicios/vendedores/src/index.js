@@ -1,4 +1,3 @@
-// Arranque del servicio: conecta Postgres (Prisma) y RabbitMQ y levanta HTTP.
 import prismaPkg from "./generated/prisma/index.js";
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioVendedores } from "./repositorio/vendedores.repositorio.js";

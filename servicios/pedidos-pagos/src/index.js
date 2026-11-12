@@ -1,4 +1,3 @@
-// Arranque del servicio: Postgres (Prisma), RabbitMQ, consumidores y HTTP.
 import prismaPkg from "./generated/prisma/index.js";
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioPedidos } from "./repositorio/pedidos.repositorio.js";
@@ -34,4 +33,4 @@ iniciarServidor(app, {
   alCerrar: async () => { await bus.cerrar(); await prisma.$disconnect(); },
 });
 await registrarConsumidores({ bus, servicio: app.locals.servicio, repo });
-bus.conectar(); // reintenta solo; /salud/listo dice 503 mientras no conecte
+bus.conectar();

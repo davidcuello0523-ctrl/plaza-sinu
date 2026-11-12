@@ -1,4 +1,3 @@
-// Sesión del usuario (JWT + refresh) disponible en toda la app con useSesion().
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, sesionGuardada } from "../api/cliente.js";
 
@@ -7,7 +6,6 @@ const Contexto = createContext(null);
 export function ProveedorSesion({ children }) {
   const [sesion, setSesion] = useState(() => sesionGuardada.leer());
 
-  // Se sincroniza cuando el cliente API renueva o borra la sesión (y entre pestañas).
   useEffect(() => {
     const actualizar = () => setSesion(sesionGuardada.leer());
     window.addEventListener("plaza:sesion", actualizar);
@@ -44,5 +42,4 @@ export function ProveedorSesion({ children }) {
 
 export const useSesion = () => useContext(Contexto);
 
-// Página de inicio según el rol.
 export const inicioDeRol = (rol) => (rol === "vendedor" ? "/mi-puesto" : rol === "admin" ? "/sala" : "/");

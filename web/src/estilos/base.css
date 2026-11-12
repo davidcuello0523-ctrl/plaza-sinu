@@ -1,10 +1,3 @@
-/* ==========================================================================
-   Plaza Sinú — sistema visual base. Prefijo de variables: --ps-
-   Concepto: plaza de mercado editorial. Bordes de tinta 1.5px, radios
-   pequeños, sombras sólidas desplazadas, sellos para estados y el TOLDO
-   festoneado como único elemento decorativo (puestos de vendedores).
-   ========================================================================== */
-
 :root {
   --ps-piedra: #F4F3EF;
   --ps-piedra-2: #EAE8E1;
@@ -12,9 +5,7 @@
   --ps-tinta: #15181C;
   --ps-tinta-2: #5B6169;
   --ps-linea: #D6D3CA;
-  --ps-naranja: #E4572E;          /* fondos y acentos (texto encima: tinta) */
-  --ps-naranja-texto: #B83E1A;    /* naranja con contraste AA sobre piedra/blanco */
-  --ps-naranja-suave: #FBE3DA;
+  --ps-naranja: #E4572E;            --ps-naranja-texto: #B83E1A;      --ps-naranja-suave: #FBE3DA;
   --ps-rio: #16324F;
   --ps-rio-2: #22476B;
   --ps-rio-suave: #DCE6F0;
@@ -72,14 +63,12 @@ p { margin: 0; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* ---------- Estructura ---------- */
 .contenedor { width: 100%; max-width: var(--ps-ancho); margin: 0 auto; padding: 0 var(--ps-gutter); }
 .pagina { padding-top: clamp(24px, 4vw, 48px); padding-bottom: 80px; }
 .pila > * + * { margin-top: var(--pila, 16px); }
 .fila { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .entre { justify-content: space-between; }
 
-/* ---------- Botones ---------- */
 .boton {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 0 18px;
@@ -99,7 +88,6 @@ p { margin: 0; }
 .boton-sm { min-height: 36px; padding: 0 12px; font-size: 0.85rem; }
 .boton-icono { width: 44px; padding: 0; }
 
-/* ---------- Formularios ---------- */
 .campo { display: grid; gap: 6px; }
 .campo > span { font-weight: 600; font-size: 0.9rem; }
 .campo small { color: var(--ps-tinta-2); }
@@ -113,13 +101,11 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 .campo-error .entrada { border-color: var(--ps-error); }
 .mensaje-error { color: var(--ps-error-texto); font-size: 0.86rem; }
 
-/* ---------- Superficies ---------- */
 .panel { background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); padding: clamp(16px, 2.4vw, 24px); }
 .panel-destacado { box-shadow: var(--ps-sombra); }
 .panel-rio { background: var(--ps-rio); color: #EAF0F6; border-color: var(--ps-rio); }
 .panel-rio .secundario { color: #A9BCD0; }
 
-/* Cuadrícula bento: los hijos eligen su tamaño con .b-2, .b-alto… */
 .bento { display: grid; gap: 16px; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-flow: dense; }
 .bento > * { grid-column: span 2; }
 .bento > .b-3 { grid-column: span 3; }
@@ -129,7 +115,6 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 @media (max-width: 900px) { .bento > *, .bento > .b-3, .bento > .b-4 { grid-column: span 3; } }
 @media (max-width: 600px) { .bento { grid-template-columns: 1fr; } .bento > *, .bento > .b-3, .bento > .b-4, .bento > .b-6 { grid-column: auto; } .bento > .b-alto { grid-row: auto; } }
 
-/* ---------- Sello de estado ---------- */
 .sello {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 3px 10px 3px 8px; border: 1.5px solid currentColor; border-radius: 999px;
@@ -143,8 +128,6 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 .sello-rio { color: var(--ps-rio); background: var(--ps-rio-suave); }
 .sello-neutro { color: var(--ps-tinta-2); background: var(--ps-piedra-2); }
 .sello-plano { transform: none; }
-
-/* ---------- Chip de servicio (traza, radar, mapa) ---------- */
 .chip-servicio {
   display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px;
   border-radius: var(--ps-radio-sm); font: 500 0.78rem/1.5 var(--ps-mono);
@@ -159,7 +142,6 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 [data-servicio="notificaciones"] { --color-servicio: #8A6D0B; }
 [data-servicio="gateway"] { --color-servicio: #15181C; }
 
-/* ---------- TOLDO: borde festoneado a rayas con el color del puesto ---------- */
 .toldo {
   --color-toldo: var(--ps-naranja);
   position: relative; height: 34px;
@@ -173,7 +155,6 @@ textarea.entrada { min-height: 96px; resize: vertical; }
     radial-gradient(circle at 33px 0, #FFFDF8 10.5px, transparent 11px) 0 0 / 44px 11px repeat-x;
 }
 
-/* ---------- Estados vacíos, carga, error ---------- */
 .vacio { display: grid; place-items: center; gap: 12px; padding: 48px 16px; text-align: center; color: var(--ps-tinta-2); }
 .vacio-titulo { color: var(--ps-tinta); font-size: 1.15rem; letter-spacing: -0.01em; }
 .esqueleto { background: linear-gradient(90deg, var(--ps-piedra-2), #F2F0EA, var(--ps-piedra-2)); background-size: 200% 100%; animation: brillo 1.4s linear infinite; border-radius: var(--ps-radio); }
@@ -181,14 +162,12 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 .caja-error { border: 1.5px solid var(--ps-error); background: var(--ps-error-suave); color: var(--ps-error-texto); border-radius: var(--ps-radio); padding: 12px 14px; }
 .caja-aviso { border: 1.5px solid var(--ps-aviso); background: var(--ps-aviso-suave); color: var(--ps-aviso-texto); border-radius: var(--ps-radio); padding: 12px 14px; }
 
-/* ---------- Tablas ---------- */
 .tabla-envoltura { position: relative; overflow-x: auto; border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie); }
 .tabla { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 .tabla th { text-align: left; font: 600 0.82rem/1.3 var(--ps-titulo); color: var(--ps-tinta-2); padding: 12px 14px; border-bottom: var(--ps-borde); background: var(--ps-piedra); }
 .tabla td { padding: 12px 14px; border-bottom: 1px solid var(--ps-linea); vertical-align: middle; }
 .tabla tr:last-child td { border-bottom: 0; }
 
-/* ---------- Pestañas de zona (segmented control) ---------- */
 .zona-cabecera { background: var(--ps-superficie); border-bottom: var(--ps-borde); }
 .zona-cabecera .contenedor { padding-top: 28px; }
 .pestanas { display: flex; gap: 4px; overflow-x: auto; margin-top: 20px; scrollbar-width: none; }
@@ -206,7 +185,6 @@ textarea.entrada { min-height: 96px; resize: vertical; }
 .zona-rio .pestana:hover { color: #fff; background: var(--ps-rio-2); }
 .zona-rio .pestana[aria-current="page"] { color: var(--ps-tinta); background: var(--ps-piedra); border-color: var(--ps-piedra); }
 
-/* ---------- Avisos emergentes ---------- */
 .avisos { position: fixed; right: 16px; bottom: 16px; z-index: 80; display: grid; gap: 8px; width: min(380px, calc(100vw - 32px)); }
 .aviso {
   display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px;

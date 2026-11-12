@@ -1,4 +1,3 @@
-// Catálogo con filtros en chips. Todo filtro vive en la URL (se puede compartir el enlace).
 import { useSearchParams } from "react-router-dom";
 import { pesos } from "../../api/formato.js";
 import { CajaError, Cargando, Vacio } from "../../componentes/comunes.jsx";
@@ -29,7 +28,6 @@ export default function Catalogo() {
   consulta.set("porPagina", "12");
   const productos = useDatos(`/productos?${consulta}`);
 
-  // Cambia filtros y vuelve a la página 1 (salvo que se cambie la página misma).
   const cambiar = (cambios) => {
     const nuevo = new URLSearchParams(params);
     for (const [k, v] of Object.entries(cambios)) (v === undefined || v === null || v === "" ? nuevo.delete(k) : nuevo.set(k, v));

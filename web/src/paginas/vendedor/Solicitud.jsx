@@ -1,4 +1,3 @@
-// Solicitud de apertura de puesto (POST /vendedores/solicitudes) y estado de la revisión.
 import { useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/cliente.js";

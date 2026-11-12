@@ -1,4 +1,3 @@
-// Controladores: traducen HTTP ↔ lógica.
 import { contexto } from "@plaza/compartido";
 import { generarImagen } from "../servicios/imagen.js";
 
@@ -21,7 +20,6 @@ export function crearControlador(servicio) {
       res.set({
         "content-type": "image/svg+xml",
         "cache-control": "public, max-age=86400",
-        // La web (otro origen: :3000/:5173) la carga en <img>; helmet por defecto lo bloquearía.
         "cross-origin-resource-policy": "cross-origin",
       });
       res.send(generarImagen(p));

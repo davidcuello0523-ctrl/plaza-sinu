@@ -1,5 +1,3 @@
-// Rutas reales (React Router, sin hash). Tres zonas: La Plaza (cliente),
-// Mi Puesto (vendedor) y Sala de Máquinas (admin).
 import { lazy, Suspense } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import BarraSuperior from "./componentes/BarraSuperior.jsx";
@@ -9,25 +7,21 @@ import PanelCliente from "./componentes/PanelCliente.jsx";
 import { useSesion } from "./estado/sesion.jsx";
 
 const p = (cargar) => lazy(cargar);
-// La Plaza
 const Inicio = p(() => import("./paginas/plaza/Inicio.jsx"));
 const Catalogo = p(() => import("./paginas/plaza/Catalogo.jsx"));
 const Producto = p(() => import("./paginas/plaza/Producto.jsx"));
 const Puesto = p(() => import("./paginas/plaza/Puesto.jsx"));
-// Compra
 const Entrar = p(() => import("./paginas/compra/Entrar.jsx"));
 const Carrito = p(() => import("./paginas/compra/Carrito.jsx"));
 const Checkout = p(() => import("./paginas/compra/Checkout.jsx"));
 const MisPedidos = p(() => import("./paginas/compra/MisPedidos.jsx"));
 const Pedido = p(() => import("./paginas/compra/Pedido.jsx"));
-// Mi Puesto (vendedor)
 const ZonaVendedor = p(() => import("./paginas/vendedor/ZonaVendedor.jsx"));
 const ResumenPuesto = p(() => import("./paginas/vendedor/Resumen.jsx"));
 const ProductosPuesto = p(() => import("./paginas/vendedor/Productos.jsx"));
 const InventarioPuesto = p(() => import("./paginas/vendedor/Inventario.jsx"));
 const PedidosPuesto = p(() => import("./paginas/vendedor/Pedidos.jsx"));
 const SolicitudPuesto = p(() => import("./paginas/vendedor/Solicitud.jsx"));
-// Sala de Máquinas (admin)
 const ZonaAdmin = p(() => import("./paginas/admin/ZonaAdmin.jsx"));
 const MapaServicios = p(() => import("./paginas/admin/Mapa.jsx"));
 const RadarEventos = p(() => import("./paginas/admin/Eventos.jsx"));

@@ -1,4 +1,3 @@
-// Zona del administrador: la "sala de máquinas" donde se ven los servicios y los eventos pasar.
 import { Outlet } from "react-router-dom";
 import { CabeceraZona } from "../../componentes/comunes.jsx";
 import Icono from "../../componentes/Icono.jsx";

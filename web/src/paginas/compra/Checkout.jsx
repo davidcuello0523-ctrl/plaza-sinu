@@ -1,6 +1,3 @@
-// Checkout en dos pasos:
-// 1) Dirección → POST /pedidos (con Idempotency-Key): se crea el pedido y se RESERVA el stock.
-// 2) Pago → POST /pedidos/:id/pagos en la pasarela simulada.
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/cliente.js";
@@ -28,7 +25,6 @@ export default function Checkout() {
   const [direccion, setDireccion] = useState({
     nombreRecibe: usuario?.nombre || "", telefono: "", ciudad: "Montería", direccion: "", indicaciones: "",
   });
-  // Una clave por intento de compra: si el usuario hace doble clic o la red reintenta, no se duplica el pedido.
   const [clave, setClave] = useState(() => crypto.randomUUID());
   const [pedido, setPedido] = useState(null);
   const [error, setError] = useState(null);
@@ -47,7 +43,6 @@ export default function Checkout() {
       const cuerpo = { direccion: { ...direccion, indicaciones: direccion.indicaciones || undefined } };
       setPedido(await api("/pedidos", { metodo: "POST", cuerpo, headers: { "idempotency-key": clave } }));
     } catch (err) {
-      // 409 sin stock o carrito inválido: ese intento ya quedó registrado, el siguiente necesita otra clave.
       if (err.status === 409) setClave(crypto.randomUUID());
       setError(err);
     } finally {
@@ -64,7 +59,6 @@ export default function Checkout() {
       navegar(`/pedidos/${pedido.id}`);
     } catch (err) {
       if (err.status === 402) {
-        // Pago rechazado: inventario libera la reserva; para reintentar se crea un pedido nuevo.
         setPedido(null);
         setClave(crypto.randomUUID());
       }

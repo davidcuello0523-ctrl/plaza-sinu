@@ -1,4 +1,3 @@
-// Dobles de prueba: Redis en memoria y catálogo/inventario falsos.
 import { ErrorServicioNoDisponible, crearLogger } from "@plaza/compartido";
 
 export function repoEnMemoria() {
@@ -27,7 +26,6 @@ export const PRODUCTOS = [
   { id: "prd-099", nombre: "Oculto", precio: 1000, vendedorId: "v1", publicado: false, eliminado: false },
 ];
 
-// stock: { productoId: disponible }. Las banderas simulan servicios caídos.
 export function clientesFalsos({ stock = { "prd-009": 2, "prd-008": 10, "prd-029": 5 } } = {}) {
   const estado = { productos: PRODUCTOS.map((p) => ({ ...p })), stock, catalogoCaido: false, inventarioCaido: false };
   return {

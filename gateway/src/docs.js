@@ -1,5 +1,3 @@
-// Swagger UI agregado: un selector con los 7 servicios. Cada documento se pide
-// al servicio y se reescribe "servers" para que "Try it out" pase por el gateway.
 import { Router } from "express";
 import swaggerUi from "swagger-ui-express";
 import { SERVICIOS } from "./rutas.js";

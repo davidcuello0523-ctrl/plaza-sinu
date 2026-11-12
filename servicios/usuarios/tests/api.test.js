@@ -1,4 +1,3 @@
-// Pruebas de API (Supertest): códigos HTTP y formato de error.
 import request from "supertest";
 import { construirApp } from "../src/app.js";
 import { busFalso, logger, repoEnMemoria } from "./dobles.js";

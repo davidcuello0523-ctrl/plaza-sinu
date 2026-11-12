@@ -1,5 +1,3 @@
-// Lógica de negocio del carrito: valida contra catálogo e inventario antes de
-// guardar y re-valida cada vez que se consulta (precios y stock cambian).
 import { ErrorConflicto, ErrorNoEncontrado, ErrorServicioNoDisponible } from "@plaza/compartido";
 import { armarCarrito } from "./armado.js";
 
@@ -25,12 +23,11 @@ export function crearServicioCarrito({ repo, clientes }) {
   async function ver(usuarioId, ctx) {
     const { items, actualizadoEn } = await repo.obtener(usuarioId);
     if (!items.length) return armarCarrito({ items, productos: [], disponibilidad: [], actualizadoEn });
-    const productos = await clientes.productos(items.map((i) => i.productoId), ctx); // si catálogo cae → 503
+    const productos = await clientes.productos(items.map((i) => i.productoId), ctx);
     let disponibilidad = null;
     try {
       disponibilidad = await clientes.disponibilidad(items.map(({ productoId, cantidad }) => ({ productoId, cantidad })), ctx);
     } catch (err) {
-      // Degradación elegante: sin inventario aún mostramos el carrito, marcado como no válido.
       if (!(err instanceof ErrorServicioNoDisponible)) throw err;
     }
     return armarCarrito({ items, productos, disponibilidad, actualizadoEn });
@@ -53,7 +50,7 @@ export function crearServicioCarrito({ repo, clientes }) {
       await verificarStock(producto, (existente?.cantidad ?? 0) + cantidad, ctx);
       if (existente) {
         existente.cantidad += cantidad;
-        existente.precioAlAgregar = producto.precio; // el cliente lo volvió a agregar viendo el precio actual
+        existente.precioAlAgregar = producto.precio;
       } else {
         items.push({ productoId, cantidad, precioAlAgregar: producto.precio, agregadoEn: new Date().toISOString() });
       }

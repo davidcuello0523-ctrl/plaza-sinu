@@ -1,4 +1,3 @@
-// Arranque del servicio: conecta Redis y RabbitMQ y levanta HTTP.
 import Redis from "ioredis";
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioCarrito } from "./repositorio/carrito.repositorio.js";

@@ -1,4 +1,3 @@
-// Capa de acceso a datos (Prisma). Es la ÚNICA que conoce la base de datos.
 import { ErrorConflicto } from "@plaza/compartido";
 import { codigoPedido } from "../servicios/dominio.js";
 
@@ -12,7 +11,6 @@ export function crearRepositorioPedidos(prisma) {
     buscarPorIdempotencia: (clienteId, idempotencyKey) =>
       prisma.pedido.findUnique({ where: { clienteId_idempotencyKey: { clienteId, idempotencyKey } }, include: incluirTodo }),
 
-    // upsert atómico: dos pedidos simultáneos nunca reciben el mismo código.
     async siguienteCodigo() {
       const c = await prisma.contador.upsert({
         where: { nombre: "pedido" },
@@ -22,7 +20,6 @@ export function crearRepositorioPedidos(prisma) {
       return codigoPedido(c.valor);
     },
 
-    // Crea pedido + sub-pedidos + items + pasos de traza en UNA sola operación.
     async crearPedido({ subpedidos, pasos, ...pedido }) {
       try {
         return await prisma.pedido.create({
@@ -63,8 +60,6 @@ export function crearRepositorioPedidos(prisma) {
       return { datos, total };
     },
 
-    // Cambio de estado CONDICIONAL y atómico: solo si el pedido sigue en uno de
-    // los estados "desde". Evita, p. ej., cobrar dos veces el mismo pedido.
     transicionarPedido: ({ pedidoId, desde, hacia, estadoSubpedidos, motivo, pasos = [], pago }) =>
       prisma.$transaction(async (tx) => {
         const { count } = await tx.pedido.updateMany({
@@ -89,7 +84,6 @@ export function crearRepositorioPedidos(prisma) {
     agregarPaso: (paso) => prisma.pasoTraza.create({ data: paso }),
     listarPasos: (pedidoId) => prisma.pasoTraza.findMany({ where: { pedidoId }, orderBy: { ocurridoEn: "asc" } }),
 
-    // shortcut: las métricas se calculan en memoria sobre todos los pedidos; con miles de pedidos → agregaciones SQL (groupBy)
     listarParaMetricas: () => prisma.pedido.findMany({ include: incluirTodo, orderBy: { creadoEn: "desc" } }),
 
     eventos: {

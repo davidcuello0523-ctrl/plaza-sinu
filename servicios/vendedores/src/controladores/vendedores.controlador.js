@@ -1,4 +1,3 @@
-// Controladores: traducen HTTP ↔ lógica.
 import { contexto } from "@plaza/compartido";
 
 export function crearControlador(servicio) {

@@ -1,6 +1,3 @@
-// Puestos de demostración con IDs FIJOS (ver docs/contratos.md §5).
-// usuarioId apunta a los usuarios sembrados por el servicio usuarios.
-// Uso: npm run seed  (o automático al arrancar con SEED_DEMO=true y BD vacía)
 import prismaPkg from "./generated/prisma/index.js";
 
 const uid = (n) => `00000000-0000-4000-a000-${String(n).padStart(12, "0")}`;

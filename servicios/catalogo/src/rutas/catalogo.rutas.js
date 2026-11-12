@@ -1,4 +1,3 @@
-// Rutas REST del catálogo + validación de entrada (zod → 422).
 import { Router } from "express";
 import { z } from "zod";
 import { autenticar, autenticarOpcional, requerirRol, soloInterno, validar } from "@plaza/compartido";

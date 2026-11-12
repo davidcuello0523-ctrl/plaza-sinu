@@ -1,4 +1,3 @@
-// Rutas REST de pedidos, pagos y métricas + validación de entrada (zod → 422).
 import { Router } from "express";
 import { z } from "zod";
 import { autenticar, requerirRol, validar } from "@plaza/compartido";
@@ -15,7 +14,6 @@ const esquemaPedido = z.object({
   }),
 });
 
-// El número de tarjeta y el CVV solo viajan en memoria hasta la pasarela: no se guardan.
 const esquemaPago = z.object({
   numeroTarjeta: z.string().regex(/^[\d\s-]{13,23}$/, "Número de tarjeta inválido"),
   titular: z.string().trim().min(3, "Escribe el nombre como aparece en la tarjeta").max(80),

@@ -1,11 +1,8 @@
-// Utilidades locales de la zona Mi Puesto.
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icono from "../../componentes/Icono.jsx";
 
-// Carga datos de la API con estado de carga/error y una función para recargar.
 export function useCarga(cargarDatos, deps) {
   const [estado, setEstado] = useState({ cargando: true, datos: null, error: null });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const recargar = useCallback(async () => {
     try {
       setEstado((e) => ({ ...e, cargando: e.datos === null, error: null }));
@@ -18,8 +15,6 @@ export function useCarga(cargarDatos, deps) {
   return { ...estado, recargar };
 }
 
-// Diálogo modal accesible: <dialog> nativo con showModal() deja inerte el resto
-// de la página (atrapa el foco) y se cierra con Esc.
 export function Dialogo({ abierto, alCerrar, titulo, children, ancho = 640, lateral = false }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -43,6 +38,5 @@ export function Dialogo({ abierto, alCerrar, titulo, children, ancho = 640, late
   );
 }
 
-// Errores 422 por campo → { campo: mensaje }
 export const erroresPorCampo = (error) =>
   Object.fromEntries((error?.detalles || []).filter((d) => d.campo).map((d) => [d.campo, d.mensaje]));

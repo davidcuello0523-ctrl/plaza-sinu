@@ -1,5 +1,3 @@
-// Datos y hooks de la Sala de Máquinas: catálogo de servicios, salud en vivo
-// (GET /salud del gateway) y el stream de sucesos (eventos RabbitMQ + pasos REST).
 import { useEffect, useRef, useState } from "react";
 import { API_URL, abrirStream, api } from "../../api/cliente.js";
 
@@ -13,7 +11,6 @@ export const SERVICIOS = [
   { nombre: "notificaciones", puerto: 4007, motor: "MongoDB", clave: "mongo", bd: "db-notificaciones", resp: "Consume eventos y avisa en vivo (SSE)" },
 ];
 
-// Qué deja de funcionar cuando cae cada servicio (texto del aviso en el mapa).
 export const IMPACTO = {
   usuarios: "nadie puede iniciar sesión ni registrarse; quien ya tiene sesión sigue comprando hasta que venza su token",
   vendedores: "no se pueden aprobar puestos ni publicar productos nuevos; la compra sigue funcionando",
@@ -27,8 +24,6 @@ export const IMPACTO = {
 export const URL_SWAGGER = `${API_URL}/docs/`;
 export const URL_RABBIT = "http://localhost:15672";
 
-// Sondea GET /salud cada 3 s. Se usa fetch directo: con un servicio caído el
-// gateway responde 503 pero el cuerpo trae el detalle que queremos pintar.
 export function useSalud(cadaMs = 3000) {
   const [salud, setSalud] = useState(null);
   const [gatewayCaido, setGatewayCaido] = useState(false);
@@ -50,7 +45,6 @@ export function useSalud(cadaMs = 3000) {
   return { salud, gatewayCaido };
 }
 
-// Colas de RabbitMQ (profundidad y consumidores), cada 3 s.
 export function useColas(cadaMs = 3000) {
   const [colas, setColas] = useState([]);
   useEffect(() => {
@@ -63,8 +57,6 @@ export function useColas(cadaMs = 3000) {
   return colas;
 }
 
-// Stream SSE del gateway (solo admin). Reconecta solo; si el token venció,
-// una llamada cualquiera lo renueva antes de reabrir.
 export function useSucesos(alSuceso, activo = true) {
   const ref = useRef(alSuceso);
   ref.current = alSuceso;
@@ -77,7 +69,7 @@ export function useSucesos(alSuceso, activo = true) {
       fuente = abrirStream("/monitor/stream");
       fuente.onopen = () => setConectado(true);
       fuente.onmessage = (e) => {
-        try { ref.current(JSON.parse(e.data)); } catch { /* línea ilegible */ }
+        try { ref.current(JSON.parse(e.data)); } catch {}
       };
       fuente.onerror = async () => {
         fuente.close();

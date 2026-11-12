@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS de la lógica de vendedores.
 import { crearServicioVendedores, crearSlug, puedeVer } from "../src/servicios/vendedores.servicio.js";
 import { busFalso, repoEnMemoria } from "./dobles.js";
 

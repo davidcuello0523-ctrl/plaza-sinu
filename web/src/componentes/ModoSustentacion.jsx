@@ -1,13 +1,10 @@
-// Modo sustentación: panel flotante con los 7 pasos del flujo obligatorio que
-// se marcan SOLOS al llegar los sucesos del gateway (eventos RabbitMQ + pasos REST).
-// Visible para el admin o con ?demo=1 en la URL.
 import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { hora } from "../api/formato.js";
 import { useSesion } from "../estado/sesion.jsx";
 import { useSucesos } from "../paginas/admin/monitor.js";
 import Icono from "./Icono.jsx";
-import "../estilos/admin.css"; // el panel aparece en cualquier página, no solo en la sala
+import "../estilos/admin.css";
 
 const PASOS = [
   { titulo: "Iniciar sesión", servicio: "usuarios emite el JWT", tipos: ["http.sesion_iniciada"] },
@@ -33,7 +30,7 @@ export default function ModoSustentacion() {
   const { search } = useLocation();
   const [bandera, setBandera] = useState(() => leerBandera(search));
   const [abierto, setAbierto] = useState(false);
-  const [hechos, setHechos] = useState({}); // índice de paso → { ocurridoEn, correlationId }
+  const [hechos, setHechos] = useState({});
 
   useEffect(() => { setBandera(leerBandera(search)); }, [search]);
   const esAdmin = rol === "admin";

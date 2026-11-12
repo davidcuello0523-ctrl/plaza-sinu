@@ -1,6 +1,3 @@
-// API Gateway: ÚNICO punto de entrada del navegador.
-// Orden de cada petición: CORS → correlationId → log → rate limit (auth) →
-// bloqueo de rutas internas → verificación del JWT → proxy al servicio.
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -23,7 +20,6 @@ export function construirGateway({ logger, monitor, urlPublica = "http://localho
   app.use(registroPeticiones(logger));
   app.use((req, res, next) => { res.on("finish", () => monitor.registrarHttp(req, res)); next(); });
 
-  // --- Rutas propias del gateway ---------------------------------------
   app.get("/salud", async (_req, res) => {
     const salud = await monitor.saludAgregada();
     res.status(salud.estado === "ok" ? 200 : 503).json(salud);
@@ -33,7 +29,6 @@ export function construirGateway({ logger, monitor, urlPublica = "http://localho
   app.get("/monitor/colas", autenticar, requerirRol("admin"), async (_req, res) => res.json({ datos: await monitor.colas() }));
   app.get("/monitor/stream", autenticar, requerirRol("admin"), monitor.stream);
 
-  // --- Protección y enrutamiento hacia los microservicios ---------------
   app.use("/auth", rateLimit({
     windowMs: 60_000,
     limit: Number(process.env.RATE_LIMIT_AUTH || 30),
@@ -44,7 +39,6 @@ export function construirGateway({ logger, monitor, urlPublica = "http://localho
   }));
 
   app.use((req, _res, next) => {
-    // El cliente no puede inyectar identidad ni la clave interna.
     delete req.headers["x-usuario-id"];
     delete req.headers["x-usuario-rol"];
     delete req.headers["x-clave-interna"];
@@ -55,7 +49,7 @@ export function construirGateway({ logger, monitor, urlPublica = "http://localho
     req.servicioDestino = servicio;
 
     const auth = req.headers.authorization;
-    const tokenQuery = req.query.token; // SSE (EventSource no envía headers)
+    const tokenQuery = req.query.token;
     if (auth?.startsWith("Bearer ") || tokenQuery) {
       try {
         const usuario = verificarJwt(auth?.startsWith("Bearer ") ? auth.slice(7) : tokenQuery);
@@ -63,7 +57,7 @@ export function construirGateway({ logger, monitor, urlPublica = "http://localho
         req.headers["x-usuario-rol"] = usuario.rol;
         req.usuario = usuario;
       } catch (err) {
-        if (!esPublica(req.method, req.path)) return next(err); // 401 claro (vencido / inválido)
+        if (!esPublica(req.method, req.path)) return next(err);
       }
     }
     if (!req.usuario && !esPublica(req.method, req.path)) return next(new ErrorNoAutenticado());

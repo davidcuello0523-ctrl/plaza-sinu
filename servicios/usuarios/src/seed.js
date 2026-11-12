@@ -1,6 +1,3 @@
-// Datos de demostración. Los IDs son FIJOS porque otros servicios (vendedores,
-// pedidos…) siembran datos que apuntan a estos usuarios sin leer esta BD.
-// Uso: npm run seed  (o automático al arrancar con SEED_DEMO=true y BD vacía)
 import bcrypt from "bcryptjs";
 import prismaPkg from "./generated/prisma/index.js";
 
@@ -31,7 +28,6 @@ export async function sembrar(prisma) {
   return USUARIOS_DEMO.length;
 }
 
-// Ejecutado directamente (npm run seed)
 if (process.argv[1]?.endsWith("seed.js")) {
   const prisma = new prismaPkg.PrismaClient();
   const n = await sembrar(prisma);

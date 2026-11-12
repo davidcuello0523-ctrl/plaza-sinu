@@ -1,9 +1,3 @@
-// PRUEBAS DE RESILIENCIA (semiautomáticas: detienen y arrancan contenedores).
-//  A. Notificaciones caído → se puede comprar; al volver, llegan las notificaciones pendientes.
-//  B. Inventario caído → checkout responde 503 y no queda nada a medias.
-//  C. Dos clientes compran la última unidad a la vez → solo uno la obtiene (409 al otro).
-//  D. Token vencido / sin token / rol incorrecto → 401 / 401 / 403.
-// Uso (raíz del repo, con todo arriba):  node pruebas/e2e/resiliencia.mjs
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import jwt from "jsonwebtoken";
@@ -30,7 +24,6 @@ async function comprar(token, productoId, cantidad = 1) {
 const cliente = await login("cliente2@plazasinu.co");
 const admin = await login("admin@plazasinu.co");
 
-// ---------- A. Notificaciones caído ----------
 console.log("\n[A] docker compose stop notificaciones");
 compose("stop notificaciones");
 const p = await comprar(cliente, "prd-022");
@@ -51,7 +44,6 @@ const llego = await esperar(async () => {
 }, { msMax: 20000 });
 r.verificar("A3. Al volver, las notificaciones pendientes llegan", llego, llego?.titulo);
 
-// ---------- B. Inventario caído ----------
 console.log("\n[B] docker compose stop inventario");
 await api("DELETE", "/carrito", { token: cliente });
 const agregado = await api("POST", "/carrito/items", { token: cliente, cuerpo: { productoId: "prd-023", cantidad: 1 } });
@@ -66,8 +58,7 @@ compose("start inventario");
 await esperarSaludable("inventario");
 await api("DELETE", "/carrito", { token: cliente });
 
-// ---------- C. Concurrencia sobre la última unidad ----------
-const ULTIMA = "prd-003"; // Monitor 24": stock 1
+const ULTIMA = "prd-003";
 const [c1, c2] = [await login("cliente3@plazasinu.co"), await login("cliente4@plazasinu.co")];
 const s0 = (await api("GET", `/inventario/${ULTIMA}`)).datos;
 for (const t of [c1, c2]) {
@@ -79,7 +70,6 @@ const [x, y] = await Promise.all([c1, c2].map((t) =>
 const estados = [x.status, y.status].sort();
 r.verificar("C1. Dos clientes compran la última unidad a la vez → solo uno la obtiene", estados[0] === 201 && estados[1] === 409,
   `respuestas ${estados.join(" y ")} · ${[x, y].find((z) => z.status === 409)?.datos?.error?.mensaje ?? ""}`);
-// Dejar la demo como estaba: el ganador cancela y se libera la unidad.
 const ganador = x.status === 201 ? { res: x, token: c1 } : { res: y, token: c2 };
 await api("POST", `/pedidos/${ganador.res.datos?.id}/cancelar`, { token: ganador.token });
 for (const t of [c1, c2]) await api("DELETE", "/carrito", { token: t });
@@ -89,7 +79,6 @@ const s1 = await esperar(async () => {
 });
 r.verificar("C2. Al cancelar, la unidad vuelve a estar disponible", s1, `disponible ${s1?.disponible}`);
 
-// ---------- D. Seguridad ----------
 const secreto = readFileSync(".env", "utf8").match(/^JWT_SECRET=(.*)$/m)?.[1]?.trim();
 const vencido = jwt.sign({ sub: "x", rol: "cliente", exp: Math.floor(Date.now() / 1000) - 60, iss: "plaza-sinu" }, secreto);
 const d1 = await api("GET", "/carrito", { token: vencido });

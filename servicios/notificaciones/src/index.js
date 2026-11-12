@@ -1,4 +1,3 @@
-// Arranque: conecta MongoDB y RabbitMQ, suscribe el consumidor y levanta HTTP.
 import mongoose from "mongoose";
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioNotificaciones } from "./repositorio/notificaciones.repositorio.js";

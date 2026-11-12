@@ -1,5 +1,3 @@
-// Capa de acceso a datos (Prisma). Es la ÚNICA que conoce la base de datos.
-
 export function crearRepositorioVendedores(prisma) {
   return {
     crear: (datos) => prisma.vendedor.create({ data: datos }),

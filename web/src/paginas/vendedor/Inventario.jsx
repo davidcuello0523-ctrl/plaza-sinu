@@ -1,4 +1,3 @@
-// Inventario del puesto: stock físico, reservado y disponible; ajuste y kardex.
 import { useEffect, useState } from "react";
 import { api } from "../../api/cliente.js";
 import { fechaHora } from "../../api/formato.js";

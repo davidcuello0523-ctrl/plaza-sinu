@@ -1,5 +1,3 @@
-// Controladores: traducen HTTP ↔ lógica. Leen req, llaman al servicio y
-// eligen el código de estado. Los errores los maneja el middleware central.
 import { contexto } from "@plaza/compartido";
 
 export function crearControlador(servicio) {

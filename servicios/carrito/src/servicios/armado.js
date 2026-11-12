@@ -1,10 +1,5 @@
-// Lógica PURA del carrito (sin Redis ni HTTP): agrupa los items por vendedor,
-// calcula subtotales y genera los avisos (precio cambió, poco stock, no disponible).
-
 export const formatoCOP = (n) => `$ ${Math.round(n).toLocaleString("es-CO")}`;
 
-// items: lo guardado en Redis · productos: datos actuales del catálogo ·
-// disponibilidad: lo que dice inventario, o null si inventario no respondió.
 export function armarCarrito({ items, productos, disponibilidad, actualizadoEn = null }) {
   const porId = new Map(productos.map((p) => [p.id, p]));
   const stockPorId = disponibilidad && new Map(disponibilidad.map((d) => [d.productoId, d]));

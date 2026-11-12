@@ -1,4 +1,3 @@
-// Reglas PURAS del dominio de inventario (sin BD): se prueban con Jest directo.
 import { ErrorConflicto, ErrorValidacion } from "@plaza/compartido";
 
 export const disponible = (s) => s.fisico - s.reservado;
@@ -23,8 +22,6 @@ export const vista = (s) => ({
 
 const nombre = (s, productoId) => s?.nombreProducto || productoId;
 
-// Verifica que TODOS los ítems alcancen; si uno falla, nada se reserva (409).
-// stocks: Map productoId → stock (ya bloqueado con FOR UPDATE en la BD).
 export function validarReserva(stocks, items) {
   const faltantes = items
     .map(({ productoId, cantidad }) => {
@@ -41,7 +38,6 @@ export function validarReserva(stocks, items) {
   }
 }
 
-// Un ajuste del vendedor no puede dejar el físico por debajo de lo ya reservado.
 export function validarAjuste(stock, fisico) {
   if (fisico < stock.reservado) {
     throw new ErrorValidacion(
@@ -51,7 +47,6 @@ export function validarAjuste(stock, fisico) {
   }
 }
 
-// Transiciones de la reserva. Devuelve false si ya estaba en el estado destino (idempotencia).
 export function puedeTransicionar(reserva, destino) {
   if (reserva.estado === destino) return false;
   if (reserva.estado !== "ACTIVA") {
@@ -60,7 +55,6 @@ export function puedeTransicionar(reserva, destino) {
   return true;
 }
 
-// Agrupa cantidades por producto (por si el pedido repite un producto).
 export function agruparItems(items) {
   const m = new Map();
   for (const { productoId, cantidad } of items) m.set(productoId, (m.get(productoId) || 0) + cantidad);

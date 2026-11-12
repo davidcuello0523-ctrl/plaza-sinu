@@ -1,8 +1,6 @@
-// Utilidades de La Plaza: carga de datos y textos amigables.
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../../api/cliente.js";
 
-// Carga una ruta del gateway y expone { datos, error, cargando, recargar }.
 export function useDatos(ruta) {
   const [estado, setEstado] = useState({ datos: null, error: null, cargando: Boolean(ruta) });
   const recargar = useCallback(async () => {
@@ -23,7 +21,6 @@ export const NOMBRES_CATEGORIA = {
   artesanias: "Artesanías", papeleria: "Papelería", deportes: "Deportes",
 };
 
-// Etiquetas legibles para los atributos variables de cada categoría.
 const ETIQUETAS = {
   marca: "Marca", memoria: "Memoria", voltaje: "Voltaje", garantiaMeses: "Garantía", rin: "Rin", talla: "Talla",
   material: "Material", cambios: "Cambios", color: "Color", medidas: "Medidas", tecnica: "Técnica",

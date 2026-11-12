@@ -1,4 +1,3 @@
-// Rutas REST del servicio vendedores + validación de entrada (zod → 422).
 import { Router } from "express";
 import { z } from "zod";
 import { autenticar, autenticarOpcional, requerirRol, soloInterno, validar } from "@plaza/compartido";
@@ -31,7 +30,6 @@ const esquemaFiltros = z.object({
 
 export function crearRutas(ctrl) {
   const r = Router();
-  // Internas primero: así "/interno/..." no se confunde con "/vendedores/:id".
   r.get("/interno/vendedores/por-usuario/:usuarioId", soloInterno, ctrl.internoPorUsuario);
   r.get("/interno/vendedores/:id", soloInterno, ctrl.internoPorId);
 

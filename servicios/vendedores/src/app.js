@@ -1,4 +1,3 @@
-// Ensambla la app Express con sus dependencias inyectadas (repo, bus).
 import { fileURLToPath } from "node:url";
 import { crearApp, finalizarApp } from "@plaza/compartido";
 import { crearServicioVendedores } from "./servicios/vendedores.servicio.js";

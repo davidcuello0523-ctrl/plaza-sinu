@@ -1,4 +1,3 @@
-// Dobles de prueba: repositorio en memoria, bus que anota eventos y respuesta SSE falsa.
 import { crearLogger } from "@plaza/compartido";
 
 export function repoEnMemoria() {

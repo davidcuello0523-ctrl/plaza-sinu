@@ -1,4 +1,3 @@
-// Pruebas de API (Supertest) de la saga de compra con dobles en memoria.
 import request from "supertest";
 import { firmarAcceso } from "@plaza/compartido";
 import { construirApp } from "../src/app.js";
@@ -98,7 +97,6 @@ describe("POST /pedidos/:id/pagos", () => {
     expect(r.body.pago).toMatchObject({ estado: "APROBADO", ultimos4: "4242", marca: "Visa" });
     expect(JSON.stringify(await repo.buscarPedido(pedido.id))).not.toContain("4242424242424242");
     expect(bus.publicados.at(-1)).toMatchObject({ tipo: "pago.aprobado", datos: { reservaId: "res-1", ultimos4: "4242" } });
-    // Pagar dos veces el mismo pedido → 409
     await request(app).post(`/pedidos/${pedido.id}/pagos`).set("authorization", token(CLIENTE)).send(TARJETA_OK).expect(409);
   });
 
@@ -153,7 +151,7 @@ describe("vendedor, consultas y traza", () => {
 
     await avanzar(VENDEDOR_A, subA.id, "PREPARANDO").expect(200);
     expect(bus.publicados.at(-1)).toMatchObject({ tipo: "pedido.estado_cambiado", datos: { estadoAnterior: "PAGADO", estadoNuevo: "PREPARANDO" } });
-    await avanzar(VENDEDOR_A, subA.id, "ENTREGADO").expect(409); // salto de estado
+    await avanzar(VENDEDOR_A, subA.id, "ENTREGADO").expect(409);
     await avanzar(VENDEDOR_B, subA.id, "ENVIADO").expect(403);
     await avanzar(CLIENTE, subA.id, "ENVIADO").expect(403);
   });

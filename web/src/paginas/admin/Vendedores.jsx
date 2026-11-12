@@ -1,5 +1,3 @@
-// Aprobación de puestos. Aprobar o suspender publica vendedor.aprobado /
-// vendedor.suspendido: catálogo muestra u oculta sus productos y el vendedor recibe aviso.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/cliente.js";

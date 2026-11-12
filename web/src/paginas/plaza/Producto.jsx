@@ -1,4 +1,3 @@
-// Detalle de producto: galería, atributos por categoría, stock en vivo y ficha del puesto.
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -9,7 +8,6 @@ import { BarraStock, useAgregar } from "./TarjetaProducto.jsx";
 import { NOMBRES_CATEGORIA, atributoLegible, iniciales, useDatos } from "./comun.js";
 import "../../estilos/plaza.css";
 
-// Stock en vivo: lo da inventario (la fuente de verdad), no la copia del catálogo.
 function useStock(id) {
   const [stock, setStock] = useState(null);
   useEffect(() => {

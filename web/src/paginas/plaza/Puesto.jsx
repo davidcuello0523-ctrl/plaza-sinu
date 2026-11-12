@@ -1,4 +1,3 @@
-// Puesto del vendedor: portada con toldo grande, reputación y sus productos.
 import { Link, useParams } from "react-router-dom";
 import { CajaError, Cargando, Vacio } from "../../componentes/comunes.jsx";
 import Icono from "../../componentes/Icono.jsx";

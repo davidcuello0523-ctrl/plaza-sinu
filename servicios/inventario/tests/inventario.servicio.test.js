@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS: reglas puras y ciclo reservar → confirmar / liberar.
 import { estadoStock, validarReserva } from "../src/servicios/reglas.js";
 import { crearServicioInventario } from "../src/servicios/inventario.servicio.js";
 import { stockInicial } from "../src/seed.js";
@@ -60,7 +59,7 @@ describe("servicio de inventario", () => {
   test("confirmar descuenta definitivo, avisa stock bajo y es idempotente", async () => {
     const { reserva } = await servicio.reservar({ pedidoId: "p1", items: [{ productoId: "prd-009", cantidad: 1 }] });
     await servicio.confirmar(reserva.id);
-    await servicio.confirmar(reserva.id); // repetido: sin efecto
+    await servicio.confirmar(reserva.id);
     expect(await servicio.obtener("prd-009")).toMatchObject({ fisico: 1, reservado: 0, disponible: 1 });
     expect(tipos()).toEqual(["inventario.actualizado", "inventario.stock_bajo", "reserva.confirmada"]);
   });

@@ -1,7 +1,5 @@
-// Capa de acceso a datos (Mongoose). Es la ÚNICA que conoce MongoDB.
 import { EventoProcesado, Producto } from "../modelos/producto.modelo.js";
 
-// Mongo usa _id; la API expone "id".
 export const aDto = (doc) => {
   if (!doc) return null;
   const { _id, ...resto } = doc;
@@ -9,7 +7,6 @@ export const aDto = (doc) => {
 };
 
 const escapar = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-// "monteria" debe encontrar "Montería": cada vocal acepta su versión con tilde.
 const sinTildes = (s) => escapar(s)
   .replace(/[aá]/gi, "[aá]").replace(/[eé]/gi, "[eé]").replace(/[ií]/gi, "[ií]")
   .replace(/[oó]/gi, "[oó]").replace(/[uúü]/gi, "[uúü]").replace(/[nñ]/gi, "[nñ]");
@@ -21,10 +18,9 @@ const ORDENES = {
   nombre: { nombre: 1 },
 };
 
-// Traduce los filtros de la API a una consulta de Mongo (función pura: se prueba sola).
 export function construirConsulta(f) {
   const consulta = { eliminado: false };
-  if (f.duenoUsuarioId) consulta.vendedorUsuarioId = f.duenoUsuarioId; // "mis productos": incluye ocultos
+  if (f.duenoUsuarioId) consulta.vendedorUsuarioId = f.duenoUsuarioId;
   else Object.assign(consulta, { publicado: true, vendedorActivo: true });
   if (f.categoria) consulta.categoria = f.categoria;
   if (f.vendedor) consulta.vendedorId = f.vendedor;

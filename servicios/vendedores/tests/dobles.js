@@ -1,4 +1,3 @@
-// Dobles de prueba: repositorio en memoria y bus que solo anota los eventos.
 import { randomUUID } from "node:crypto";
 import { crearLogger } from "@plaza/compartido";
 

@@ -1,4 +1,3 @@
-// Dobles de prueba: repositorio en memoria (mismas reglas que el real) y bus falso.
 import { randomUUID } from "node:crypto";
 import { crearLogger } from "@plaza/compartido";
 import { agruparItems, puedeTransicionar, validarAjuste, validarReserva } from "../src/servicios/reglas.js";

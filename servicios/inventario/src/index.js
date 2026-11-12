@@ -1,5 +1,3 @@
-// Arranque del servicio: Postgres (Prisma), RabbitMQ, consumidores y
-// el job que libera reservas vencidas.
 import prismaPkg from "./generated/prisma/index.js";
 import { crearBus, crearLogger, iniciarServidor } from "@plaza/compartido";
 import { crearRepositorioInventario } from "./repositorio/inventario.repositorio.js";
@@ -15,7 +13,6 @@ const bus = crearBus({ servicio: "inventario", logger });
 const repo = crearRepositorioInventario(prisma);
 const servicio = crearServicioInventario({ repo, bus, logger });
 
-// Defensa en profundidad: aunque la lógica ya lo valida, la BD tampoco acepta stock negativo.
 await prisma.$executeRawUnsafe(`DO $$ BEGIN
   ALTER TABLE "Stock" ADD CONSTRAINT stock_no_negativo CHECK (fisico >= 0 AND reservado >= 0 AND reservado <= fisico);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;`);

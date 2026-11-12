@@ -1,10 +1,8 @@
-// Métricas del marketplace (GET /metricas de pedidos-pagos). Gráficas en SVG propio.
 import { useEffect, useState } from "react";
 import { api } from "../../api/cliente.js";
 import { ESTADOS_PEDIDO, pesos } from "../../api/formato.js";
 import { CajaError, Cargando, Sello, Vacio } from "../../componentes/comunes.jsx";
 
-// Colores de cada puesto (docs/contratos.md §5); las métricas solo traen el nombre.
 const COLOR_PUESTO = {
   "Tecno Sinú": "#1F6FB2", "Rueda Libre": "#2F8F5B", "Hilo & Río": "#B0457A", "Casa Ronda": "#8A5A2B",
   "Taller Zenú": "#C98A12", "Papelería El Lápiz": "#3D6B7A", "Deportes Ribera": "#C23B3B", "Mercadito Tierralta": "#6B7A2E",

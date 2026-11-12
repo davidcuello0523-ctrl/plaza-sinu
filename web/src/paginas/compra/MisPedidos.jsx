@@ -1,5 +1,3 @@
-// Lista de pedidos. El servicio ya filtra por rol: el cliente ve los suyos,
-// el vendedor solo sus sub-pedidos y el admin todos.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/cliente.js";

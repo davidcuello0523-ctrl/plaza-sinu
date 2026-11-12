@@ -1,5 +1,3 @@
-# Imagen del servicio CARRITO. Contexto de build = raíz del repo
-# (necesita el paquete compartido/). Multi-etapa: dependencias → ejecución.
 FROM node:22-alpine AS dependencias
 WORKDIR /app
 COPY package.json package-lock.json ./

@@ -1,4 +1,3 @@
-// Pruebas de API (Supertest): códigos HTTP del carrito y rutas internas.
 import request from "supertest";
 import { firmarAcceso } from "@plaza/compartido";
 import { construirApp } from "../src/app.js";

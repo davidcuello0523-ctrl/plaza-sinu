@@ -1,7 +1,5 @@
-// Formatos de la interfaz (Colombia).
 const cop = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
 
-// $ 1.250.000
 export const pesos = (valor) => `$ ${cop.format(Math.round(Number(valor) || 0))}`;
 
 export const fechaHora = (iso) =>

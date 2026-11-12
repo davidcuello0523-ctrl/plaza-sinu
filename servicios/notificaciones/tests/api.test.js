@@ -1,4 +1,3 @@
-// Pruebas de API (Supertest) + procesamiento de eventos y push SSE.
 import request from "supertest";
 import { firmarAcceso } from "@plaza/compartido";
 import { construirApp } from "../src/app.js";

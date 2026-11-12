@@ -1,7 +1,3 @@
-// Autenticación (¿quién eres?) y autorización (¿qué puedes hacer?).
-// El gateway ya verificó el token, pero cada servicio vuelve a verificar la
-// firma: defensa en profundidad (si alguien llega a la red interna, no basta
-// con inventar un header X-Usuario-Rol).
 import jwt from "jsonwebtoken";
 import { ErrorNoAutenticado, ErrorProhibido } from "./errores.js";
 
@@ -27,10 +23,9 @@ export function verificarJwt(token) {
 function extraerToken(req) {
   const h = req.headers.authorization || "";
   if (h.startsWith("Bearer ")) return h.slice(7);
-  return req.query?.token; // EventSource (SSE) no permite headers → token por query
+  return req.query?.token;
 }
 
-// Exige un JWT válido y deja el usuario en req.usuario.
 export function autenticar(req, _res, next) {
   const token = extraerToken(req);
   if (!token) return next(new ErrorNoAutenticado());
@@ -38,11 +33,10 @@ export function autenticar(req, _res, next) {
   next();
 }
 
-// Si viene token lo lee, si no sigue como anónimo (rutas públicas con extras).
 export function autenticarOpcional(req, _res, next) {
   const token = extraerToken(req);
   if (token) {
-    try { req.usuario = verificarJwt(token); } catch { /* anónimo */ }
+    try { req.usuario = verificarJwt(token); } catch {}
   }
   next();
 }
@@ -55,8 +49,6 @@ export function requerirRol(...roles) {
   };
 }
 
-// Llamadas servicio→servicio: clave interna que nunca llega al navegador
-// (el gateway borra este header de toda petición externa).
 export function soloInterno(req, _res, next) {
   if (req.headers["x-clave-interna"] !== (process.env.CLAVE_INTERNA || "clave-interna-dev")) {
     return next(new ErrorProhibido("Ruta solo para comunicación interna entre servicios"));

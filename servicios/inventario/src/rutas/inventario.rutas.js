@@ -1,5 +1,3 @@
-// Rutas REST de inventario. /reservas es SOLO interna (la usa pedidos-pagos):
-// el gateway no la enruta y además exige la clave interna.
 import { Router } from "express";
 import { z } from "zod";
 import { autenticar, requerirRol, soloInterno, validar } from "@plaza/compartido";
@@ -21,7 +19,6 @@ const esquemaAjuste = z.object({
 }).strict();
 const esquemaLiberar = z.object({ motivo: z.enum(["pago_rechazado", "vencida", "cancelado"]).optional() });
 
-// Disponibilidad en lote: la usan carrito (interno) y el frontend (autenticado).
 function internoOAutenticado(req, res, next) {
   if (req.headers["x-clave-interna"]) return soloInterno(req, res, next);
   return autenticar(req, res, next);

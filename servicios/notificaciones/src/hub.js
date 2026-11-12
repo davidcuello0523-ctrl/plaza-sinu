@@ -1,9 +1,5 @@
-// Conexiones SSE abiertas por usuario. SSE (y no WebSocket) porque el flujo es
-// de una sola vía: el servidor avisa, el navegador solo escucha.
-// shortcut: el Map vive en memoria de UNA instancia; con réplicas haría falta Redis pub/sub.
-
 export function crearHub() {
-  const conexiones = new Map(); // usuarioId → Set(res)
+  const conexiones = new Map();
 
   return {
     conectar(usuarioId, res) {

@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS de la lógica pura: agrupación por vendedor, subtotales y avisos.
 import { armarCarrito, formatoCOP } from "../src/servicios/armado.js";
 import { PRODUCTOS } from "./dobles.js";
 

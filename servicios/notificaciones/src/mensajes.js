@@ -1,6 +1,3 @@
-// Traduce cada evento de negocio a las notificaciones que debe recibir cada
-// persona. Es una función PURA (sin BD ni red): fácil de probar y de explicar.
-
 export const formatoCOP = (valor) => `$ ${Math.round(valor || 0).toLocaleString("es-CO")}`;
 
 const ESTADOS_AMIGABLES = {
@@ -13,7 +10,6 @@ const ESTADOS_AMIGABLES = {
 
 const primerNombre = (nombre = "") => nombre.trim().split(/\s+/)[0] || "";
 
-// Devuelve [{ usuarioId, rol, tipo, titulo, mensaje, enlace, pedidoId?, codigoPedido?, correo? }]
 export function notificacionesPara(evento) {
   const d = evento.datos || {};
   const pedido = (n) => ({ pedidoId: d.pedidoId, codigoPedido: d.codigo, ...n });

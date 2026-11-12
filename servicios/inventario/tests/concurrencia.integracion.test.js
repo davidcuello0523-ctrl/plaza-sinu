@@ -1,6 +1,3 @@
-// Prueba de INTEGRACIÓN con Postgres real (se omite si no hay BD de pruebas):
-// dos reservas simultáneas de la última unidad → solo una gana.
-//   $env:DATABASE_URL_PRUEBAS="postgresql://…"; npm test
 import { jest } from "@jest/globals";
 import { crearRepositorioInventario } from "../src/repositorio/inventario.repositorio.js";
 

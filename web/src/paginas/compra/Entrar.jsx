@@ -1,5 +1,3 @@
-// Entrar / Crear cuenta: pantalla dividida. A la izquierda, un collage de
-// puestos con su toldo; a la derecha, el formulario.
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { urlRecurso } from "../../api/cliente.js";

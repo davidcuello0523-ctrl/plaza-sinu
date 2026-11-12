@@ -1,5 +1,3 @@
-// Ensambla la app Express. Recibe repo y clientes desde fuera: las pruebas
-// pasan un Redis en memoria y un catálogo/inventario falsos.
 import { fileURLToPath } from "node:url";
 import { crearApp, finalizarApp } from "@plaza/compartido";
 import { crearServicioCarrito } from "./servicios/carrito.servicio.js";

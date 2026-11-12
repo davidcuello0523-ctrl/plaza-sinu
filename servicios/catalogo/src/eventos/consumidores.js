@@ -1,7 +1,3 @@
-// Consumidores de eventos del catálogo (cola durable "catalogo.eventos").
-//  - inventario.actualizado → copia el estado de stock (bandera agotado / últimas unidades).
-//  - vendedor.aprobado / vendedor.suspendido → muestra u oculta TODOS los productos del puesto.
-
 export function crearManejadorEventos(repo) {
   return async (evento) => {
     const d = evento.datos;

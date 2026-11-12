@@ -1,4 +1,3 @@
-// Resumen del puesto en bento: lo urgente (pedidos por atender) ocupa el lugar grande.
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/cliente.js";
@@ -13,7 +12,6 @@ export default function Resumen() {
   const metricas = useCarga(() => api("/metricas/vendedor"), []);
   const stock = useCarga(() => api("/inventario").then((r) => r.datos), []);
 
-  // Un pedido pagado o una alerta de stock llegan por SSE: el resumen se actualiza solo.
   useEffect(() => alNotificar(() => { metricas.recargar(); stock.recargar(); }), [alNotificar, metricas.recargar, stock.recargar]);
 
   if (metricas.cargando) return <Cargando alto={160} filas={3} />;

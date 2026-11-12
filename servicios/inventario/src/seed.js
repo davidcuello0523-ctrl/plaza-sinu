@@ -1,12 +1,8 @@
-// Stock de demostración para prd-001 … prd-048 (regla de docs/contratos.md §5).
-// Catálogo usa la MISMA regla para su bandera inicial de disponibilidad.
-// Uso: npm run seed  (o automático al arrancar con SEED_DEMO=true y BD vacía)
 import prismaPkg from "./generated/prisma/index.js";
 
 const ESPECIALES = { 9: 2, 3: 1, 30: 2, 20: 0 };
 export const stockInicial = (i) => ESPECIALES[i] ?? 5 + ((i * 7) % 36);
 
-// Copia de los nombres del seed de catálogo (solo datos de demo, no un modelo compartido).
 const NOMBRES = {
   1: "Portátil Lenovo IdeaPad 15\" Ryzen 5",
   2: "Audífonos inalámbricos Sinú Bass",

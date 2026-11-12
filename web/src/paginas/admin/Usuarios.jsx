@@ -1,4 +1,3 @@
-// Usuarios registrados (GET /usuarios, solo admin).
 import { useEffect, useState } from "react";
 import { api } from "../../api/cliente.js";
 import { fechaHora } from "../../api/formato.js";

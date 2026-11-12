@@ -1,4 +1,3 @@
-// Dobles de prueba: repositorio en memoria, bus que anota eventos y cliente de vendedores falso.
 import { ErrorApp, crearLogger } from "@plaza/compartido";
 
 export function repoEnMemoria(iniciales = []) {
@@ -6,7 +5,6 @@ export function repoEnMemoria(iniciales = []) {
   const procesados = new Set();
   return {
     datos,
-    // Filtro simplificado: la consulta real de Mongo se prueba aparte (construirConsulta).
     buscar: async (f) => {
       const lista = [...datos.values()].filter((p) => !p.eliminado
         && (f.duenoUsuarioId ? p.vendedorUsuarioId === f.duenoUsuarioId : p.publicado && p.vendedorActivo)
@@ -29,7 +27,6 @@ export function busFalso() {
   return { publicados, publicar: (tipo, datos) => publicados.push({ tipo, datos }), estaConectado: () => true };
 }
 
-// Vendedores falso: usuarioId → puesto (o error si no existe / servicio caído).
 export function clienteVendedores(puestos) {
   return {
     get: async (ruta) => {

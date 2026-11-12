@@ -1,5 +1,3 @@
-// Detalle del pedido + TRAZA: qué microservicio hizo cada paso, si fue por REST
-// o por evento (RabbitMQ), cuándo y con qué correlationId. Se actualiza sola.
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, urlRecurso } from "../../api/cliente.js";
@@ -27,7 +25,7 @@ function Copiar({ texto, etiqueta = "Copiar" }) {
   const [hecho, setHecho] = useState(false);
   return (
     <button type="button" className="boton boton-sm" onClick={async () => {
-      try { await navigator.clipboard.writeText(texto); setHecho(true); setTimeout(() => setHecho(false), 1500); } catch { /* sin portapapeles */ }
+      try { await navigator.clipboard.writeText(texto); setHecho(true); setTimeout(() => setHecho(false), 1500); } catch {}
     }}>
       <Icono nombre={hecho ? "check" : "documento"} tamano={16} /> {hecho ? "Copiado" : etiqueta}
     </button>
@@ -120,7 +118,6 @@ export default function Pedido() {
 
   useEffect(() => { setPedido(null); cargar(); }, [cargar]);
 
-  // Actualización en vivo: notificaciones SSE del pedido + sondeo corto para los pasos asíncronos.
   useEffect(() => alNotificar((n) => { if (n.pedidoId === id) cargar(); }), [alNotificar, id, cargar]);
   useEffect(() => {
     const t = setInterval(cargar, 3000);

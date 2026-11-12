@@ -1,5 +1,3 @@
-// Zona "Mi Puesto": encabezado con el toldo del vendedor y pestañas horizontales.
-// Si el puesto no existe o no está aprobado, se muestra la solicitud en su lugar.
 import { Link, Outlet } from "react-router-dom";
 import { api } from "../../api/cliente.js";
 import { CabeceraZona, CajaError, Cargando, Sello } from "../../componentes/comunes.jsx";
@@ -22,7 +20,6 @@ const PESTANAS = [
 ];
 
 export default function ZonaVendedor() {
-  // 404 = este vendedor todavía no ha pedido su puesto.
   const { datos: vendedor, cargando, error, recargar } = useCarga(
     () => api("/vendedores/yo").catch((e) => { if (e.status === 404) return false; throw e; }),
     [],

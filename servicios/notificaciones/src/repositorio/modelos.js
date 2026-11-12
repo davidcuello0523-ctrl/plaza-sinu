@@ -1,5 +1,3 @@
-// Modelo de datos del servicio NOTIFICACIONES (MongoDB propio: db-notificaciones).
-// Documentos sin relaciones: cada notificación se lee sola, por usuario.
 import mongoose from "mongoose";
 
 const notificacionEsquema = new mongoose.Schema({
@@ -19,7 +17,6 @@ const notificacionEsquema = new mongoose.Schema({
 }, { versionKey: false });
 notificacionEsquema.index({ usuarioId: 1, creadoEn: -1 });
 
-// Correo SIMULADO: se guarda en lugar de enviarse (no hay servidor SMTP).
 const correoEsquema = new mongoose.Schema({
   para: String,
   asunto: String,
@@ -28,7 +25,6 @@ const correoEsquema = new mongoose.Schema({
   enviadoEn: { type: Date, default: Date.now },
 }, { versionKey: false });
 
-// Ids de eventos ya procesados (idempotencia del consumidor).
 const eventoProcesadoEsquema = new mongoose.Schema({
   _id: String,
   tipo: String,

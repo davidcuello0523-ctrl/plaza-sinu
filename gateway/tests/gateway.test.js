@@ -1,4 +1,3 @@
-// Pruebas del gateway: rutas públicas/protegidas, bloqueo de rutas internas y 503 si un servicio no responde.
 import request from "supertest";
 import { crearLogger, firmarAcceso } from "@plaza/compartido";
 import { construirGateway } from "../src/app.js";
@@ -13,7 +12,7 @@ describe("tabla de rutas", () => {
     expect(servicioDe("/auth/login")).toBe("usuarios");
     expect(servicioDe("/productos/abc")).toBe("catalogo");
     expect(servicioDe("/pedidos/1/traza")).toBe("pedidos-pagos");
-    expect(servicioDe("/reservas")).toBeUndefined(); // reservas solo internas
+    expect(servicioDe("/reservas")).toBeUndefined();
   });
   test("rutas públicas explícitas", () => {
     expect(esPublica("GET", "/productos")).toBe(true);
@@ -39,7 +38,6 @@ describe("gateway HTTP", () => {
     await request(app).get("/monitor/eventos").set("authorization", `Bearer ${tokenCliente}`).expect(403);
   });
   test("servicio caído → 503 con mensaje claro", async () => {
-    // En pruebas no hay carrito escuchando en localhost:4005 → conexión rechazada.
     const r = await request(app).get("/carrito").set("authorization", `Bearer ${tokenCliente}`);
     expect(r.status).toBe(503);
     expect(r.body.error.codigo).toBe("SERVICIO_NO_DISPONIBLE");

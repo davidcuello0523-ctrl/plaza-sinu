@@ -1,5 +1,3 @@
-// Ensambla la app Express. Recibe sus dependencias (repo, bus, clientes) desde
-// fuera: las pruebas pasan dobles en memoria sin base de datos ni red.
 import { fileURLToPath } from "node:url";
 import { crearApp, finalizarApp } from "@plaza/compartido";
 import { crearServicioPedidos } from "./servicios/pedidos.servicio.js";
@@ -13,6 +11,6 @@ export function construirApp({ repo, bus, clientes, logger, verificaciones }) {
   const app = crearApp({ servicio: "pedidos-pagos", logger, rutaOpenapi, verificaciones });
   app.use(crearRutas(crearControlador(servicio)));
   finalizarApp(app, logger);
-  app.locals.servicio = servicio; // index.js lo usa para registrar los consumidores
+  app.locals.servicio = servicio;
   return app;
 }

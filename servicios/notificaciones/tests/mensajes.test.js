@@ -1,4 +1,3 @@
-// Pruebas UNITARIAS: cada evento produce las notificaciones correctas.
 import { formatoCOP, notificacionesPara } from "../src/mensajes.js";
 
 const ev = (tipo, datos) => ({ id: "e1", tipo, correlationId: "c1", datos });

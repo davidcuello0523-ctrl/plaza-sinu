@@ -1,7 +1,3 @@
-// Pedidos históricos de demostración (IDs de usuarios/vendedores/productos
-// FIJOS, ver docs/contratos.md). El contador queda listo para que el primer
-// pedido nuevo sea PS-000123.
-// Uso: npm run seed  (o automático al arrancar con SEED_DEMO=true y BD vacía)
 import prismaPkg from "./generated/prisma/index.js";
 import { calcularTotales, formatoCOP } from "./servicios/dominio.js";
 
@@ -29,7 +25,6 @@ const CLIENTES = {
   14: { nombre: "Camilo Negrete", email: "cliente4@plazasinu.co", ciudad: "Sahagún", dir: "Calle 15 #11-02" },
 };
 
-// estadoSub: estado final de los sub-pedidos; pago: "ok" | "rechazado" | null
 const HISTORIA = [
   { n: 101, cliente: 11, dias: 9, items: [["prd-001", 1], ["prd-009", 1]], estado: "COMPLETADO", estadoSub: "ENTREGADO", pago: "ok" },
   { n: 102, cliente: 13, dias: 8, items: [["prd-001", 1], ["prd-030", 1]], estado: "COMPLETADO", estadoSub: "ENTREGADO", pago: "ok" },
@@ -97,12 +92,10 @@ export async function sembrar(prisma) {
     await prisma.pedido.create({ data: datos });
     creados++;
   }
-  // El siguiente pedido real será PS-000123 (el upsert suma 1 a este valor).
   await prisma.contador.upsert({ where: { nombre: "pedido" }, create: { nombre: "pedido", valor: 122 }, update: {} });
   return creados;
 }
 
-// Ejecutado directamente (npm run seed)
 if (process.argv[1]?.endsWith("seed.js")) {
   const prisma = new prismaPkg.PrismaClient();
   const n = await sembrar(prisma);

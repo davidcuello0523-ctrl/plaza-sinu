@@ -1,6 +1,3 @@
-// Tabla de enrutamiento del gateway: qué prefijo va a qué servicio,
-// qué rutas son públicas y cuáles están bloqueadas desde fuera.
-
 export const SERVICIOS = {
   usuarios: { url: process.env.USUARIOS_URL || "http://localhost:4001", prefijos: ["/auth", "/usuarios"] },
   vendedores: { url: process.env.VENDEDORES_URL || "http://localhost:4002", prefijos: ["/vendedores"] },
@@ -17,17 +14,15 @@ export function servicioDe(ruta) {
   return Object.keys(SERVICIOS).find((nombre) => SERVICIOS[nombre].prefijos.some((p) => empieza(ruta, p)));
 }
 
-// Rutas públicas EXPLÍCITAS. Todo lo demás exige JWT.
 export function esPublica(metodo, ruta) {
   if (metodo === "POST" && ["/auth/login", "/auth/registro", "/auth/refresh", "/auth/logout"].includes(ruta)) return true;
   if (metodo !== "GET") return false;
   if (empieza(ruta, "/productos") || empieza(ruta, "/categorias")) return true;
   if (ruta === "/vendedores" || (/^\/vendedores\/[^/]+$/.test(ruta) && ruta !== "/vendedores/yo")) return true;
-  if (/^\/inventario\/[^/]+$/.test(ruta)) return true; // stock en vivo en el detalle del producto
+  if (/^\/inventario\/[^/]+$/.test(ruta)) return true;
   return false;
 }
 
-// Rutas internas (servicio→servicio): el navegador NUNCA las alcanza.
 export function esInterna(ruta) {
   return ruta.includes("/interno/") || ruta.endsWith("/interno");
 }

@@ -1,4 +1,3 @@
-// Tarjeta de puesto: el toldo a rayas con el color de la tienda.
 import { Link } from "react-router-dom";
 import Icono from "../../componentes/Icono.jsx";
 import { NOMBRES_CATEGORIA, iniciales } from "./comun.js";

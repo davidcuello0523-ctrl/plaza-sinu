@@ -1,19 +1,13 @@
-// Mapa de servicios en vivo: navegador → gateway → 7 servicios, su base de
-// datos y RabbitMQ. Estado y latencia vienen de GET /salud cada 3 s; los
-// eventos que pasan por RabbitMQ hacen "latir" a quien publica y a quien consume.
 import { useCallback, useState } from "react";
 import { Sello } from "../../componentes/comunes.jsx";
 import Icono from "../../componentes/Icono.jsx";
 import { IMPACTO, SERVICIOS, TEXTO_ESTADO, URL_RABBIT, URL_SWAGGER, useColas, useSalud, useSucesos } from "./monitor.js";
 
-// Geometría del lienzo (viewBox 1120 × 600).
 const BW = 140, BH = 84, BY = 232, BASE = BY + BH;
 const x = (i) => 10 + i * 160;
 const cx = (i) => x(i) + BW / 2;
 const IDX = Object.fromEntries(SERVICIOS.map((s, i) => [s.nombre, i]));
 
-// Llamadas REST entre servicios (igual que docs/arquitectura/02-comunicacion.mmd).
-// Desplazamientos y profundidades elegidos para que los arcos casi no se crucen.
 const REST = [
   { de: "catalogo", a: "vendedores", texto: "¿aprobado?", d0: -50, d1: 40, prof: 36 },
   { de: "carrito", a: "catalogo", texto: "precio", d0: -30, d1: 20, prof: 40 },
@@ -75,7 +69,6 @@ function Lienzo({ salud, gatewayCaido, activos, elegido, alElegir }) {
         </marker>
       </defs>
 
-      {/* Navegador → gateway */}
       <g className="nodo-externo">
         <rect x="450" y="8" width="220" height="46" rx="6" />
         <text x="560" y="37" textAnchor="middle">Navegador (web :3000)</text>
@@ -89,7 +82,6 @@ function Lienzo({ salud, gatewayCaido, activos, elegido, alElegir }) {
         </text>
       </g>
 
-      {/* Tronco del gateway hacia cada servicio */}
       <line x1="560" y1="154" x2="560" y2="186" className="enlace-rest" />
       <line x1={cx(0)} y1="186" x2={cx(6)} y2="186" className="enlace-rest" />
       {SERVICIOS.map((s, i) => (
@@ -97,7 +89,6 @@ function Lienzo({ salud, gatewayCaido, activos, elegido, alElegir }) {
           className={`enlace-rest ${est(s.nombre) === "caido" ? "enlace-caido" : ""}`} markerEnd="url(#punta-rest)" />
       ))}
 
-      {/* REST entre servicios: arcos naranjas bajo las cajas */}
       {REST.map((r) => {
         const x0 = cx(IDX[r.de]) + r.d0, x1 = cx(IDX[r.a]) + r.d1, y = BASE + r.prof;
         const caido = est(r.de) === "caido" || est(r.a) === "caido";
@@ -110,7 +101,6 @@ function Lienzo({ salud, gatewayCaido, activos, elegido, alElegir }) {
         );
       })}
 
-      {/* Cada servicio con su base de datos propia */}
       {SERVICIOS.map((s, i) => (
         <line key={`bd-${s.nombre}`} x1={cx(i) + 58} y1={BASE} x2={cx(i) + 40} y2="448" className="enlace-bd" />
       ))}
@@ -120,7 +110,6 @@ function Lienzo({ salud, gatewayCaido, activos, elegido, alElegir }) {
         return <Cilindro key={s.nombre} s={s} i={i} estado={estadoBd} />;
       })}
 
-      {/* Eventos: cada servicio publica/consume en RabbitMQ */}
       {SERVICIOS.map((s, i) => (
         <line key={`ev-${s.nombre}`} x1={x(i) + 12} y1={BASE} x2={x(i) + 12} y2="548"
           className={`enlace-evento ${activos[s.nombre] ? "enlace-activo" : ""} ${est(s.nombre) === "caido" ? "enlace-caido" : ""}`} />
@@ -201,7 +190,6 @@ export default function Mapa() {
   const [elegido, setElegido] = useState(null);
   const [activos, setActivos] = useState({});
 
-  // Hace latir 1.2 s a quien publica y a quienes consumen cada evento.
   const alSuceso = useCallback((suceso) => {
     const nombres = suceso.clase === "http" ? ["gateway"] : [suceso.origen, ...(suceso.consumidores || [])];
     setActivos((a) => ({ ...a, ...Object.fromEntries(nombres.map((n) => [n, true])) }));
@@ -245,7 +233,6 @@ export default function Mapa() {
         </div>
         <Lienzo salud={salud} gatewayCaido={gatewayCaido} activos={activos} elegido={elegido} alElegir={setElegido} />
 
-        {/* Móvil: el diagrama se vuelve una lista de tarjetas */}
         <ul className="mapa-lista">
           {SERVICIOS.map((s) => {
             const estado = estadoDe(salud, s.nombre, gatewayCaido);

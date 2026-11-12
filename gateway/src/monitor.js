@@ -1,8 +1,5 @@
-// Monitoreo básico: salud agregada de los servicios, colas de RabbitMQ y el
-// "radar" de eventos que alimenta la Sala de Máquinas y el Modo sustentación.
 import { SERVICIOS } from "./rutas.js";
 
-// Quién consume cada evento (documentación viva para el radar).
 export const CONSUMIDORES = {
   "usuario.registrado": ["notificaciones"],
   "vendedor.aprobado": ["catalogo", "notificaciones"],
@@ -20,8 +17,8 @@ export const CONSUMIDORES = {
 };
 
 export function crearMonitor({ bus, logger }) {
-  const recientes = []; // últimos 200 sucesos (eventos + pasos HTTP del flujo)
-  const clientes = new Set(); // conexiones SSE abiertas
+  const recientes = [];
+  const clientes = new Set();
 
   function emitir(suceso) {
     recientes.push(suceso);
@@ -30,7 +27,6 @@ export function crearMonitor({ bus, logger }) {
     for (const res of clientes) res.write(linea);
   }
 
-  // Todo evento que pase por RabbitMQ llega aquí (cola temporal con binding "#").
   bus.observar((evento) => emitir({
     clase: "evento",
     id: evento.id,
@@ -42,7 +38,6 @@ export function crearMonitor({ bus, logger }) {
     resumen: evento.datos?.resumen,
   }));
 
-  // Pasos del flujo obligatorio que son REST (no pasan por RabbitMQ).
   const PASOS_HTTP = [
     { paso: "sesion_iniciada", metodo: "POST", patron: /^\/auth\/login$/ },
     { paso: "productos_consultados", metodo: "GET", patron: /^\/productos(\/[^/]+)?$/ },
@@ -89,8 +84,6 @@ export function crearMonitor({ bus, logger }) {
     };
   }
 
-  // Profundidad de las colas (API de administración de RabbitMQ): permite ver
-  // en la demo cómo se acumulan mensajes mientras notificaciones está caído.
   async function colas() {
     const url = process.env.RABBITMQ_API || "http://localhost:15672/api";
     const auth = Buffer.from(`${process.env.RABBITMQ_USUARIO || "plaza"}:${process.env.RABBITMQ_CLAVE || "plaza"}`).toString("base64");

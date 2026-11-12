@@ -1,7 +1,3 @@
-// Cliente HTTP del frontend. TODO pasa por el API Gateway (nunca a un servicio directo).
-// Si una petición responde 401 por token vencido, renueva la sesión con el
-// refresh token UNA vez y reintenta; si eso también falla, cierra la sesión.
-
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 const CLAVE_SESION = "plaza.sesion";
 
@@ -21,16 +17,16 @@ export const sesionGuardada = {
     try { return JSON.parse(localStorage.getItem(CLAVE_SESION)) || null; } catch { return null; }
   },
   guardar(sesion) {
-    try { localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion)); } catch { /* modo privado */ }
+    try { localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion)); } catch {}
     window.dispatchEvent(new Event("plaza:sesion"));
   },
   borrar() {
-    try { localStorage.removeItem(CLAVE_SESION); } catch { /* modo privado */ }
+    try { localStorage.removeItem(CLAVE_SESION); } catch {}
     window.dispatchEvent(new Event("plaza:sesion"));
   },
 };
 
-let renovando = null; // evita varias renovaciones simultáneas
+let renovando = null;
 async function renovarSesion() {
   const actual = sesionGuardada.leer();
   if (!actual?.refreshToken) return null;
@@ -73,10 +69,8 @@ export async function api(ruta, { metodo = "GET", cuerpo, headers = {}, reintent
   return datos;
 }
 
-// URL absoluta para recursos que el gateway devuelve como rutas relativas (imágenes SVG).
 export const urlRecurso = (ruta) => (!ruta ? "" : ruta.startsWith("http") ? ruta : API_URL + ruta);
 
-// EventSource no permite headers: el token va en la URL (ver ADR-12).
 export function abrirStream(ruta) {
   const token = sesionGuardada.leer()?.accessToken;
   return new EventSource(`${API_URL}${ruta}?token=${encodeURIComponent(token || "")}`);

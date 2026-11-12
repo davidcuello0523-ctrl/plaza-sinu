@@ -1,4 +1,3 @@
-// Lógica de notificaciones: consultar/marcar las propias y procesar eventos.
 import { ErrorNoEncontrado, ErrorProhibido } from "@plaza/compartido";
 import { notificacionesPara } from "../mensajes.js";
 
@@ -21,7 +20,6 @@ export function crearServicioNotificaciones({ repo, hub, bus, logger }) {
 
     marcarTodas: async (usuarioId) => ({ actualizadas: await repo.marcarTodas(usuarioId) }),
 
-    // Consumidor: evento → notificaciones guardadas → push SSE → correo simulado.
     async procesarEvento(evento) {
       const lista = notificacionesPara(evento).filter((n) => n.usuarioId);
       for (const { correo, ...n } of lista) {
@@ -35,7 +33,6 @@ export function crearServicioNotificaciones({ repo, hub, bus, logger }) {
           logger.info({ correlationId: evento.correlationId, para, asunto: correo.asunto }, "correo simulado enviado");
         }
       }
-      // Avisamos a pedidos-pagos para que la traza muestre "notificaciones: avisados".
       if (evento.datos?.pedidoId && lista.length) {
         const roles = [...new Set(lista.map((n) => n.rol))].join(" y ");
         bus.publicar("notificacion.enviada", {
