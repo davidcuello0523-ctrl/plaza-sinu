@@ -28,11 +28,11 @@ export function Cargando({ alto = 120, filas = 1 }) {
   );
 }
 
-export function Vacio({ icono = "caja", titulo, children, accion }) {
+export function Vacio({ icono = "caja", titulo, children, accion, principal = false }) {
   return (
     <div className="vacio">
       <Icono nombre={icono} tamano={40} />
-      <h3>{titulo}</h3>
+      {principal ? <h1 className="vacio-titulo">{titulo}</h1> : <h3 className="vacio-titulo">{titulo}</h3>}
       {children && <p>{children}</p>}
       {accion}
     </div>
@@ -64,7 +64,7 @@ export function RutaProtegida({ roles, children }) {
   if (roles && !roles.includes(usuario.rol)) {
     return (
       <div className="contenedor pagina">
-        <Vacio icono="alerta" titulo="Esta zona no es para tu tipo de cuenta">
+        <Vacio icono="alerta" titulo="Esta zona no es para tu tipo de cuenta" principal>
           Entraste como {usuario.rol}. Cambia de cuenta para ver esta sección.
         </Vacio>
       </div>

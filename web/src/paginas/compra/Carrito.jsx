@@ -45,7 +45,7 @@ export default function Carrito() {
   if (carrito.grupos.length === 0) {
     return (
       <div className="contenedor pagina">
-        <Vacio icono="carrito" titulo="Tu carrito está vacío"
+        <Vacio principal icono="carrito" titulo="Tu carrito está vacío"
           accion={<Link to="/catalogo" className="boton boton-primario">Recorrer la plaza</Link>}>
           Puedes llevar productos de varios puestos en una sola compra.
         </Vacio>

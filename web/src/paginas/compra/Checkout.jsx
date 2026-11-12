@@ -79,7 +79,7 @@ export default function Checkout() {
   if (!pedido && carrito.grupos.length === 0) {
     return (
       <div className="contenedor pagina">
-        <Vacio icono="carrito" titulo="No hay nada que pagar" accion={<Link to="/catalogo" className="boton boton-primario">Ir al catálogo</Link>}>
+        <Vacio principal icono="carrito" titulo="No hay nada que pagar" accion={<Link to="/catalogo" className="boton boton-primario">Ir al catálogo</Link>}>
           Agrega productos al carrito para generar un pedido.
         </Vacio>
       </div>

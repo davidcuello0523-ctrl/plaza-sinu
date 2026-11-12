@@ -80,7 +80,7 @@ export default function App() {
               <Route path="metricas" element={<MetricasAdmin />} />
             </Route>
 
-            <Route path="*" element={<div className="contenedor pagina"><Vacio icono="alerta" titulo="Esta página no existe">Revisa la dirección o vuelve a la plaza.</Vacio></div>} />
+            <Route path="*" element={<div className="contenedor pagina"><Vacio principal icono="alerta" titulo="Esta página no existe">Revisa la dirección o vuelve a la plaza.</Vacio></div>} />
           </Routes>
         </Suspense>
       </main>
