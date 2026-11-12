@@ -184,6 +184,7 @@ plaza-sinu/
 | [Guion de sustentación](docs/sustentacion/guion.md) | 10 etapas, tiempos y reparto |
 | [Preguntas probables](docs/sustentacion/preguntas-probables.md) | Respuestas con el archivo que las respalda |
 | [Checklist de la demo](docs/sustentacion/checklist-demo.md) | Lista para el día de la sustentación |
+| [Créditos de imágenes](docs/creditos-imagenes.md) | Autor y licencia de las fotos de productos (Wikimedia Commons) |
 | [Cómo contribuir](CONTRIBUTING.md) | Ramas, commits y pruebas |
 | Swagger | http://localhost:8080/docs con la solución arriba, o `servicios/*/openapi.yaml` |
 

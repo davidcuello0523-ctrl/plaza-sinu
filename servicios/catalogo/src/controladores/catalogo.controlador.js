@@ -1,4 +1,5 @@
-import { contexto } from "@plaza/compartido";
+import { contexto, ErrorNoEncontrado } from "@plaza/compartido";
+import { DIR_FOTOS, FOTOS } from "../fotos.js";
 import { generarImagen } from "../servicios/imagen.js";
 
 export function crearControlador(servicio) {
@@ -23,6 +24,11 @@ export function crearControlador(servicio) {
         "cross-origin-resource-policy": "cross-origin",
       });
       res.send(generarImagen(p));
+    },
+    foto: (req, res, next) => {
+      if (!/^prd-\d{3}$/.test(req.params.id) || !FOTOS.has(req.params.id)) return next(new ErrorNoEncontrado("Este producto no tiene foto"));
+      res.set({ "cache-control": "public, max-age=604800", "cross-origin-resource-policy": "cross-origin" });
+      res.sendFile(`${req.params.id}.jpg`, { root: DIR_FOTOS });
     },
   };
 }

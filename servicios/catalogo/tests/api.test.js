@@ -52,6 +52,14 @@ describe("API catálogo — lectura pública", () => {
     expect(img.headers["content-type"]).toMatch(/image\/svg\+xml/);
     expect(img.headers["cross-origin-resource-policy"]).toBe("cross-origin");
   });
+
+  test("GET /productos/:id/foto.jpg sirve la foto real; sin foto o id raro → 404", async () => {
+    const foto = await request(app).get("/productos/prd-029/foto.jpg").expect(200);
+    expect(foto.headers["content-type"]).toMatch(/image\/jpeg/);
+    expect(foto.headers["cross-origin-resource-policy"]).toBe("cross-origin");
+    await request(app).get("/productos/prd-010/foto.jpg").expect(404);
+    await request(app).get("/productos/..%2Fpackage.json/foto.jpg").expect(404);
+  });
 });
 
 describe("API catálogo — escritura", () => {

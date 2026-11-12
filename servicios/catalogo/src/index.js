@@ -4,7 +4,7 @@ import { crearRepositorioProductos } from "./repositorio/productos.repositorio.j
 import { registrarConsumidores } from "./eventos/consumidores.js";
 import { Producto } from "./modelos/producto.modelo.js";
 import { construirApp } from "./app.js";
-import { sembrar } from "./seed.js";
+import { sembrar, sincronizarFotos } from "./seed.js";
 
 const logger = crearLogger("catalogo");
 await mongoose.connect(process.env.MONGO_URL || "mongodb://localhost:27018/catalogo");
@@ -25,6 +25,7 @@ const app = construirApp({
 if (process.env.SEED_DEMO === "true" && (await Producto.estimatedDocumentCount()) === 0) {
   logger.info({ productos: await sembrar() }, "datos de demostración sembrados");
 }
+if (process.env.SEED_DEMO === "true") logger.info({ fotos: await sincronizarFotos() }, "fotos de productos sincronizadas");
 
 registrarConsumidores(bus, repo);
 iniciarServidor(app, {

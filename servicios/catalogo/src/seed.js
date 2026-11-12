@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { FOTOS, rutaFoto } from "./fotos.js";
 import { Producto } from "./modelos/producto.modelo.js";
 import { estadoDeStock } from "./categorias.js";
 
@@ -81,7 +82,7 @@ export function productosDemo(ahora = Date.now()) {
     const fecha = new Date(ahora - (PRODUCTOS.length - i) * 6 * 3600 * 1000);
     return {
       _id: id, nombre, slug: crearSlug(nombre), descripcion, precio, categoria: puesto.categoria, atributos,
-      imagenes: [`/productos/${id}/imagen.svg`],
+      imagenes: FOTOS.has(id) ? [rutaFoto(id), `/productos/${id}/imagen.svg`] : [`/productos/${id}/imagen.svg`],
       vendedorId: vid(puesto.n), vendedorUsuarioId: uid(100 + puesto.n), nombreTienda: puesto.tienda,
       colorTienda: puesto.color, ciudad: puesto.ciudad,
       publicado: true, eliminado: false, vendedorActivo: true,
@@ -89,6 +90,14 @@ export function productosDemo(ahora = Date.now()) {
       creadoEn: fecha, actualizadoEn: fecha,
     };
   });
+}
+
+export async function sincronizarFotos() {
+  const ops = [...FOTOS].map((id) => ({
+    updateOne: { filter: { _id: id, imagenes: { $ne: rutaFoto(id) } }, update: { $push: { imagenes: { $each: [rutaFoto(id)], $position: 0 } } } },
+  }));
+  if (!ops.length) return 0;
+  return (await Producto.collection.bulkWrite(ops)).modifiedCount;
 }
 
 export async function sembrar() {

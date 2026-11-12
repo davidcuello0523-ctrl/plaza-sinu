@@ -42,6 +42,7 @@ export function crearRutas(ctrl) {
   r.get("/categorias", ctrl.categorias);
   r.get("/productos", autenticarOpcional, validar(esquemaFiltros, "query"), ctrl.listar);
   r.get("/productos/:id/imagen.svg", ctrl.imagen);
+  r.get("/productos/:id/foto.jpg", ctrl.foto);
   r.get("/productos/:id", autenticarOpcional, ctrl.ver);
   r.post("/productos", autenticar, requerirRol("vendedor"), validar(esquemaProducto), ctrl.crear);
   r.put("/productos/:id", autenticar, requerirRol("vendedor"), validar(esquemaProducto.omit({ publicado: true })), ctrl.actualizar);
