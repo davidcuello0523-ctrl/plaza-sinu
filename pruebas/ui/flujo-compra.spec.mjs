@@ -121,4 +121,17 @@ test("flujo obligatorio de compra desde el navegador", async ({ page }) => {
     await expect(page.getByText("notificaciones.eventos").first()).toBeVisible({ timeout: 20000 });
     await foto(page, "18-rabbitmq-colas", { fullPage: true });
   });
+
+  await test.step("10. Mi Puesto del vendedor", async () => {
+    await page.goto("/");
+    await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    await entrar(page, "vendedor@plazasinu.co");
+    await page.waitForURL((url) => !url.pathname.startsWith("/entrar"));
+    for (const [ruta, nombre] of [["/mi-puesto", "19-vendedor-resumen"], ["/mi-puesto/productos", "20-vendedor-productos"], ["/mi-puesto/inventario", "21-vendedor-inventario"], ["/mi-puesto/pedidos", "22-vendedor-subpedidos"]]) {
+      await page.goto(ruta);
+      await expect(page.getByRole("heading", { name: "Tecno Sinú", level: 1 })).toBeVisible();
+      await page.waitForTimeout(1200);
+      await foto(page, nombre, { fullPage: true });
+    }
+  });
 });
