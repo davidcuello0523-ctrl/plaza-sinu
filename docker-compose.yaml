@@ -172,7 +172,7 @@ services:
       <<: *entorno-comun
       PUERTO: 8080
       URL_PUBLICA: http://localhost:8080
-      CORS_ORIGENES: http://localhost:3000,http://localhost:5173
+      CORS_ORIGENES: ${CORS_ORIGENES:-http://localhost:3000,http://localhost:5173}
       RABBITMQ_API: http://rabbitmq:15672/api
       RABBITMQ_USUARIO: ${RABBITMQ_USUARIO}
       RABBITMQ_CLAVE: ${RABBITMQ_CLAVE}
@@ -187,7 +187,7 @@ services:
       notificaciones: { condition: service_healthy }
 
   web:
-    build: { context: ./web, args: { VITE_API_URL: http://localhost:8080 } }
+    build: { context: ./web, args: { VITE_API_URL: "${WEB_API_URL:-http://localhost:8080}" } }
     restart: unless-stopped
     networks: [plaza]
     ports: ["3000:80"]
