@@ -8,7 +8,7 @@
   padding: clamp(20px, 3vw, 32px); min-height: 280px; text-decoration: none;
   background: var(--ps-naranja-suave); border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra);
 }
-.vend-atender:hover { background: #F9D6C8; }
+.vend-atender:hover { background: var(--ps-naranja-suave); }
 .vend-atender-etiqueta { display: inline-flex; align-items: center; gap: 8px; font: 600 1rem/1 var(--ps-titulo); }
 .vend-atender-numero { font-size: clamp(5rem, 11vw, 8.5rem); line-height: 0.85; }
 .vend-atender-pie { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 12px; border-top: 1.5px dashed var(--ps-tinta); }
@@ -81,7 +81,7 @@
 
 .vend-tabla-stock td.cifra { font-size: 1.05rem; }
 .vend-fila-baja td:first-child { box-shadow: inset 5px 0 0 var(--ps-aviso); }
-.vend-fila-baja { background: #FFFBF0; }
+.vend-fila-baja { background: var(--ps-aviso-suave); }
 .vend-fila-ajuste td { background: var(--ps-piedra); }
 .vend-ajuste { display: grid; grid-template-columns: minmax(140px, 1.2fr) 8rem 7rem minmax(160px, 1.5fr) auto; gap: 12px; align-items: end; }
 @media (max-width: 860px) { .vend-ajuste { grid-template-columns: 1fr 1fr; } .vend-ajuste > strong, .vend-ajuste-nota { grid-column: 1 / -1; } }
@@ -95,7 +95,7 @@
   border: 1.5px solid var(--ps-tinta); border-radius: 999px; background: var(--ps-superficie); cursor: pointer; font-weight: 600;
 }
 .vend-chip .cifra { min-width: 22px; padding: 1px 6px; border-radius: 999px; background: var(--ps-piedra-2); font-size: 0.8rem; text-align: center; }
-.vend-chip.activo { background: var(--ps-tinta); color: #fff; }
+.vend-chip.activo { background: var(--ps-tinta); color: var(--ps-piedra); }
 .vend-chip.activo .cifra { background: var(--ps-naranja); color: var(--ps-tinta); }
 .vend-pedidos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; }
 .vend-pedido { display: grid; gap: 14px; align-content: start; }

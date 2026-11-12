@@ -93,6 +93,23 @@ function MenuCuenta() {
   );
 }
 
+function BotonTema() {
+  const [tema, setTema] = useState(() => document.documentElement.dataset.tema || "claro");
+  const oscuro = tema === "oscuro";
+  const cambiar = () => {
+    const nuevo = oscuro ? "claro" : "oscuro";
+    document.documentElement.dataset.tema = nuevo;
+    try { localStorage.setItem("plaza.tema", nuevo); } catch {}
+    setTema(nuevo);
+  };
+  return (
+    <button type="button" className="boton boton-plano boton-icono barra-accion" onClick={cambiar}
+      aria-pressed={oscuro} aria-label="Modo oscuro" title={oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+      <Icono nombre={oscuro ? "sol" : "luna"} />
+    </button>
+  );
+}
+
 export default function BarraSuperior() {
   const { usuario } = useSesion();
   const { carrito, ciudad, elegirCiudad } = usePlaza();
@@ -110,10 +127,10 @@ export default function BarraSuperior() {
       <div className="contenedor barra-fila">
         <Link to={usuario ? inicioDeRol(usuario.rol) : "/"} className="logo" aria-label="Plaza Sinú, inicio">
           <svg viewBox="0 0 40 32" width="40" height="32" aria-hidden="true">
-            <rect x="1" y="1" width="38" height="9" rx="2" fill="#E4572E" stroke="#15181C" strokeWidth="1.5" />
-            <path d="M1 10c0 3 2.2 5 4.7 5s4.6-2 4.6-5c0 3 2.1 5 4.7 5s4.7-2 4.7-5c0 3 2.1 5 4.6 5s4.7-2 4.7-5c0 3 2.1 5 4.7 5S39 13 39 10" fill="#E4572E" stroke="#15181C" strokeWidth="1.5" />
-            <path d="M5 17v13h30V17" fill="none" stroke="#15181C" strokeWidth="1.5" />
-            <path d="M16 30v-7h8v7" fill="none" stroke="#15181C" strokeWidth="1.5" />
+            <rect x="1" y="1" width="38" height="9" rx="2" fill="#E4572E" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M1 10c0 3 2.2 5 4.7 5s4.6-2 4.6-5c0 3 2.1 5 4.7 5s4.7-2 4.7-5c0 3 2.1 5 4.6 5s4.7-2 4.7-5c0 3 2.1 5 4.7 5S39 13 39 10" fill="#E4572E" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M5 17v13h30V17" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M16 30v-7h8v7" fill="none" stroke="currentColor" strokeWidth="1.5" />
           </svg>
           <span>Plaza <b>Sinú</b></span>
         </Link>
@@ -141,6 +158,7 @@ export default function BarraSuperior() {
               {carrito?.unidades > 0 && <span className="contador">{carrito.unidades}</span>}
             </NavLink>
           )}
+          <BotonTema />
           {usuario && <Campana />}
           {usuario ? <MenuCuenta /> : <Link to="/entrar" className="boton boton-sm">Entrar</Link>}
         </div>

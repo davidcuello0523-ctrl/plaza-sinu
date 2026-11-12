@@ -83,7 +83,7 @@
   font-size: 0.88rem; cursor: pointer;
 }
 .chip:hover { border-color: var(--ps-tinta); }
-.chip[aria-pressed="true"] { background: var(--ps-tinta); color: #fff; border-color: var(--ps-tinta); }
+.chip[aria-pressed="true"] { background: var(--ps-tinta); color: var(--ps-piedra); border-color: var(--ps-tinta); }
 .punto { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.3); }
 .filtro-pie { border-top: 1px solid var(--ps-linea); padding-top: 14px; }
 .orden { gap: 10px; font-weight: 600; font-size: 0.9rem; }

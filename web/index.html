@@ -7,6 +7,14 @@
     <meta name="theme-color" content="#16324F" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Plaza Sinú</title>
+    <script>
+      (function () {
+        var t;
+        try { t = localStorage.getItem("plaza.tema"); } catch (e) {}
+        if (t !== "oscuro" && t !== "claro") t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
+        document.documentElement.dataset.tema = t;
+      })();
+    </script>
   </head>
   <body>
     <div id="raiz"></div>

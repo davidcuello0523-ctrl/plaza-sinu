@@ -19,7 +19,7 @@
 .entrar-logo b { font-weight: 700; color: var(--ps-naranja); }
 .collage { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
 .collage-puesto {
-  background: #FFFDF8; color: var(--ps-tinta); border: var(--ps-borde); border-radius: var(--ps-radio);
+  background: #FFFDF8; color: #15181C; border: var(--ps-borde); border-radius: var(--ps-radio);
   overflow: hidden; box-shadow: 4px 4px 0 #0B1A2A;
 }
 .collage-puesto:nth-child(3n + 2) { margin-top: 28px; }
@@ -134,7 +134,7 @@
   background: var(--ps-superficie); font-weight: 600; font-size: 0.88rem; cursor: pointer;
 }
 .chip-estado:hover { border-color: var(--ps-tinta); }
-.chip-estado.activo { background: var(--ps-tinta); color: #fff; border-color: var(--ps-tinta); }
+.chip-estado.activo { background: var(--ps-tinta); color: var(--ps-piedra); border-color: var(--ps-tinta); }
 .lista-pedidos { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .tarjeta-pedido {
   display: grid; grid-template-columns: 200px minmax(0, 1fr) auto; gap: 20px; align-items: center;
@@ -198,8 +198,8 @@
 .paso-cuerpo .fila { gap: 8px; }
 .paso-meta { font-size: 0.8rem; gap: 10px; }
 .via { padding: 1px 8px; border-radius: var(--ps-radio-sm); font: 600 0.75rem/1.5 var(--ps-titulo); }
-.via-rest { background: var(--ps-tinta); color: #fff; }
-.via-evento { border: 1.5px dashed var(--ps-rio); color: var(--ps-rio); }
+.via-rest { background: var(--ps-tinta); color: var(--ps-piedra); }
+.via-evento { border: 1.5px dashed var(--ps-rio-texto); color: var(--ps-rio-texto); }
 .paso-corte { margin: 0 0 14px -34px; padding: 4px 10px; font-size: 0.78rem; color: var(--ps-tinta-2); background: var(--ps-piedra); border-radius: var(--ps-radio-sm); width: fit-content; }
 @media (prefers-reduced-motion: no-preference) {
   .paso { animation: aparece-paso 0.3s ease-out both; }
