@@ -139,9 +139,9 @@
 .tarjeta-pedido {
   display: grid; grid-template-columns: 200px minmax(0, 1fr) auto; gap: 20px; align-items: center;
   padding: 18px 20px; text-decoration: none; background: var(--ps-superficie);
-  border: var(--ps-borde); border-radius: var(--ps-radio); transition: box-shadow 0.12s, transform 0.12s;
+  border: var(--ps-borde); border-radius: var(--ps-radio); transition: box-shadow var(--ps-dur) var(--ps-ease), transform var(--ps-dur) var(--ps-resorte);
 }
-.tarjeta-pedido:hover { box-shadow: var(--ps-sombra); transform: translate(-2px, -2px); }
+.tarjeta-pedido:hover { box-shadow: var(--ps-sombra); transform: translate(-3px, -3px); }
 .tarjeta-pedido-cabeza { display: grid; gap: 8px; justify-items: start; }
 .codigo { font-size: 1.05rem; font-weight: 500; }
 .tarjeta-pedido-cuerpo { display: grid; gap: 8px; min-width: 0; }
@@ -202,7 +202,7 @@
 .via-evento { border: 1.5px dashed var(--ps-rio-texto); color: var(--ps-rio-texto); }
 .paso-corte { margin: 0 0 14px -34px; padding: 4px 10px; font-size: 0.78rem; color: var(--ps-tinta-2); background: var(--ps-piedra); border-radius: var(--ps-radio-sm); width: fit-content; }
 @media (prefers-reduced-motion: no-preference) {
-  .paso { animation: aparece-paso 0.3s ease-out both; }
+  .paso { animation: aparece-paso var(--ps-dur-l) var(--ps-ease) both; }
 }
 @keyframes aparece-paso { from { opacity: 0; transform: translateX(-6px); } }
 
@@ -218,8 +218,8 @@
 .reg-pasos li.actual .reg-numero { background: var(--ps-naranja); color: #15181C; box-shadow: var(--ps-sombra-sm); }
 .reg-pasos li.hecho .reg-numero { background: var(--ps-exito); color: #FFFFFF; border-color: var(--ps-exito); }
 .reg-progreso { height: 6px; border-radius: 999px; background: var(--ps-piedra-2); overflow: hidden; margin-top: 12px; }
-.reg-progreso div { height: 100%; background: var(--ps-naranja); border-radius: inherit; transition: width 0.3s ease; }
-.reg-paso { animation: reg-entra 0.25s ease-out; }
+.reg-progreso div { height: 100%; background: var(--ps-naranja); border-radius: inherit; transition: width var(--ps-dur-l) var(--ps-resorte); }
+.reg-paso { animation: reg-entra var(--ps-dur-l) var(--ps-ease) both; }
 @keyframes reg-entra { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
 
 .reg-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border: 0; padding: 0; margin: 0; }
@@ -227,8 +227,9 @@
 .reg-rol {
   position: relative; display: grid; gap: 4px; padding: 16px; cursor: pointer;
   border: var(--ps-borde); border-radius: var(--ps-radio); background: var(--ps-superficie);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+  transition: transform var(--ps-dur) var(--ps-resorte), box-shadow var(--ps-dur) var(--ps-ease), background-color var(--ps-dur) var(--ps-ease), border-color var(--ps-dur) var(--ps-ease);
 }
+.reg-rol:active { transform: scale(0.98); transition-duration: 90ms; }
 .reg-rol:hover { transform: translate(-1px, -1px); box-shadow: var(--ps-sombra-sm); }
 .reg-rol strong { font: 700 1rem/1.2 var(--ps-titulo); }
 .reg-rol small { color: var(--ps-tinta-2); font-size: 0.84rem; line-height: 1.35; }

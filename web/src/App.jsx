@@ -44,6 +44,7 @@ export default function App() {
       <div className={conPanel ? "con-panel" : undefined}>
       {conPanel && <PanelCliente />}
       <main id="contenido">
+        <div key={pathname} className="transicion-pagina">
         <Suspense fallback={<div className="contenedor pagina"><Cargando alto={220} /></div>}>
           <Routes>
             <Route path="/" element={<Inicio />} />
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="*" element={<div className="contenedor pagina"><Vacio principal icono="alerta" titulo="Esta página no existe">Revisa la dirección o vuelve a la plaza.</Vacio></div>} />
           </Routes>
         </Suspense>
+        </div>
       </main>
       </div>
       <Avisos />

@@ -14,9 +14,10 @@
 .tarjeta-puesto {
   display: block; height: 100%; text-decoration: none; background: var(--ps-superficie);
   border: var(--ps-borde); border-radius: var(--ps-radio); overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--ps-dur) var(--ps-resorte), box-shadow var(--ps-dur) var(--ps-ease);
 }
-.tarjeta-puesto:hover { transform: translate(-2px, -2px); box-shadow: var(--ps-sombra); }
+.tarjeta-puesto:hover { transform: translate(-3px, -3px); box-shadow: var(--ps-sombra); }
+.tarjeta-puesto:active { transform: translate(-1px, -1px) scale(0.99); transition-duration: 120ms; }
 .tarjeta-puesto .toldo { border-bottom: var(--ps-borde); }
 .puesto-cuerpo { padding: 26px 16px 16px; display: grid; gap: 4px; }
 .puesto-cuerpo h3 { font-size: 1.15rem; }
@@ -43,9 +44,15 @@
 .tarjeta-producto {
   display: flex; flex-direction: column; background: var(--ps-superficie);
   border: var(--ps-borde); border-radius: var(--ps-radio); overflow: hidden; min-width: 0;
+  transition: transform var(--ps-dur) var(--ps-resorte), box-shadow var(--ps-dur) var(--ps-ease);
+  animation: aparece var(--ps-dur-l) var(--ps-ease) backwards;
 }
+.tarjeta-producto:hover { transform: translate(-3px, -3px); box-shadow: var(--ps-sombra); }
+.tarjeta-producto:active { transform: translate(-1px, -1px) scale(0.99); transition-duration: 120ms; }
+.tp-imagen img { transition: transform 700ms var(--ps-ease); }
+.tarjeta-producto:hover .tp-imagen img { transform: scale(1.06); }
 .tp-enlace { text-decoration: none; display: block; flex: 1; }
-.tp-imagen { position: relative; aspect-ratio: 4 / 3; background: var(--color-puesto, var(--ps-rio)); border-bottom: var(--ps-borde); }
+.tp-imagen { position: relative; overflow: hidden; aspect-ratio: 4 / 3; background: var(--color-puesto, var(--ps-rio)); border-bottom: var(--ps-borde); }
 .tp-imagen img { width: 100%; height: 100%; object-fit: cover; }
 .sello-puesto {
   position: absolute; left: 12px; bottom: -18px; width: 38px; height: 38px; display: grid; place-items: center;
@@ -70,7 +77,8 @@
 .stock-agotado .segmentos i { border-color: var(--ps-error); }
 
 .rejilla-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
-.rejilla-productos.atenuada { opacity: 0.55; transition: opacity 0.2s; }
+.rejilla-productos { transition: opacity var(--ps-dur) var(--ps-ease); }
+.rejilla-productos.atenuada { opacity: 0.55; }
 
 .catalogo-cabeza { display: grid; gap: 6px; margin-bottom: 24px; }
 .filtros { display: grid; gap: 14px; padding: 18px; margin-bottom: 28px; background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); }

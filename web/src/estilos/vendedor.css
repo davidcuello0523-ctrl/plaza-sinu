@@ -73,8 +73,8 @@
 .vend-dialogo-acciones { padding-top: 8px; border-top: 1px solid var(--ps-linea); }
 .vend-dialogo-lateral { margin: 0 0 0 auto; height: 100dvh; max-height: 100dvh; border-radius: 0; border-width: 0 0 0 1.5px; }
 @media (prefers-reduced-motion: no-preference) {
-  .vend-dialogo[open] { animation: vend-aparece 0.18s ease-out; }
-  .vend-dialogo-lateral[open] { animation: vend-desliza 0.22s ease-out; }
+  .vend-dialogo[open] { animation: vend-aparece var(--ps-dur) var(--ps-resorte); }
+  .vend-dialogo-lateral[open] { animation: vend-desliza var(--ps-dur-l) var(--ps-ease); }
 }
 @keyframes vend-aparece { from { opacity: 0; transform: translateY(8px); } }
 @keyframes vend-desliza { from { transform: translateX(40px); opacity: 0; } }

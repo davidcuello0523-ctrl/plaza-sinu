@@ -28,7 +28,7 @@ function Campana() {
       <button className="boton boton-plano boton-icono barra-accion" aria-expanded={abierta} aria-haspopup="true"
         onClick={() => setAbierta((v) => !v)} aria-label={`Notificaciones, ${noLeidas} sin leer`}>
         <Icono nombre="campana" />
-        {noLeidas > 0 && <span className="contador">{noLeidas > 9 ? "9+" : noLeidas}</span>}
+        {noLeidas > 0 && <span key={noLeidas} className="contador">{noLeidas > 9 ? "9+" : noLeidas}</span>}
       </button>
       {abierta && (
         <div className="menu-flotante menu-notificaciones">
@@ -98,12 +98,15 @@ function BotonTema() {
   const oscuro = tema === "oscuro";
   const cambiar = () => {
     const nuevo = oscuro ? "claro" : "oscuro";
-    document.documentElement.dataset.tema = nuevo;
+    const raiz = document.documentElement;
+    raiz.classList.add("cambiando-tema");
+    raiz.dataset.tema = nuevo;
+    setTimeout(() => raiz.classList.remove("cambiando-tema"), 500);
     try { localStorage.setItem("plaza.tema", nuevo); } catch {}
     setTema(nuevo);
   };
   return (
-    <button type="button" className="boton boton-plano boton-icono barra-accion" onClick={cambiar}
+    <button type="button" className="boton boton-plano boton-icono barra-accion boton-tema" onClick={cambiar}
       aria-pressed={oscuro} aria-label="Modo oscuro" title={oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
       <Icono nombre={oscuro ? "sol" : "luna"} />
     </button>
@@ -155,7 +158,7 @@ export default function BarraSuperior() {
           {usuario?.rol === "cliente" && (
             <NavLink to="/carrito" className="boton boton-plano boton-icono barra-accion" aria-label={`Carrito, ${carrito?.unidades || 0} unidades`}>
               <Icono nombre="carrito" />
-              {carrito?.unidades > 0 && <span className="contador">{carrito.unidades}</span>}
+              {carrito?.unidades > 0 && <span key={carrito.unidades} className="contador">{carrito.unidades}</span>}
             </NavLink>
           )}
           <BotonTema />

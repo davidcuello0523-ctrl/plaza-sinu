@@ -19,7 +19,9 @@
   border: 1.5px solid transparent; border-radius: var(--ps-radio-sm); background: none;
   font: 600 0.95rem/1.2 var(--ps-titulo); text-decoration: none; text-align: left; cursor: pointer;
 }
-.pc-enlace:hover { background: var(--ps-piedra); }
+.pc-enlace { transition: background-color var(--ps-dur-r) var(--ps-ease), border-color var(--ps-dur-r) var(--ps-ease), transform var(--ps-dur) var(--ps-resorte); }
+.pc-enlace:hover { background: var(--ps-piedra); transform: translateX(3px); }
+.pc-enlace:active { transform: scale(0.97); }
 .pc-enlace.activo { background: var(--ps-naranja-suave); border-color: var(--ps-tinta); }
 .pc-sub { min-height: 38px; font: 500 0.9rem/1.2 var(--ps-texto); padding-left: 14px; }
 .pc-cifra {
