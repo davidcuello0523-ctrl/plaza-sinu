@@ -1,0 +1,42 @@
+/* Panel lateral del cliente. Prefijo de clases: pc- */
+
+.con-panel {
+  display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 8px;
+  max-width: calc(var(--ps-ancho) + 236px); margin: 0 auto; padding-left: var(--ps-gutter);
+}
+.panel-cliente {
+  position: sticky; top: 96px; align-self: start;
+  margin-top: clamp(24px, 4vw, 48px); max-height: calc(100dvh - 120px); overflow-y: auto;
+  display: grid; gap: 14px; padding: 16px 12px;
+  background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra);
+}
+.pc-saludo { display: grid; padding: 0 8px 12px; border-bottom: 1.5px dashed var(--ps-linea); font-family: var(--ps-titulo); }
+.pc-saludo strong { font-size: 1.25rem; }
+.pc-nav, .pc-categorias nav { display: grid; gap: 2px; }
+.pc-titulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ps-tinta-2); padding: 0 8px 6px; }
+.pc-categorias { padding-top: 12px; border-top: 1.5px dashed var(--ps-linea); }
+
+.pc-enlace {
+  display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; width: 100%;
+  border: 1.5px solid transparent; border-radius: var(--ps-radio-sm); background: none;
+  font: 600 0.95rem/1.2 var(--ps-titulo); text-decoration: none; text-align: left; cursor: pointer;
+}
+.pc-enlace:hover { background: var(--ps-piedra); }
+.pc-enlace.activo { background: var(--ps-naranja-suave); border-color: var(--ps-tinta); }
+.pc-sub { min-height: 38px; font: 500 0.9rem/1.2 var(--ps-texto); padding-left: 14px; }
+.pc-cifra {
+  margin-left: auto; min-width: 22px; padding: 2px 6px; border-radius: 999px; text-align: center;
+  border: 1.5px solid var(--ps-tinta); background: var(--ps-naranja); font: 700 0.72rem/1.1 var(--ps-titulo);
+}
+.pc-salir { color: var(--ps-error-texto); border-top: 1.5px dashed var(--ps-linea); border-radius: 0; padding-top: 4px; }
+
+@media (max-width: 900px) {
+  .con-panel { grid-template-columns: 1fr; gap: 0; padding-left: 0; }
+  .panel-cliente {
+    position: static; margin: 12px var(--ps-gutter) 0; max-height: none; overflow: visible;
+    padding: 6px; box-shadow: var(--ps-sombra-sm);
+  }
+  .pc-saludo, .pc-categorias, .pc-salir { display: none; }
+  .pc-nav { display: flex; overflow-x: auto; gap: 4px; }
+  .pc-nav .pc-enlace { flex: 0 0 auto; width: auto; }
+}

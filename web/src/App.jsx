@@ -5,6 +5,8 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import BarraSuperior from "./componentes/BarraSuperior.jsx";
 import { Avisos, Cargando, RutaProtegida, Vacio } from "./componentes/comunes.jsx";
 import ModoSustentacion from "./componentes/ModoSustentacion.jsx";
+import PanelCliente from "./componentes/PanelCliente.jsx";
+import { useSesion } from "./estado/sesion.jsx";
 
 const p = (cargar) => lazy(cargar);
 // La Plaza
@@ -38,11 +40,15 @@ const cliente = (el) => <RutaProtegida roles={["cliente"]}>{el}</RutaProtegida>;
 
 export default function App() {
   const { pathname } = useLocation();
+  const { rol } = useSesion();
   const sinBarra = pathname === "/entrar" || pathname === "/registro";
+  const conPanel = rol === "cliente" && !sinBarra;
   return (
     <>
       <a href="#contenido" className="solo-lectores">Saltar al contenido</a>
       {!sinBarra && <BarraSuperior />}
+      <div className={conPanel ? "con-panel" : undefined}>
+      {conPanel && <PanelCliente />}
       <main id="contenido">
         <Suspense fallback={<div className="contenedor pagina"><Cargando alto={220} /></div>}>
           <Routes>
@@ -78,6 +84,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </main>
+      </div>
       <Avisos />
       <ModoSustentacion />
     </>

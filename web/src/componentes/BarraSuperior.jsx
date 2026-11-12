@@ -1,4 +1,4 @@
-// Barra superior (sin barra lateral): logo, buscador central, ciudad, carrito,
+// Barra superior (el cliente además tiene PanelCliente a la izquierda): logo, buscador central, ciudad, carrito,
 // campana con notificaciones en vivo (SSE) y menú de cuenta.
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
