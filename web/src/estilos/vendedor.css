@@ -1,0 +1,116 @@
+/* Zona Mi Puesto (vendedor). Prefijo de clases: vend- */
+
+.vend-toldo { height: 14px; }
+.vend-toldo::after { height: 8px; background-size: 44px 8px; }
+.vend-zona .zona-cabecera { margin-top: -8px; }
+.vend-h { font-size: 1.05rem; margin-bottom: 12px; }
+
+/* ---------- Resumen (bento) ---------- */
+.vend-atender {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+  padding: clamp(20px, 3vw, 32px); min-height: 280px; text-decoration: none;
+  background: var(--ps-naranja-suave); border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra);
+}
+.vend-atender:hover { background: #F9D6C8; }
+.vend-atender-etiqueta { display: inline-flex; align-items: center; gap: 8px; font: 600 1rem/1 var(--ps-titulo); }
+.vend-atender-numero { font-size: clamp(5rem, 11vw, 8.5rem); line-height: 0.85; }
+.vend-atender-pie { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 12px; border-top: 1.5px dashed var(--ps-tinta); }
+.vend-atender-pie .boton { margin-left: auto; }
+.vend-ventas dl { margin: 0; display: grid; gap: 14px; }
+.vend-ventas dt { color: var(--ps-tinta-2); font-size: 0.88rem; }
+.vend-ventas dd { margin: 0; font-size: 1.55rem; }
+.vend-alerta { border-color: var(--ps-aviso); box-shadow: 4px 4px 0 var(--ps-aviso); }
+.vend-lista { list-style: none; margin: 0; padding: 0; }
+.vend-lista li { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid var(--ps-linea); }
+.vend-lista li:last-child { border-bottom: 0; }
+.vend-ultimos .vend-lista li { display: grid; grid-template-columns: 7.5rem 1fr auto auto; }
+.vend-lista-avisos li { display: grid; gap: 2px; }
+@media (max-width: 600px) { .vend-ultimos .vend-lista li { grid-template-columns: 1fr auto; } }
+
+/* ---------- Solicitud ---------- */
+.vend-solicitud { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .vend-solicitud { grid-template-columns: 1fr; } }
+.vend-titulo-solicitud { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 10px 0 6px; }
+.vend-revision > * + * { margin-top: 14px; }
+.vend-pasos { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
+.vend-dos-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 560px) { .vend-dos-columnas { grid-template-columns: 1fr; } }
+.vend-colores, .vend-atributos { border: 1.5px dashed var(--ps-linea); border-radius: var(--ps-radio); padding: 12px 14px 16px; margin: 0; }
+.vend-colores legend, .vend-atributos legend { font-weight: 600; font-size: 0.9rem; padding: 0 6px; }
+.vend-muestra { position: relative; width: 40px; height: 40px; border: var(--ps-borde); border-radius: 50%; display: grid; place-items: center; color: #fff; cursor: pointer; }
+.vend-muestra input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.vend-muestra:has(input:focus-visible) { outline: 3px solid var(--ps-naranja); outline-offset: 2px; }
+.vend-vista-puesto { position: sticky; top: 96px; background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra); overflow: hidden; }
+.vend-vista-cuerpo { padding: 28px 20px 22px; display: grid; gap: 6px; }
+.vend-sello-tienda { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; border: var(--ps-borde); color: #fff; font: 700 1.1rem/1 var(--ps-titulo); margin-bottom: 6px; }
+
+/* ---------- Productos ---------- */
+.vend-productos { list-style: none; margin: 0; padding: 0; background: var(--ps-superficie); border: var(--ps-borde); border-radius: var(--ps-radio); }
+.vend-productos li {
+  display: grid; grid-template-columns: 72px minmax(0, 1fr) auto auto auto; align-items: center; gap: 16px;
+  padding: 12px 16px; border-bottom: 1px solid var(--ps-linea);
+}
+.vend-productos li:last-child { border-bottom: 0; }
+.vend-productos img { width: 72px; height: 72px; object-fit: cover; border: 1.5px solid var(--ps-tinta); border-radius: var(--ps-radio-sm); }
+.vend-producto-info { display: grid; gap: 2px; min-width: 0; }
+.vend-producto-info a { text-decoration: none; }
+.vend-producto-info a:hover { text-decoration: underline; }
+.vend-producto-estado { display: flex; gap: 6px; flex-wrap: wrap; }
+.vend-producto-acciones { flex-wrap: nowrap; gap: 6px; }
+.vend-oculto img { filter: grayscale(1); opacity: 0.6; }
+@media (max-width: 860px) {
+  .vend-productos li { grid-template-columns: 64px minmax(0, 1fr); }
+  .vend-productos img { width: 64px; height: 64px; grid-row: span 2; }
+  .vend-producto-acciones { grid-column: 1 / -1; justify-content: flex-end; }
+}
+.vend-interruptor { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; }
+.vend-interruptor input { width: 20px; height: 20px; accent-color: var(--ps-naranja-texto); }
+.vend-boton-peligro { background: var(--ps-error-suave); color: var(--ps-error-texto); border-color: var(--ps-error); box-shadow: none; }
+
+/* ---------- Diálogo ---------- */
+.vend-dialogo {
+  width: min(var(--ancho), calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 0;
+  border: var(--ps-borde); border-radius: var(--ps-radio); box-shadow: var(--ps-sombra); background: var(--ps-superficie); color: var(--ps-tinta);
+}
+.vend-dialogo::backdrop { background: rgba(21, 24, 28, 0.45); }
+.vend-dialogo-cabeza { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; background: var(--ps-piedra); border-bottom: var(--ps-borde); }
+.vend-dialogo-cabeza h2 { font-size: 1.2rem; }
+.vend-dialogo-cuerpo { padding: 18px; }
+.vend-dialogo-acciones { padding-top: 8px; border-top: 1px solid var(--ps-linea); }
+.vend-dialogo-lateral { margin: 0 0 0 auto; height: 100dvh; max-height: 100dvh; border-radius: 0; border-width: 0 0 0 1.5px; }
+@media (prefers-reduced-motion: no-preference) {
+  .vend-dialogo[open] { animation: vend-aparece 0.18s ease-out; }
+  .vend-dialogo-lateral[open] { animation: vend-desliza 0.22s ease-out; }
+}
+@keyframes vend-aparece { from { opacity: 0; transform: translateY(8px); } }
+@keyframes vend-desliza { from { transform: translateX(40px); opacity: 0; } }
+
+/* ---------- Inventario ---------- */
+.vend-tabla-stock td.cifra { font-size: 1.05rem; }
+.vend-fila-baja td:first-child { box-shadow: inset 5px 0 0 var(--ps-aviso); }
+.vend-fila-baja { background: #FFFBF0; }
+.vend-fila-ajuste td { background: var(--ps-piedra); }
+.vend-ajuste { display: grid; grid-template-columns: minmax(140px, 1.2fr) 8rem 7rem minmax(160px, 1.5fr) auto; gap: 12px; align-items: end; }
+@media (max-width: 860px) { .vend-ajuste { grid-template-columns: 1fr 1fr; } .vend-ajuste > strong, .vend-ajuste-nota { grid-column: 1 / -1; } }
+.vend-kardex { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.vend-kardex li { display: grid; gap: 6px; padding: 12px 0 12px 16px; border-left: 2px solid var(--ps-tinta); position: relative; }
+.vend-kardex li::before { content: ""; position: absolute; left: -6px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: var(--ps-piedra); border: 1.5px solid var(--ps-tinta); }
+
+/* ---------- Pedidos ---------- */
+.vend-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.vend-chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;
+  border: 1.5px solid var(--ps-tinta); border-radius: 999px; background: var(--ps-superficie); cursor: pointer; font-weight: 600;
+}
+.vend-chip .cifra { min-width: 22px; padding: 1px 6px; border-radius: 999px; background: var(--ps-piedra-2); font-size: 0.8rem; text-align: center; }
+.vend-chip.activo { background: var(--ps-tinta); color: #fff; }
+.vend-chip.activo .cifra { background: var(--ps-naranja); color: var(--ps-tinta); }
+.vend-pedidos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+.vend-pedido { display: grid; gap: 14px; align-content: start; }
+.vend-codigo { font-weight: 500; }
+.vend-pedido-cuerpo { display: grid; gap: 12px; }
+.vend-icono-linea { display: inline-block; vertical-align: -3px; margin-right: 4px; }
+.vend-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.vend-items li { display: flex; align-items: center; gap: 10px; }
+.vend-items img { width: 40px; height: 40px; object-fit: cover; border: 1.5px solid var(--ps-tinta); border-radius: var(--ps-radio-sm); }
+.vend-pedido-pie { padding-top: 12px; border-top: 1px solid var(--ps-linea); }
